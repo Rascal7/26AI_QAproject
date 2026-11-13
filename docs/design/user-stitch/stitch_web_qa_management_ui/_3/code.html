@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+
+<html lang="ko"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"error":"#ba1a1a","error-container":"#ffdad6","outline":"#76777d","secondary":"#0051d5","surface-container-lowest":"#ffffff","tertiary-container":"#002113","on-surface":"#0b1c30","inverse-on-surface":"#eaf1ff","surface-variant":"#d3e4fe","surface-bright":"#f8f9ff","surface-container-low":"#eff4ff","primary-container":"#131b2e","on-background":"#0b1c30","secondary-container":"#316bf3","surface-tint":"#565e74","tertiary":"#000000","primary":"#000000","inverse-primary":"#bec6e0","surface":"#f8f9ff","on-primary-container":"#7c839b","on-tertiary-container":"#009668","primary-fixed-dim":"#bec6e0","on-secondary-fixed":"#00174b","on-tertiary":"#ffffff","on-tertiary-fixed":"#002113","on-secondary-container":"#fefcff","tertiary-fixed-dim":"#4edea3","on-primary-fixed-variant":"#3f465c","surface-dim":"#cbdbf5","tertiary-fixed":"#6ffbbe","inverse-surface":"#213145","on-error-container":"#93000a","surface-container":"#e5eeff","primary-fixed":"#dae2fd","on-primary-fixed":"#131b2e","on-surface-variant":"#45464d","background":"#f8f9ff","on-tertiary-fixed-variant":"#005236","on-error":"#ffffff","surface-container-high":"#dce9ff","on-primary":"#ffffff","secondary-fixed":"#dbe1ff","secondary-fixed-dim":"#b4c5ff","on-secondary-fixed-variant":"#003ea8","outline-variant":"#c6c6cd","surface-container-highest":"#d3e4fe","on-secondary":"#ffffff"},borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},spacing:{"space-sm":"0.5rem","space-lg":"1.25rem","space-xl":"2rem","space-xs":"0.25rem","margin":"1.5rem","space-md":"0.75rem","gutter":"1rem"},fontFamily:{"headline-md":["Geist"],"headline-lg":["Geist"],"metric-mono":["JetBrains Mono"],"body-lg":["Geist"],"headline-sm":["Geist"],"label-sm":["Geist"],"label-md":["Geist"],"headline-xl":["Geist"],"code-sm":["JetBrains Mono"],"body-sm":["Geist"],"code-md":["JetBrains Mono"],"body-md":["Geist"]},fontSize:{"headline-md":["18px",{lineHeight:"26px",fontWeight:"600"}],"headline-lg":["24px",{lineHeight:"32px",fontWeight:"600"}],"metric-mono":["13px",{lineHeight:"16px",fontWeight:"500"}],"body-lg":["15px",{lineHeight:"24px",fontWeight:"400"}],"headline-sm":["15px",{lineHeight:"22px",fontWeight:"600"}],"label-sm":["11px",{lineHeight:"14px",fontWeight:"600"}],"label-md":["12px",{lineHeight:"16px",fontWeight:"500"}],"headline-xl":["30px",{lineHeight:"38px",fontWeight:"600"}],"code-sm":["11px",{lineHeight:"16px",fontWeight:"400"}],"body-sm":["12px",{lineHeight:"18px",fontWeight:"400"}],"code-md":["12px",{lineHeight:"18px",fontWeight:"400"}],"body-md":["13px",{lineHeight:"20px",fontWeight:"400"}]}}}};</script></head><body class="bg-background font-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 w-full h-14 bg-surface-container-lowest border-b border-surface-container-high z-50"><div class="w-full h-14 px-margin flex items-center justify-between gap-space-lg"><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-sm"><img alt="TestPilot Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDP2t1LACANrcHgjum2wC6AbE5N1qcEvhEqFQsNDkL9FFhDLmaVg5OWarptnv8mDIxASqTK3FqRgwjxtMDx8nTLgiUVaIvTP17avsDzwh64V1LKSajnSaB-rnUXniFpBFwJ4aWbrh1t-qY7tDoGU9JjJCK3dKuS8jjiw9uMARJyc_5L_8M2x2xxa2vbJttAtAteNUmMZRwDY-RJ8tex-ib8uzsF4BijeUjDDoR4IXwh"/><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight">TestPilot</span></div><nav class="flex items-center gap-space-xs" data-active-classes="bg-surface-container text-on-surface font-headline-sm"><a class="px-space-md py-space-xs rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="dashboard" href="#">대시보드</a><a class="px-space-md py-space-xs rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="project-list" href="#">프로젝트 목록</a><a class="px-space-md py-space-xs rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="run-history" href="#">실행 기록</a></nav><button class="inline-flex items-center gap-space-xs px-space-md py-space-xs bg-primary text-on-primary rounded-lg font-label-md text-label-md hover:bg-primary-container hover:text-on-primary-container transition-colors" type="button"><span class="material-symbols-outlined text-[16px]">add</span>새 프로젝트</button></div><div class="flex items-center gap-space-md"><div class="relative flex items-center"><span class="material-symbols-outlined absolute left-space-sm text-outline text-[18px] pointer-events-none">search</span><input class="w-60 h-8 pl-8 pr-space-sm bg-surface-container-low border border-outline-variant rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:border-secondary transition-colors" placeholder="테스트 스위트, 실행 검색..." type="search"/></div><a class="p-space-xs text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low rounded-lg transition-colors" data-path="documentation" href="#" title="도움말 / 문서"><span class="material-symbols-outlined text-[20px]">description</span></a><button class="relative p-space-xs text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low rounded-lg transition-colors" title="알림" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-error"></span></button><div class="flex items-center gap-space-sm pl-space-xs border-l border-surface-container-high"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUiVeoo4Je9axe6eyhNmFFlZstcuUnAtSgv5_zVfnO71JKHjAx9Wmj1zyWYvK-ZfnxgT0FifJPhgABMzWLrXJPY55_f0n18KlpOXvOJxUOG71U9XAHiiN342UuUpziTi6KbEerQdG9hPbI6Iz8Ak50BG5mdyddiKhWkbFYBYfPs4MrnpfDC4XWhc4y26JnxEa2B5WSVt_o5Nbx9Y80FzHchvFOW00JpuiFG3636IgX"/></div></div></div></header><aside class="fixed left-0 top-14 h-[calc(100vh-3.5rem)] w-64 bg-surface-container-lowest border-r border-surface-container-high z-40 flex flex-col justify-between p-space-md"><div class="flex flex-col gap-space-md"><div class="flex items-center justify-between px-space-sm py-space-xs text-outline font-label-sm text-label-sm uppercase tracking-wider"><span>테스트 워크스페이스</span><span class="material-symbols-outlined text-[16px]">folder_open</span></div><nav class="flex flex-col gap-space-xs" data-active-classes="bg-surface-container text-on-surface font-headline-sm"><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[18px]">space_dashboard</span>전체 현황</a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="project-list" href="#"><span class="material-symbols-outlined text-[18px]">inventory_2</span>프로젝트 보관함</a><a aria-current="page" class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-lg transition-colors bg-surface-container text-on-surface font-headline-sm" data-path="suite-explorer" href="#"><span class="material-symbols-outlined text-[18px]">account_tree</span>스위트 트리 탐색기</a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="run-history" href="#"><span class="material-symbols-outlined text-[18px]">history</span>실행 파이프라인 기록</a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="test-scheduler" href="#"><span class="material-symbols-outlined text-[18px]">schedule</span>스케줄러 & 트리거</a></nav></div><div class="flex flex-col gap-space-xs pt-space-sm border-t border-surface-container-high"><nav class="flex flex-col gap-space-xs" data-active-classes="bg-surface-container text-on-surface font-headline-sm"><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="project-settings" href="#"><span class="material-symbols-outlined text-[18px]">tune</span>워크스페이스 설정</a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="documentation" href="#"><span class="material-symbols-outlined text-[18px]">help</span>문서 & API 가이드</a></nav></div></aside><div class="pl-64"><main class="w-full min-h-[calc(100vh-3.5rem)] pt-14 px-margin pb-space-xl bg-background"><div class="flex flex-col w-full">
+<!-- Top Context Header Area -->
+<div class="bg-surface-container-lowest shadow-sm rounded-xl p-space-lg mb-space-lg">
+<!-- Breadcrumb & Status Indicator -->
+<div class="flex items-center justify-between gap-space-md mb-space-xs">
+<div class="flex items-center gap-space-xs font-label-md text-label-md text-on-surface-variant">
+<a class="hover:text-on-surface transition-colors flex items-center gap-1" data-path="project-list" href="#">
+<span class="material-symbols-outlined text-[14px]">folder</span>
+          프로젝트 목록
+        </a>
+<span class="material-symbols-outlined text-[14px] text-outline">chevron_right</span>
+<span class="text-on-surface font-headline-sm">결제 결제수단 선택 페이지</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="inline-flex items-center gap-1 px-space-sm py-0.5 rounded-full bg-surface-container font-code-sm text-code-sm text-on-surface-variant">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary-fixed-dim"></span>
+          ACTIVE QA
+        </span>
+<span class="text-outline text-label-sm font-label-sm">최근 동기화: 방금 전</span>
+</div>
+</div>
+<!-- Main Title & Meta Row -->
+<div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-space-md">
+<div class="flex flex-col gap-space-xs min-w-0">
+<div class="flex flex-wrap items-center gap-space-md">
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">결제 결제수단 선택 페이지 QA</h1>
+<div class="flex items-center gap-1.5">
+<span class="px-space-xs py-0.5 rounded-lg bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">#결제</span>
+<span class="px-space-xs py-0.5 rounded-lg bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">#PG연동</span>
+<span class="px-space-xs py-0.5 rounded-lg bg-error-container text-on-error-container font-label-sm text-label-sm font-semibold">#중요</span>
+</div>
+</div>
+<div class="flex items-center gap-space-md font-body-sm text-body-sm text-on-surface-variant">
+<a class="inline-flex items-center gap-1 text-secondary hover:underline group" href="https://checkout.service.io/pay/method" rel="noopener noreferrer" target="_blank">
+<span class="material-symbols-outlined text-[15px] group-hover:translate-x-0.5 transition-transform">open_in_new</span>
+<span class="font-metric-mono text-metric-mono">https://checkout.service.io/pay/method</span>
+</a>
+<span class="text-outline">•</span>
+<span>담당 QA: <strong>결제인증QA셀 1팀</strong></span>
+<span class="text-outline">•</span>
+<span>환경: <code class="font-code-sm text-code-sm bg-surface-container px-1 py-0.5 rounded">Staging v2.4.1</code></span>
+</div>
+</div>
+<!-- Quick Actions -->
+<div class="flex flex-wrap items-center gap-space-xs shrink-0">
+<button class="inline-flex items-center gap-space-xs px-space-md py-space-xs bg-surface-container hover:bg-surface-container-high text-on-surface rounded-lg font-label-md text-label-md transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-[16px]">add</span>
+          테스트 추가
+        </button>
+<button class="inline-flex items-center gap-space-xs px-space-md py-space-xs bg-secondary-container hover:bg-secondary text-on-secondary-container rounded-lg font-label-md text-label-md transition-all shadow-sm" type="button">
+<span class="material-symbols-outlined text-[18px]">play_arrow</span>
+          전체 테스트 실행
+        </button>
+<button class="inline-flex items-center gap-space-xs px-space-md py-space-xs bg-surface-container-lowest hover:bg-surface-container-low text-on-surface rounded-lg font-label-md text-label-md transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">assessment</span>
+          최신 실행 리포트 보기
+        </button>
+</div>
+</div>
+<!-- Navigation Tabs Strip -->
+<div class="mt-space-lg pt-space-xs flex items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<button class="flex items-center gap-1.5 py-space-xs font-headline-sm text-headline-sm text-on-surface relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-primary" type="button">
+<span class="material-symbols-outlined text-[18px]">rule</span>
+          요구사항 & 테스트 관리
+          <span class="ml-1 px-1.5 py-0.2 bg-primary text-on-primary rounded-full text-label-sm font-label-sm">11</span>
+</button>
+<button class="flex items-center gap-1.5 py-space-xs font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">smart_toy</span>
+          테스트 실행
+        </button>
+<button class="flex items-center gap-1.5 py-space-xs font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">history</span>
+          실행 기록
+          <span class="ml-1 px-1.5 py-0.2 bg-surface-container-high text-on-surface-variant rounded-full text-label-sm font-label-sm">28건</span>
+</button>
+<button class="flex items-center gap-1.5 py-space-xs font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">settings</span>
+          프로젝트 설정
+        </button>
+</div>
+<div class="hidden sm:flex items-center gap-space-xs font-label-sm text-label-sm text-on-surface-variant">
+<span>뷰 모드:</span>
+<button class="p-1 rounded bg-surface-container text-on-surface" title="상세 모드" type="button"><span class="material-symbols-outlined text-[16px]">view_agenda</span></button>
+<button class="p-1 rounded hover:bg-surface-container text-outline" title="컴팩트 모드" type="button"><span class="material-symbols-outlined text-[16px]">table_rows</span></button>
+</div>
+</div>
+</div>
+<!-- Main Body Grid: 2-Column Desktop Layout (Left Content, Right Sticky Telemetry Panel) -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg items-start">
+<!-- Left Main Content Column (8 of 12 cols on desktop) -->
+<div class="xl:col-span-8 flex flex-col gap-space-lg min-w-0">
+<!-- Section: Global Rules & Exceptions Card -->
+<section class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm">
+<div class="flex items-center justify-between gap-space-md mb-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[22px]">policy</span>
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">페이지 기본 규칙 및 예외 처리 정책 (Global Rules)</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">모든 하위 결제 모듈 및 UI 시나리오에 공통 적용되는 기본 거버넌스</p>
+</div>
+</div>
+<button class="inline-flex items-center gap-1 px-space-sm py-1 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-colors" type="button">
+<span class="material-symbols-outlined text-[14px]">edit</span>
+            수정
+          </button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md pt-space-xs">
+<!-- Rule 1: Standard Requirement -->
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">기본 요구사항 정책</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface leading-relaxed">
+              사용자가 장바구니에서 진입 시 기본 간편결제(네이버페이/카카오페이)가 기본 선택되어야 함. 이전 결제 이력이 있는 경우 최근 성공한 수단이 우선 디폴트로 마운트됩니다.
+            </p>
+<div class="mt-auto pt-space-xs flex items-center gap-space-xs font-code-sm text-code-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">checklist</span>
+<span>체크항목: 쿠키/세션 토큰 동기화, 로컬스토리지 fallback</span>
+</div>
+</div>
+<!-- Rule 2: Exception Policy -->
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-error"></span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">예외사항 & 에러 핸들링</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface leading-relaxed">
+              네트워크 타임아웃(>5s) 발생 시 즉시 오류 다이얼로그 노출 및 결제수단 재선택 유도. 비로그인 유저는 로그인 페이지로 리다이렉트 처리되며 작성된 폼 상태는 임시 세션에 캐싱됩니다.
+            </p>
+<div class="mt-auto pt-space-xs flex items-center gap-space-xs font-code-sm text-code-sm text-error">
+<span class="material-symbols-outlined text-[14px]">warning</span>
+<span>SLA: 타임아웃 인터셉터 5000ms 강제 트리거</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Section: Test Management by Requirement Groups -->
+<section class="flex flex-col gap-space-md">
+<!-- Section Controls Header -->
+<div class="flex items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-sm">
+<h2 class="font-headline-md text-headline-md text-on-surface">개별 요구사항별 테스트 그룹</h2>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant">총 2개 그룹 활성</span>
+</div>
+<button class="inline-flex items-center gap-space-xs px-space-md py-space-xs bg-primary hover:bg-primary-container text-on-primary hover:text-on-primary-container rounded-lg font-label-md text-label-md transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-[16px]">add_box</span>
+            새 요구사항 추가
+          </button>
+</div>
+<!-- REQUIREMENT GROUP 1: Credit Card Form Validation -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden transition-all">
+<!-- Accordion Header -->
+<div class="p-space-lg bg-surface-container-lowest flex items-center justify-between cursor-pointer select-none" onclick="document.getElementById('group-1-content').classList.toggle('hidden'); document.getElementById('group-1-icon').classList.toggle('rotate-180')">
+<div class="flex items-start gap-space-md min-w-0">
+<div class="w-8 h-8 rounded-lg bg-secondary-container text-on-secondary-container flex items-center justify-center shrink-0 mt-0.5">
+<span class="font-metric-mono text-metric-mono font-bold">01</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex flex-wrap items-center gap-space-sm">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">요구사항 1: 신용카드 결제 폼 유효성 검증</h3>
+<span class="inline-flex items-center px-space-xs py-0.5 rounded bg-surface-container font-label-sm text-label-sm text-on-surface">
+                    등록 테스트 4개
+                  </span>
+<span class="inline-flex items-center gap-1 px-space-xs py-0.5 rounded bg-error-container text-on-error-container font-label-sm text-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+                    1 실패 발생
+                  </span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+                  카드번호 16자리, 유효기간, CVC 3자리 입력 시 포맷팅 및 오류 메시지 표기
+                </p>
+</div>
+</div>
+<div class="flex items-center gap-space-sm shrink-0">
+<button class="p-1 rounded hover:bg-surface-container text-on-surface-variant" onclick="event.stopPropagation()" title="그룹 테스트 바로 실행" type="button">
+<span class="material-symbols-outlined text-[18px]">play_circle</span>
+</button>
+<span class="material-symbols-outlined text-outline transition-transform duration-200" id="group-1-icon">expand_more</span>
+</div>
+</div>
+<!-- Group 1 Sub Test Cases Table -->
+<div class="px-space-lg pb-space-lg flex flex-col gap-space-md" id="group-1-content">
+<div class="overflow-x-auto rounded-lg bg-surface-container-low p-space-xs">
+<table class="w-full text-left font-body-sm text-body-sm">
+<thead>
+<tr class="text-outline font-label-sm text-label-sm">
+<th class="py-space-xs px-space-sm w-20">ID</th>
+<th class="py-space-xs px-space-sm">테스트 케이스 명칭 및 검증 시나리오</th>
+<th class="py-space-xs px-space-sm w-28">자동화 상태</th>
+<th class="py-space-xs px-space-sm w-24">실행 결과</th>
+<th class="py-space-xs px-space-sm w-24">소요시간</th>
+<th class="py-space-xs px-space-sm w-20 text-right">작업</th>
+</tr>
+</thead>
+<tbody class="divide-y-0">
+<!-- TC-01 -->
+<tr class="hover:bg-surface-container-lowest/80 transition-colors group">
+<td class="py-space-sm px-space-sm font-metric-mono text-metric-mono font-semibold text-on-surface">TC-01</td>
+<td class="py-space-sm px-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="px-1.5 py-0.5 rounded bg-surface-container font-label-sm text-label-sm text-secondary font-semibold">[정상]</span>
+<span class="text-on-surface">올바른 16자리 카드번호 입력 시 카드사 로고 자동 식별</span>
+</div>
+<div class="font-code-sm text-code-sm text-outline mt-0.5">BIN 패턴 매칭 (신한, 현대, 국민) SVG 아이콘 렌더링 확인</div>
+</td>
+<td class="py-space-sm px-space-sm">
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-on-surface">
+<span class="material-symbols-outlined text-secondary text-[14px]">auto_fix_high</span>
+                        자동화 완료
+                      </span>
+</td>
+<td class="py-space-sm px-space-sm">
+<span class="inline-flex items-center gap-1 px-space-xs py-0.5 rounded-full bg-tertiary-container text-on-tertiary-container font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-on-tertiary-container"></span>
+                        Pass
+                      </span>
+</td>
+<td class="py-space-sm px-space-sm font-metric-mono text-metric-mono text-on-surface-variant">342ms</td>
+<td class="py-space-sm px-space-sm text-right">
+<button class="p-1 rounded hover:bg-surface-container text-outline hover:text-on-surface transition-colors" title="단일 실행" type="button">
+<span class="material-symbols-outlined text-[16px]">play_arrow</span>
+</button>
+</td>
+</tr>
+<!-- TC-02 -->
+<tr class="hover:bg-surface-container-lowest/80 transition-colors group">
+<td class="py-space-sm px-space-sm font-metric-mono text-metric-mono font-semibold text-on-surface">TC-02</td>
+<td class="py-space-sm px-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="px-1.5 py-0.5 rounded bg-surface-container font-label-sm text-label-sm text-error font-semibold">[예외]</span>
+<span class="text-on-surface">유효기간 지난 카드 입력 시 인라인 에러 '유효기간을 확인하세요' 노출</span>
+</div>
+<div class="font-code-sm text-code-sm text-outline mt-0.5">MM/YY 포맷 검증 & 과거 연월 입력 시 테두리 색상 #BA1A1A 트리거</div>
+</td>
+<td class="py-space-sm px-space-sm">
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-on-surface">
+<span class="material-symbols-outlined text-secondary text-[14px]">auto_fix_high</span>
+                        자동화 완료
+                      </span>
+</td>
+<td class="py-space-sm px-space-sm">
+<span class="inline-flex items-center gap-1 px-space-xs py-0.5 rounded-full bg-tertiary-container text-on-tertiary-container font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-on-tertiary-container"></span>
+                        Pass
+                      </span>
+</td>
+<td class="py-space-sm px-space-sm font-metric-mono text-metric-mono text-on-surface-variant">210ms</td>
+<td class="py-space-sm px-space-sm text-right">
+<button class="p-1 rounded hover:bg-surface-container text-outline hover:text-on-surface transition-colors" title="단일 실행" type="button">
+<span class="material-symbols-outlined text-[16px]">play_arrow</span>
+</button>
+</td>
+</tr>
+<!-- TC-03 -->
+<tr class="hover:bg-surface-container-lowest/80 transition-colors group">
+<td class="py-space-sm px-space-sm font-metric-mono text-metric-mono font-semibold text-on-surface">TC-03</td>
+<td class="py-space-sm px-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="px-1.5 py-0.5 rounded bg-surface-container font-label-sm text-label-sm text-error font-semibold">[예외]</span>
+<span class="text-on-surface">CVC 2자리 입력 후 포커스 아웃 시 툴팁 에러</span>
+</div>
+<div class="font-code-sm text-code-sm text-outline mt-0.5">Blur 이벤트 발생 시 '3자리 보안코드를 입력하세요' 말풍선 생성</div>
+</td>
+<td class="py-space-sm px-space-sm">
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-on-surface">
+<span class="material-symbols-outlined text-secondary text-[14px]">auto_fix_high</span>
+                        자동화 완료
+                      </span>
+</td>
+<td class="py-space-sm px-space-sm">
+<span class="inline-flex items-center gap-1 px-space-xs py-0.5 rounded-full bg-tertiary-container text-on-tertiary-container font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-on-tertiary-container"></span>
+                        Pass
+                      </span>
+</td>
+<td class="py-space-sm px-space-sm font-metric-mono text-metric-mono text-on-surface-variant">185ms</td>
+<td class="py-space-sm px-space-sm text-right">
+<button class="p-1 rounded hover:bg-surface-container text-outline hover:text-on-surface transition-colors" title="단일 실행" type="button">
+<span class="material-symbols-outlined text-[16px]">play_arrow</span>
+</button>
+</td>
+</tr>
+<!-- TC-04 (FAIL) -->
+<tr class="bg-error-container/20 hover:bg-error-container/30 transition-colors group">
+<td class="py-space-sm px-space-sm font-metric-mono text-metric-mono font-semibold text-error">TC-04</td>
+<td class="py-space-sm px-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="px-1.5 py-0.5 rounded bg-surface-container font-label-sm text-label-sm text-error font-semibold">[예외]</span>
+<span class="text-on-surface font-semibold">지원하지 않는 아멕스 카드 입력 시 대체 결제수단 안내</span>
+</div>
+<div class="font-code-sm text-code-sm text-error mt-0.5">단언 실패: 기대값[모달 노출] !== 실제값[폼 정지 상태로 유지] (AssertionError: Timed out 4000ms)</div>
+</td>
+<td class="py-space-sm px-space-sm">
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-on-surface">
+<span class="material-symbols-outlined text-secondary text-[14px]">auto_fix_high</span>
+                        자동화 완료
+                      </span>
+</td>
+<td class="py-space-sm px-space-sm">
+<span class="inline-flex items-center gap-1 px-space-xs py-0.5 rounded-full bg-error text-on-error font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-surface-container-lowest"></span>
+                        Fail
+                      </span>
+</td>
+<td class="py-space-sm px-space-sm font-metric-mono text-metric-mono text-error font-semibold">4,120ms</td>
+<td class="py-space-sm px-space-sm text-right">
+<button class="p-1 rounded bg-error-container text-on-error-container hover:bg-error hover:text-on-error transition-colors" title="트레이스 재실행" type="button">
+<span class="material-symbols-outlined text-[16px]">bug_report</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Add test to this requirement -->
+<div class="flex items-center justify-start">
+<button class="inline-flex items-center gap-1 px-space-md py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-colors" type="button">
+<span class="material-symbols-outlined text-[15px]">add</span>
+                이 요구사항에 테스트 추가
+              </button>
+</div>
+</div>
+</div>
+<!-- REQUIREMENT GROUP 2: Simple Pay Popup Flow -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden transition-all">
+<!-- Accordion Header -->
+<div class="p-space-lg bg-surface-container-lowest flex items-center justify-between cursor-pointer select-none" onclick="document.getElementById('group-2-content').classList.toggle('hidden'); document.getElementById('group-2-icon').classList.toggle('rotate-180')">
+<div class="flex items-start gap-space-md min-w-0">
+<div class="w-8 h-8 rounded-lg bg-secondary-container text-on-secondary-container flex items-center justify-center shrink-0 mt-0.5">
+<span class="font-metric-mono text-metric-mono font-bold">02</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex flex-wrap items-center gap-space-sm">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">요구사항 2: 간편결제 원클릭 팝업 호출</h3>
+<span class="inline-flex items-center px-space-xs py-0.5 rounded bg-surface-container font-label-sm text-label-sm text-on-surface">
+                    등록 테스트 3개
+                  </span>
+<span class="inline-flex items-center gap-1 px-space-xs py-0.5 rounded bg-tertiary-container text-on-tertiary-container font-label-sm text-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-on-tertiary-container"></span>
+                    전체 성공 (100%)
+                  </span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+                  네이버페이 및 카카오페이 SDK 트리거, 팝업 차단 감지, 결제 이탈 복구 라이프사이클
+                </p>
+</div>
+</div>
+<div class="flex items-center gap-space-sm shrink-0">
+<button class="p-1 rounded hover:bg-surface-container text-on-surface-variant" onclick="event.stopPropagation()" title="그룹 테스트 바로 실행" type="button">
+<span class="material-symbols-outlined text-[18px]">play_circle</span>
+</button>
+<span class="material-symbols-outlined text-outline transition-transform duration-200" id="group-2-icon">expand_more</span>
+</div>
+</div>
+<!-- Group 2 Sub Test Cases Table -->
+<div class="px-space-lg pb-space-lg flex flex-col gap-space-md" id="group-2-content">
+<div class="overflow-x-auto rounded-lg bg-surface-container-low p-space-xs">
+<table class="w-full text-left font-body-sm text-body-sm">
+<thead>
+<tr class="text-outline font-label-sm text-label-sm">
+<th class="py-space-xs px-space-sm w-20">ID</th>
+<th class="py-space-xs px-space-sm">테스트 케이스 명칭 및 시나리오</th>
+<th class="py-space-xs px-space-sm w-28">자동화 상태</th>
+<th class="py-space-xs px-space-sm w-24">실행 결과</th>
+<th class="py-space-xs px-space-sm w-24">소요시간</th>
+<th class="py-space-xs px-space-sm w-20 text-right">작업</th>
+</tr>
+</thead>
+<tbody class="divide-y-0">
+<!-- TC-05 -->
+<tr class="hover:bg-surface-container-lowest/80 transition-colors group">
+<td class="py-space-sm px-space-sm font-metric-mono text-metric-mono font-semibold text-on-surface">TC-05</td>
+<td class="py-space-sm px-space-sm">
+<div class="text-on-surface font-semibold">네이버페이 선택 후 결제하기 클릭 시 결제창 팝업 정상 로딩</div>
+<div class="font-code-sm text-code-sm text-outline mt-0.5">window.open 타겟 확인 및 naverpay.checkout URL 파라미터 유효성 검사</div>
+</td>
+<td class="py-space-sm px-space-sm">
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-on-surface">
+<span class="material-symbols-outlined text-secondary text-[14px]">auto_fix_high</span>
+                        자동화 완료
+                      </span>
+</td>
+<td class="py-space-sm px-space-sm">
+<span class="inline-flex items-center gap-1 px-space-xs py-0.5 rounded-full bg-tertiary-container text-on-tertiary-container font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-on-tertiary-container"></span>
+                        Pass
+                      </span>
+</td>
+<td class="py-space-sm px-space-sm font-metric-mono text-metric-mono text-on-surface-variant">512ms</td>
+<td class="py-space-sm px-space-sm text-right">
+<button class="p-1 rounded hover:bg-surface-container text-outline hover:text-on-surface transition-colors" title="단일 실행" type="button">
+<span class="material-symbols-outlined text-[16px]">play_arrow</span>
+</button>
+</td>
+</tr>
+<!-- TC-06 -->
+<tr class="hover:bg-surface-container-lowest/80 transition-colors group">
+<td class="py-space-sm px-space-sm font-metric-mono text-metric-mono font-semibold text-on-surface">TC-06</td>
+<td class="py-space-sm px-space-sm">
+<div class="text-on-surface">팝업 차단 브라우저 환경에서 경고 토스트 노출 및 모달 대체 유도</div>
+<div class="font-code-sm text-code-sm text-outline mt-0.5">Mock 환경에서 window.open null 반환 시 즉시 인앱 WebView 인라인 모달 폴백</div>
+</td>
+<td class="py-space-sm px-space-sm">
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-on-surface">
+<span class="material-symbols-outlined text-secondary text-[14px]">auto_fix_high</span>
+                        자동화 완료
+                      </span>
+</td>
+<td class="py-space-sm px-space-sm">
+<span class="inline-flex items-center gap-1 px-space-xs py-0.5 rounded-full bg-tertiary-container text-on-tertiary-container font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-on-tertiary-container"></span>
+                        Pass
+                      </span>
+</td>
+<td class="py-space-sm px-space-sm font-metric-mono text-metric-mono text-on-surface-variant">294ms</td>
+<td class="py-space-sm px-space-sm text-right">
+<button class="p-1 rounded hover:bg-surface-container text-outline hover:text-on-surface transition-colors" title="단일 실행" type="button">
+<span class="material-symbols-outlined text-[16px]">play_arrow</span>
+</button>
+</td>
+</tr>
+<!-- TC-07 -->
+<tr class="hover:bg-surface-container-lowest/80 transition-colors group">
+<td class="py-space-sm px-space-sm font-metric-mono text-metric-mono font-semibold text-on-surface">TC-07</td>
+<td class="py-space-sm px-space-sm">
+<div class="text-on-surface">카카오페이 결제 중단 시 원래 결제수단 선택 화면 유지</div>
+<div class="font-code-sm text-code-sm text-outline mt-0.5">사용자 팝업 닫기 이벤트(window.onunload) 수신 후 선택 상태/주문금액 복원 유지</div>
+</td>
+<td class="py-space-sm px-space-sm">
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-on-surface">
+<span class="material-symbols-outlined text-secondary text-[14px]">auto_fix_high</span>
+                        자동화 완료
+                      </span>
+</td>
+<td class="py-space-sm px-space-sm">
+<span class="inline-flex items-center gap-1 px-space-xs py-0.5 rounded-full bg-tertiary-container text-on-tertiary-container font-label-sm text-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-on-tertiary-container"></span>
+                        Pass
+                      </span>
+</td>
+<td class="py-space-sm px-space-sm font-metric-mono text-metric-mono text-on-surface-variant">388ms</td>
+<td class="py-space-sm px-space-sm text-right">
+<button class="p-1 rounded hover:bg-surface-container text-outline hover:text-on-surface transition-colors" title="단일 실행" type="button">
+<span class="material-symbols-outlined text-[16px]">play_arrow</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Add test to this requirement -->
+<div class="flex items-center justify-start">
+<button class="inline-flex items-center gap-1 px-space-md py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-colors" type="button">
+<span class="material-symbols-outlined text-[15px]">add</span>
+                이 요구사항에 테스트 추가
+              </button>
+</div>
+</div>
+</div>
+<!-- REQUIREMENT GROUP 3: Collapsed preview for additional requirement -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden transition-all">
+<div class="p-space-lg bg-surface-container-lowest flex items-center justify-between cursor-pointer select-none" onclick="document.getElementById('group-3-content').classList.toggle('hidden'); document.getElementById('group-3-icon').classList.toggle('rotate-180')">
+<div class="flex items-start gap-space-md min-w-0">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high text-on-surface flex items-center justify-center shrink-0 mt-0.5">
+<span class="font-metric-mono text-metric-mono font-bold">03</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex flex-wrap items-center gap-space-sm">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">요구사항 3: 계좌이체 및 가상계좌 실시간 발급</h3>
+<span class="inline-flex items-center px-space-xs py-0.5 rounded bg-surface-container font-label-sm text-label-sm text-on-surface">
+                    등록 테스트 4개
+                  </span>
+<span class="inline-flex items-center gap-1 px-space-xs py-0.5 rounded bg-tertiary-container text-on-tertiary-container font-label-sm text-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-on-tertiary-container"></span>
+                    전체 성공 (100%)
+                  </span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+                  입금 기한 만료 안내 타이머 노출 및 은행별 가상계좌번호 유효 마스킹 검증
+                </p>
+</div>
+</div>
+<div class="flex items-center gap-space-sm shrink-0">
+<button class="p-1 rounded hover:bg-surface-container text-on-surface-variant" onclick="event.stopPropagation()" title="그룹 테스트 바로 실행" type="button">
+<span class="material-symbols-outlined text-[18px]">play_circle</span>
+</button>
+<span class="material-symbols-outlined text-outline transition-transform duration-200" id="group-3-icon">expand_more</span>
+</div>
+</div>
+<div class="hidden px-space-lg pb-space-lg flex flex-col gap-space-md" id="group-3-content">
+<div class="p-space-md bg-surface-container-low rounded-lg font-body-sm text-body-sm text-on-surface-variant">
+              TC-08 ~ TC-11 은행망 API 모의 응답 및 계좌번호 복사 클립보드 인터랙션 테스트가 포함되어 있습니다.
+            </div>
+<div class="flex items-center justify-start">
+<button class="inline-flex items-center gap-1 px-space-md py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-colors" type="button">
+<span class="material-symbols-outlined text-[15px]">add</span>
+                이 요구사항에 테스트 추가
+              </button>
+</div>
+</div>
+</div>
+</section>
+<!-- Visual Context: Mock Execution Runner Terminal Preview -->
+<section class="bg-primary text-on-primary rounded-xl p-space-lg shadow-md font-code-sm text-code-sm flex flex-col gap-space-sm">
+<div class="flex items-center justify-between text-on-primary-container font-label-sm text-label-sm">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-error"></span>
+<span class="w-2.5 h-2.5 rounded-full bg-outline"></span>
+<span class="w-2.5 h-2.5 rounded-full bg-tertiary-fixed"></span>
+<span class="ml-2 font-mono text-white">runner@testpilot-worker-04:~ # execution-summary</span>
+</div>
+<span class="font-metric-mono text-metric-mono text-outline-variant">Playwright Engine v1.42.1</span>
+</div>
+<div class="bg-primary-container p-space-md rounded-lg font-code-sm overflow-x-auto text-on-secondary-container">
+<div class="text-tertiary-fixed">✓ [TC-01] Valid 16-digit card input detects issuer logo (342ms)</div>
+<div class="text-tertiary-fixed">✓ [TC-02] Expired MM/YY triggers inline validation label (210ms)</div>
+<div class="text-tertiary-fixed">✓ [TC-03] Incomplete CVC blur produces helper tooltip (185ms)</div>
+<div class="text-error font-semibold">✗ [TC-04] Unsupported Amex card invokes alternative fallback prompt (4,120ms)</div>
+<div class="text-outline pl-4">↳ Error: expect(modal).toBeVisible() failed - element not found in DOM within 4000ms</div>
+<div class="text-tertiary-fixed">✓ [TC-05] NaverPay popup handler resolves with valid token (512ms)</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Sticky Summary & Metric Telemetry Panel (4 of 12 cols on desktop) -->
+<div class="xl:col-span-4 sticky top-16 flex flex-col gap-space-lg">
+<!-- Metrics Card -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col gap-space-lg">
+<div class="flex items-center justify-between">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">QA 테스트 요약 및 지표</h2>
+<span class="material-symbols-outlined text-outline text-[18px]">query_stats</span>
+</div>
+<!-- 4-Grid Metric Indicators -->
+<div class="grid grid-cols-2 gap-space-md">
+<!-- Total Requirements -->
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col justify-between">
+<span class="font-label-sm text-label-sm text-outline">총 요구사항</span>
+<div class="flex items-baseline gap-1 mt-1">
+<span class="font-headline-lg text-headline-lg text-on-surface font-semibold">3</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">건</span>
+</div>
+<div class="font-code-sm text-code-sm text-outline mt-1">100% 매핑 완료</div>
+</div>
+<!-- Total Tests -->
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col justify-between">
+<span class="font-label-sm text-label-sm text-outline">총 테스트 케이스</span>
+<div class="flex items-baseline gap-1 mt-1">
+<span class="font-headline-lg text-headline-lg text-on-surface font-semibold">11</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">개</span>
+</div>
+<div class="font-code-sm text-code-sm text-tertiary-fixed-dim font-semibold mt-1">Pass 10 / Fail 1</div>
+</div>
+<!-- Automation Rate -->
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col justify-between">
+<span class="font-label-sm text-label-sm text-outline">자동화율</span>
+<div class="flex items-baseline gap-1 mt-1">
+<span class="font-headline-lg text-headline-lg text-secondary font-semibold">100%</span>
+</div>
+<div class="font-code-sm text-code-sm text-outline mt-1">11/11 스크립트 연결</div>
+</div>
+<!-- Success Rate -->
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col justify-between">
+<span class="font-label-sm text-label-sm text-outline">최근 성공률</span>
+<div class="flex items-baseline gap-1 mt-1">
+<span class="font-headline-lg text-headline-lg text-tertiary-fixed-dim font-semibold">91%</span>
+</div>
+<div class="font-code-sm text-code-sm text-error mt-1">-9% (TC-04 오류)</div>
+</div>
+</div>
+<!-- Inline SVG Pass/Fail Donut & Progress Bar -->
+<div class="flex flex-col gap-space-xs pt-space-xs">
+<div class="flex items-center justify-between font-label-md text-label-md">
+<span class="text-on-surface">실행 성공률 분포</span>
+<span class="font-metric-mono text-metric-mono font-semibold text-on-surface">10 / 11 Pass (90.9%)</span>
+</div>
+<!-- Progress Bar -->
+<div class="w-full h-2.5 rounded-full bg-surface-container overflow-hidden flex">
+<div class="h-full bg-tertiary-fixed-dim transition-all" style="width: 91%"></div>
+<div class="h-full bg-error transition-all" style="width: 9%"></div>
+</div>
+<div class="flex items-center justify-between font-code-sm text-code-sm text-outline pt-1">
+<span class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim"></span> 통과 10건 (91%)
+            </span>
+<span class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-error"></span> 실패 1건 (9%)
+            </span>
+</div>
+</div>
+<!-- Latest Run Information Card -->
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5 font-label-md text-label-md text-on-surface font-semibold">
+<span class="material-symbols-outlined text-[16px] text-secondary">update</span>
+              최근 실행 파이프라인
+            </div>
+<span class="font-metric-mono text-metric-mono text-outline">12분 전</span>
+</div>
+<div class="flex items-center justify-between py-1">
+<div class="flex items-center gap-2">
+<span class="font-metric-mono text-metric-mono font-bold text-on-surface">#RUN-1048</span>
+<span class="px-1.5 py-0.2 bg-secondary-fixed text-on-secondary-fixed rounded text-label-sm font-label-sm">GitHub Actions #421</span>
+</div>
+</div>
+<div class="flex items-center gap-space-md font-body-sm text-body-sm">
+<div class="flex items-center gap-1 text-tertiary-fixed-dim font-semibold">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+              10 성공
+            </div>
+<div class="flex items-center gap-1 text-error font-semibold">
+<span class="material-symbols-outlined text-[16px]">cancel</span>
+              1 실패
+            </div>
+<div class="flex items-center gap-1 text-on-surface-variant font-metric-mono text-metric-mono ml-auto">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+              5.45s
+            </div>
+</div>
+<a class="mt-space-xs text-center py-space-xs rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-colors" href="#">
+            파이프라인 로그 및 스크린샷 검사
+          </a>
+</div>
+<!-- Target Environment & Device Scope -->
+<div class="flex flex-col gap-space-xs">
+<span class="font-label-sm text-label-sm text-outline">실행 타겟 디바이스 & 브라우저</span>
+<div class="flex flex-wrap gap-1.5">
+<span class="inline-flex items-center gap-1 px-space-xs py-0.5 rounded bg-surface-container-low font-code-sm text-code-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[13px]">desktop_windows</span> Chrome v122
+            </span>
+<span class="inline-flex items-center gap-1 px-space-xs py-0.5 rounded bg-surface-container-low font-code-sm text-code-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[13px]">phone_iphone</span> Safari Mobile 17
+            </span>
+<span class="inline-flex items-center gap-1 px-space-xs py-0.5 rounded bg-surface-container-low font-code-sm text-code-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[13px]">language</span> Naver In-App
+            </span>
+</div>
+</div>
+</div>
+<!-- Quick Support & Automation Sync Note -->
+<div class="bg-surface-container-low rounded-xl p-space-md flex items-start gap-space-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-secondary text-[20px] shrink-0 mt-0.5">info</span>
+<div class="flex flex-col gap-0.5 text-body-sm font-body-sm">
+<span class="font-headline-sm text-headline-sm text-on-surface text-[13px]">자동화 연동 가이드</span>
+<p class="leading-normal">
+            요구사항에 새 테스트를 등록하면 CI/CD 파이프라인에서 자동으로 태그 <code class="font-code-sm text-code-sm text-on-surface">@checkout-method</code>로 필터링되어 병합 전 실행됩니다.
+          </p>
+</div>
+</div>
+</div>
+</div>
+</div></main></div></body></html>

@@ -1,0 +1,8 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>QA 데모 로그인</title><link rel="stylesheet" href="/static/login.css"><script src="/static/login.js" defer></script></head>
+<body><main class="card"><div class="eyebrow">QA LAB · LOGIN DEMO</div><h1>QA 데모 로그인</h1><p class="description">테스트 계정으로 로그인하세요.</p>
+<form novalidate data-testid="login-form" data-state="idle">
+<label for="email">이메일</label><input id="email" name="email" type="email" autocomplete="username" data-testid="email-input" aria-describedby="email-error"><p id="email-error" class="field-error" data-testid="email-error"></p>
+<label for="password">비밀번호</label><input id="password" name="password" type="password" autocomplete="current-password" data-testid="password-input" aria-describedby="password-error"><p id="password-error" class="field-error" data-testid="password-error"></p>
+<p role="alert" class="auth-error" data-testid="login-error"></p><button type="submit" data-testid="login-submit">로그인</button>
+</form><footer>로컬 테스트 전용</footer></main></body></html>

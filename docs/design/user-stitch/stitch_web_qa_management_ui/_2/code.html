@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+
+<html lang="ko"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"error":"#ba1a1a","error-container":"#ffdad6","outline":"#76777d","secondary":"#0051d5","surface-container-lowest":"#ffffff","tertiary-container":"#002113","on-surface":"#0b1c30","inverse-on-surface":"#eaf1ff","surface-variant":"#d3e4fe","surface-bright":"#f8f9ff","surface-container-low":"#eff4ff","primary-container":"#131b2e","on-background":"#0b1c30","secondary-container":"#316bf3","surface-tint":"#565e74","tertiary":"#000000","primary":"#000000","inverse-primary":"#bec6e0","surface":"#f8f9ff","on-primary-container":"#7c839b","on-tertiary-container":"#009668","primary-fixed-dim":"#bec6e0","on-secondary-fixed":"#00174b","on-tertiary":"#ffffff","on-tertiary-fixed":"#002113","on-secondary-container":"#fefcff","tertiary-fixed-dim":"#4edea3","on-primary-fixed-variant":"#3f465c","surface-dim":"#cbdbf5","tertiary-fixed":"#6ffbbe","inverse-surface":"#213145","on-error-container":"#93000a","surface-container":"#e5eeff","primary-fixed":"#dae2fd","on-primary-fixed":"#131b2e","on-surface-variant":"#45464d","background":"#f8f9ff","on-tertiary-fixed-variant":"#005236","on-error":"#ffffff","surface-container-high":"#dce9ff","on-primary":"#ffffff","secondary-fixed":"#dbe1ff","secondary-fixed-dim":"#b4c5ff","on-secondary-fixed-variant":"#003ea8","outline-variant":"#c6c6cd","surface-container-highest":"#d3e4fe","on-secondary":"#ffffff"},borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},spacing:{"space-sm":"0.5rem","space-lg":"1.25rem","space-xl":"2rem","space-xs":"0.25rem","margin":"1.5rem","space-md":"0.75rem","gutter":"1rem"},fontFamily:{"headline-md":["Geist"],"headline-lg":["Geist"],"metric-mono":["JetBrains Mono"],"body-lg":["Geist"],"headline-sm":["Geist"],"label-sm":["Geist"],"label-md":["Geist"],"headline-xl":["Geist"],"code-sm":["JetBrains Mono"],"body-sm":["Geist"],"code-md":["JetBrains Mono"],"body-md":["Geist"]},fontSize:{"headline-md":["18px",{lineHeight:"26px",fontWeight:"600"}],"headline-lg":["24px",{lineHeight:"32px",fontWeight:"600"}],"metric-mono":["13px",{lineHeight:"16px",fontWeight:"500"}],"body-lg":["15px",{lineHeight:"24px",fontWeight:"400"}],"headline-sm":["15px",{lineHeight:"22px",fontWeight:"600"}],"label-sm":["11px",{lineHeight:"14px",fontWeight:"600"}],"label-md":["12px",{lineHeight:"16px",fontWeight:"500"}],"headline-xl":["30px",{lineHeight:"38px",fontWeight:"600"}],"code-sm":["11px",{lineHeight:"16px",fontWeight:"400"}],"body-sm":["12px",{lineHeight:"18px",fontWeight:"400"}],"code-md":["12px",{lineHeight:"18px",fontWeight:"400"}],"body-md":["13px",{lineHeight:"20px",fontWeight:"400"}]}}}};</script></head><body class="bg-background font-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 w-full h-14 bg-surface-container-lowest border-b border-surface-container-high z-50"><div class="w-full h-14 px-margin flex items-center justify-between gap-space-lg"><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-sm"><img alt="TestPilot Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDP2t1LACANrcHgjum2wC6AbE5N1qcEvhEqFQsNDkL9FFhDLmaVg5OWarptnv8mDIxASqTK3FqRgwjxtMDx8nTLgiUVaIvTP17avsDzwh64V1LKSajnSaB-rnUXniFpBFwJ4aWbrh1t-qY7tDoGU9JjJCK3dKuS8jjiw9uMARJyc_5L_8M2x2xxa2vbJttAtAteNUmMZRwDY-RJ8tex-ib8uzsF4BijeUjDDoR4IXwh"/><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight">TestPilot</span></div><nav class="flex items-center gap-space-xs" data-active-classes="bg-surface-container text-on-surface font-headline-sm"><a class="px-space-md py-space-xs rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="dashboard" href="#">대시보드</a><a aria-current="page" class="px-space-md py-space-xs rounded-lg transition-colors bg-surface-container text-on-surface font-headline-sm" data-path="project-list" href="#">프로젝트 목록</a><a class="px-space-md py-space-xs rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="run-history" href="#">실행 기록</a></nav><button class="inline-flex items-center gap-space-xs px-space-md py-space-xs bg-primary text-on-primary rounded-lg font-label-md text-label-md hover:bg-primary-container hover:text-on-primary-container transition-colors" type="button"><span class="material-symbols-outlined text-[16px]">add</span>새 프로젝트</button></div><div class="flex items-center gap-space-md"><div class="relative flex items-center"><span class="material-symbols-outlined absolute left-space-sm text-outline text-[18px] pointer-events-none">search</span><input class="w-60 h-8 pl-8 pr-space-sm bg-surface-container-low border border-outline-variant rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:border-secondary transition-colors" placeholder="테스트 스위트, 실행 검색..." type="search"/></div><a class="p-space-xs text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low rounded-lg transition-colors" data-path="documentation" href="#" title="도움말 / 문서"><span class="material-symbols-outlined text-[20px]">description</span></a><button class="relative p-space-xs text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low rounded-lg transition-colors" title="알림" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-error"></span></button><div class="flex items-center gap-space-sm pl-space-xs border-l border-surface-container-high"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUiVeoo4Je9axe6eyhNmFFlZstcuUnAtSgv5_zVfnO71JKHjAx9Wmj1zyWYvK-ZfnxgT0FifJPhgABMzWLrXJPY55_f0n18KlpOXvOJxUOG71U9XAHiiN342UuUpziTi6KbEerQdG9hPbI6Iz8Ak50BG5mdyddiKhWkbFYBYfPs4MrnpfDC4XWhc4y26JnxEa2B5WSVt_o5Nbx9Y80FzHchvFOW00JpuiFG3636IgX"/></div></div></div></header><aside class="fixed left-0 top-14 h-[calc(100vh-3.5rem)] w-64 bg-surface-container-lowest border-r border-surface-container-high z-40 flex flex-col justify-between p-space-md"><div class="flex flex-col gap-space-md"><div class="flex items-center justify-between px-space-sm py-space-xs text-outline font-label-sm text-label-sm uppercase tracking-wider"><span>테스트 워크스페이스</span><span class="material-symbols-outlined text-[16px]">folder_open</span></div><nav class="flex flex-col gap-space-xs" data-active-classes="bg-surface-container text-on-surface font-headline-sm"><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[18px]">space_dashboard</span>전체 현황</a><a aria-current="page" class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-lg transition-colors bg-surface-container text-on-surface font-headline-sm" data-path="project-list" href="#"><span class="material-symbols-outlined text-[18px]">inventory_2</span>프로젝트 보관함</a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="suite-explorer" href="#"><span class="material-symbols-outlined text-[18px]">account_tree</span>스위트 트리 탐색기</a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="run-history" href="#"><span class="material-symbols-outlined text-[18px]">history</span>실행 파이프라인 기록</a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="test-scheduler" href="#"><span class="material-symbols-outlined text-[18px]">schedule</span>스케줄러 & 트리거</a></nav></div><div class="flex flex-col gap-space-xs pt-space-sm border-t border-surface-container-high"><nav class="flex flex-col gap-space-xs" data-active-classes="bg-surface-container text-on-surface font-headline-sm"><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="project-settings" href="#"><span class="material-symbols-outlined text-[18px]">tune</span>워크스페이스 설정</a><a class="flex items-center gap-space-sm px-space-sm py-space-xs rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="documentation" href="#"><span class="material-symbols-outlined text-[18px]">help</span>문서 & API 가이드</a></nav></div></aside><div class="pl-64"><main class="w-full min-h-[calc(100vh-3.5rem)] pt-14 px-margin pb-space-xl bg-background"><div class="flex flex-col w-full">
+<!-- Visual Ambient Backdrop Element -->
+<div class="relative w-full">
+<div class="absolute -top-10 right-10 w-96 h-96 rounded-full bg-secondary-container/10 blur-3xl pointer-events-none -z-10"></div>
+<div class="absolute top-48 left-12 w-80 h-80 rounded-full bg-surface-variant/30 blur-2xl pointer-events-none -z-10"></div>
+</div>
+<!-- Header & Primary Metric Bar -->
+<section class="flex flex-col md:flex-row md:items-end justify-between gap-space-lg mb-space-lg">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-sm text-outline">
+<span class="font-code-sm text-code-sm tracking-wider uppercase">QA Automation Workspace</span>
+<span class="inline-block w-1.5 h-1.5 rounded-full bg-outline-variant"></span>
+<span class="font-label-sm text-label-sm">Single Page Verification Matrix</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface tracking-tight">프로젝트 목록</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">
+        각 프로젝트는 독립된 단일 웹페이지 QA 환경을 제공합니다. DOM 변경 추적 및 엔드투엔드 단언을 격리하여 실행합니다.
+      </p>
+</div>
+<!-- Quick Stats & Action Button -->
+<div class="flex items-center gap-space-md">
+<div class="hidden lg:flex items-center gap-space-md px-space-md py-space-xs rounded-xl bg-surface-container-low shadow-sm">
+<div class="flex flex-col text-right">
+<span class="font-label-sm text-label-sm text-outline">모니터링 중인 타겟 URL</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">12개 엔드포인트</span>
+</div>
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[20px]">radar</span>
+</div>
+</div>
+<button class="group relative inline-flex items-center gap-space-sm px-space-lg py-space-sm bg-primary text-on-primary rounded-xl font-label-md text-label-md hover:bg-primary-container hover:text-on-primary-container shadow-md hover:shadow-xl transition-all duration-200" id="openNewProjectModal" type="button">
+<span class="material-symbols-outlined text-[18px] transition-transform group-hover:rotate-90">add</span>
+<span>새 프로젝트 생성</span>
+</button>
+</div>
+</section>
+<!-- Filter & Search Panel -->
+<section class="flex flex-col gap-space-md p-space-md rounded-xl bg-surface-container-lowest shadow-sm mb-space-lg">
+<!-- Top Filter Controls: Search & Sort Dropdown -->
+<div class="flex flex-col md:flex-row items-center justify-between gap-space-md">
+<!-- Search Input -->
+<div class="relative w-full md:w-96 flex items-center">
+<span class="material-symbols-outlined absolute left-space-md text-outline text-[18px]">search</span>
+<input class="w-full h-10 pl-10 pr-space-md bg-surface-container-low rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:bg-surface-container transition-colors" id="projectSearchInput" placeholder="프로젝트명 또는 타겟 URL 검색 (예: checkout.service.io)..." type="search"/>
+</div>
+<!-- View & Sorting Controls -->
+<div class="flex items-center justify-between w-full md:w-auto gap-space-md">
+<div class="flex items-center gap-space-xs text-outline">
+<span class="material-symbols-outlined text-[18px]">tune</span>
+<span class="font-label-md text-label-md">정렬:</span>
+</div>
+<div class="relative">
+<select class="h-10 pl-space-md pr-8 bg-surface-container-low rounded-lg font-label-md text-label-md text-on-surface cursor-pointer appearance-none focus:outline-none focus:bg-surface-container" id="sortDropdown">
+<option value="recent">최근 실행순</option>
+<option value="name">이름순 (가나다)</option>
+<option value="tests">테스트 수 많은순</option>
+<option value="passrate">패스율 높은순</option>
+</select>
+<span class="material-symbols-outlined absolute right-space-xs top-1/2 -translate-y-1/2 text-outline pointer-events-none text-[18px]">unfold_more</span>
+</div>
+</div>
+</div>
+<!-- Tag Filter Chips Bar -->
+<div class="flex flex-wrap items-center gap-space-xs pt-space-xs">
+<span class="font-label-sm text-label-sm text-outline mr-space-xs flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">local_offer</span>
+<span>태그 필터:</span>
+</span>
+<button class="tag-chip active px-space-md py-1 rounded-full font-code-sm text-code-sm bg-primary text-on-primary transition-colors flex items-center gap-1" data-tag="all" type="button">
+<span>전체</span>
+<span class="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px] font-metric-mono text-white">12</span>
+</button>
+<button class="tag-chip px-space-md py-1 rounded-full font-code-sm text-code-sm bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors flex items-center gap-1" data-tag="payment" type="button">
+<span>#결제</span>
+<span class="px-1.5 py-0.2 rounded-full bg-surface-container text-[10px] font-metric-mono text-outline">4</span>
+</button>
+<button class="tag-chip px-space-md py-1 rounded-full font-code-sm text-code-sm bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors flex items-center gap-1" data-tag="auth" type="button">
+<span>#인증/회원가입</span>
+<span class="px-1.5 py-0.2 rounded-full bg-surface-container text-[10px] font-metric-mono text-outline">3</span>
+</button>
+<button class="tag-chip px-space-md py-1 rounded-full font-code-sm text-code-sm bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors flex items-center gap-1" data-tag="product" type="button">
+<span>#상품/스토어</span>
+<span class="px-1.5 py-0.2 rounded-full bg-surface-container text-[10px] font-metric-mono text-outline">2</span>
+</button>
+<button class="tag-chip px-space-md py-1 rounded-full font-code-sm text-code-sm bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors flex items-center gap-1" data-tag="backoffice" type="button">
+<span>#백오피스</span>
+<span class="px-1.5 py-0.2 rounded-full bg-surface-container text-[10px] font-metric-mono text-outline">2</span>
+</button>
+<button class="tag-chip px-space-md py-1 rounded-full font-code-sm text-code-sm bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors flex items-center gap-1" data-tag="mobile" type="button">
+<span>#모바일뷰</span>
+<span class="px-1.5 py-0.2 rounded-full bg-surface-container text-[10px] font-metric-mono text-outline">1</span>
+</button>
+<button class="px-space-sm py-1 rounded-full font-label-sm text-label-sm text-secondary hover:bg-surface-container-low transition-colors inline-flex items-center gap-0.5 ml-auto" type="button">
+<span class="material-symbols-outlined text-[14px]">sell</span>
+<span>+ 태그 관리</span>
+</button>
+</div>
+</section>
+<!-- Notification Toast for Copy / Quick Run -->
+<div class="fixed bottom-6 right-6 z-50 transform translate-y-12 opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-space-sm px-space-lg py-space-md bg-inverse-surface text-inverse-on-surface rounded-xl shadow-xl" id="quickToast">
+<span class="material-symbols-outlined text-[18px] text-tertiary-fixed">check_circle</span>
+<span class="font-body-sm text-body-sm" id="toastMessage">작업이 성공적으로 수행되었습니다.</span>
+</div>
+<!-- Project Cards Grid (6 Items displayed out of 12) -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-space-lg mb-space-xl">
+<!-- Card 1: 결제수단 선택 페이지 -->
+<article class="project-card flex flex-col justify-between bg-surface-container-lowest rounded-xl shadow-sm hover:shadow-xl transition-all duration-200 overflow-hidden group">
+<div class="p-space-lg flex flex-col gap-space-md">
+<!-- Top bar: Favicon + Page Title + Status Badge -->
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0 text-secondary">
+<span class="material-symbols-outlined text-[18px]">credit_card</span>
+</div>
+<div class="flex flex-col min-w-0">
+<h2 class="font-headline-sm text-headline-sm text-on-surface truncate group-hover:text-secondary transition-colors" title="결제수단 선택 페이지">
+                결제수단 선택 페이지
+              </h2>
+<span class="font-code-sm text-code-sm text-outline">단일 결제 진입 플로우</span>
+</div>
+</div>
+<!-- Status Badge -->
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-tertiary-container text-on-tertiary-container font-label-sm text-label-sm flex-shrink-0">
+<span class="w-1.5 h-1.5 rounded-full bg-on-tertiary-container animate-pulse"></span>
+<span>정상 운영</span>
+</span>
+</div>
+<!-- Target Webpage URL Box with copy & open actions -->
+<div class="flex items-center justify-between p-space-xs pl-space-md rounded-lg bg-surface-container-low text-on-surface">
+<div class="flex items-center gap-space-xs min-w-0">
+<span class="material-symbols-outlined text-outline text-[16px]">link</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant truncate">https://checkout.service.io/pay/method</span>
+</div>
+<div class="flex items-center gap-1 flex-shrink-0">
+<button class="copy-url-btn p-1 rounded hover:bg-surface-container text-outline hover:text-on-surface transition-colors" data-url="https://checkout.service.io/pay/method" title="URL 복사" type="button">
+<span class="material-symbols-outlined text-[16px]">content_copy</span>
+</button>
+<a class="p-1 rounded hover:bg-surface-container text-outline hover:text-on-surface transition-colors" href="https://checkout.service.io/pay/method" rel="noopener noreferrer" target="_blank" title="새 탭에서 열기">
+<span class="material-symbols-outlined text-[16px]">open_in_new</span>
+</a>
+</div>
+</div>
+<!-- Tags List -->
+<div class="flex flex-wrap gap-1">
+<span class="px-2 py-0.5 rounded font-code-sm text-code-sm bg-surface-container text-on-surface-variant">#결제</span>
+<span class="px-2 py-0.5 rounded font-code-sm text-code-sm bg-surface-container text-on-surface-variant">#PG연동</span>
+<span class="px-2 py-0.5 rounded font-code-sm text-code-sm bg-surface-container text-on-surface-variant">#모바일뷰</span>
+</div>
+<!-- Metric Telemetry Box -->
+<div class="p-space-md rounded-xl bg-surface-bright flex flex-col gap-space-xs">
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>QA 메트릭 상태</span>
+<span class="font-metric-mono text-on-tertiary-container font-semibold">100% PASS</span>
+</div>
+<!-- Pass-rate Progress Bar -->
+<div class="w-full h-1.5 rounded-full bg-surface-container-high overflow-hidden">
+<div class="h-full bg-on-tertiary-container rounded-full" style="width: 100%;"></div>
+</div>
+<div class="grid grid-cols-3 gap-2 pt-space-xs text-center">
+<div class="flex flex-col">
+<span class="font-code-sm text-code-sm text-outline">요구사항</span>
+<span class="font-metric-mono text-headline-sm text-on-surface">4개</span>
+</div>
+<div class="flex flex-col">
+<span class="font-code-sm text-code-sm text-outline">등록 테스트</span>
+<span class="font-metric-mono text-headline-sm text-on-surface">24개</span>
+</div>
+<div class="flex flex-col">
+<span class="font-code-sm text-code-sm text-outline">최근 소요</span>
+<span class="font-metric-mono text-headline-sm text-on-surface">1.8s</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Card Action Footer -->
+<div class="px-space-lg py-space-md bg-surface-container-low flex items-center justify-between">
+<button class="run-test-btn inline-flex items-center gap-1.5 px-space-md py-1.5 rounded-lg bg-surface-container-lowest text-on-surface font-label-md text-label-md hover:bg-primary hover:text-on-primary shadow-sm transition-all duration-150" data-project="결제수단 선택 페이지" type="button">
+<span class="material-symbols-outlined text-[16px] text-secondary">play_arrow</span>
+<span>즉시 실행</span>
+</button>
+<div class="flex items-center gap-space-sm">
+<a class="inline-flex items-center gap-1 font-label-md text-label-md text-secondary hover:text-secondary-container transition-colors" href="#">
+<span>프로젝트 관리</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+<button class="p-1 rounded text-outline hover:text-on-surface hover:bg-surface-container transition-colors" title="옵션" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</div>
+</article>
+<!-- Card 2: 원클릭 통합 회원가입 폼 -->
+<article class="project-card flex flex-col justify-between bg-surface-container-lowest rounded-xl shadow-sm hover:shadow-xl transition-all duration-200 overflow-hidden group">
+<div class="p-space-lg flex flex-col gap-space-md">
+<!-- Top bar -->
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0 text-secondary">
+<span class="material-symbols-outlined text-[18px]">person_add</span>
+</div>
+<div class="flex flex-col min-w-0">
+<h2 class="font-headline-sm text-headline-sm text-on-surface truncate group-hover:text-secondary transition-colors" title="원클릭 통합 회원가입 폼">
+                원클릭 통합 회원가입 폼
+              </h2>
+<span class="font-code-sm text-code-sm text-outline">소셜 로그인 + 본인인증 샌드박스</span>
+</div>
+</div>
+<!-- Status Badge -->
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-tertiary-container text-on-tertiary-container font-label-sm text-label-sm flex-shrink-0">
+<span class="w-1.5 h-1.5 rounded-full bg-on-tertiary-container animate-pulse"></span>
+<span>정상 운영</span>
+</span>
+</div>
+<!-- Target Webpage URL Box -->
+<div class="flex items-center justify-between p-space-xs pl-space-md rounded-lg bg-surface-container-low text-on-surface">
+<div class="flex items-center gap-space-xs min-w-0">
+<span class="material-symbols-outlined text-outline text-[16px]">link</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant truncate">https://auth.service.io/signup/integrated</span>
+</div>
+<div class="flex items-center gap-1 flex-shrink-0">
+<button class="copy-url-btn p-1 rounded hover:bg-surface-container text-outline hover:text-on-surface transition-colors" data-url="https://auth.service.io/signup/integrated" title="URL 복사" type="button">
+<span class="material-symbols-outlined text-[16px]">content_copy</span>
+</button>
+<a class="p-1 rounded hover:bg-surface-container text-outline hover:text-on-surface transition-colors" href="https://auth.service.io/signup/integrated" rel="noopener noreferrer" target="_blank" title="새 탭에서 열기">
+<span class="material-symbols-outlined text-[16px]">open_in_new</span>
+</a>
+</div>
+</div>
+<!-- Tags List -->
+<div class="flex flex-wrap gap-1">
+<span class="px-2 py-0.5 rounded font-code-sm text-code-sm bg-surface-container text-on-surface-variant">#인증/회원가입</span>
+<span class="px-2 py-0.5 rounded font-code-sm text-code-sm bg-surface-container text-on-surface-variant">#OAuth2</span>
+<span class="px-2 py-0.5 rounded font-code-sm text-code-sm bg-surface-container text-on-surface-variant">#휴대폰본인확인</span>
+</div>
+<!-- Metric Telemetry Box -->
+<div class="p-space-md rounded-xl bg-surface-bright flex flex-col gap-space-xs">
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>QA 메트릭 상태</span>
+<span class="font-metric-mono text-on-tertiary-container font-semibold">96.8% PASS (1 Flaky)</span>
+</div>
+<div class="w-full h-1.5 rounded-full bg-surface-container-high overflow-hidden">
+<div class="h-full bg-secondary-container rounded-full" style="width: 96.8%;"></div>
+</div>
+<div class="grid grid-cols-3 gap-2 pt-space-xs text-center">
+<div class="flex flex-col">
+<span class="font-code-sm text-code-sm text-outline">요구사항</span>
+<span class="font-metric-mono text-headline-sm text-on-surface">6개</span>
+</div>
+<div class="flex flex-col">
+<span class="font-code-sm text-code-sm text-outline">등록 테스트</span>
+<span class="font-metric-mono text-headline-sm text-on-surface">32개</span>
+</div>
+<div class="flex flex-col">
+<span class="font-code-sm text-code-sm text-outline">최근 소요</span>
+<span class="font-metric-mono text-headline-sm text-on-surface">3.4s</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Card Action Footer -->
+<div class="px-space-lg py-space-md bg-surface-container-low flex items-center justify-between">
+<button class="run-test-btn inline-flex items-center gap-1.5 px-space-md py-1.5 rounded-lg bg-surface-container-lowest text-on-surface font-label-md text-label-md hover:bg-primary hover:text-on-primary shadow-sm transition-all duration-150" data-project="원클릭 통합 회원가입 폼" type="button">
+<span class="material-symbols-outlined text-[16px] text-secondary">play_arrow</span>
+<span>즉시 실행</span>
+</button>
+<div class="flex items-center gap-space-sm">
+<a class="inline-flex items-center gap-1 font-label-md text-label-md text-secondary hover:text-secondary-container transition-colors" href="#">
+<span>프로젝트 관리</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+<button class="p-1 rounded text-outline hover:text-on-surface hover:bg-surface-container transition-colors" title="옵션" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</div>
+</article>
+<!-- Card 3: 실시간 상품 옵션 상세 뷰 -->
+<article class="project-card flex flex-col justify-between bg-surface-container-lowest rounded-xl shadow-sm hover:shadow-xl transition-all duration-200 overflow-hidden group">
+<div class="p-space-lg flex flex-col gap-space-md">
+<!-- Top bar -->
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0 text-secondary">
+<span class="material-symbols-outlined text-[18px]">shopping_bag</span>
+</div>
+<div class="flex flex-col min-w-0">
+<h2 class="font-headline-sm text-headline-sm text-on-surface truncate group-hover:text-secondary transition-colors" title="실시간 상품 옵션 상세 뷰">
+                실시간 상품 옵션 상세 뷰
+              </h2>
+<span class="font-code-sm text-code-sm text-outline">재고 동기화 & 복합 셀렉터 감지</span>
+</div>
+</div>
+<!-- Status Badge -->
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-tertiary-container text-on-tertiary-container font-label-sm text-label-sm flex-shrink-0">
+<span class="w-1.5 h-1.5 rounded-full bg-on-tertiary-container animate-pulse"></span>
+<span>정상 운영</span>
+</span>
+</div>
+<!-- Target Webpage URL Box -->
+<div class="flex items-center justify-between p-space-xs pl-space-md rounded-lg bg-surface-container-low text-on-surface">
+<div class="flex items-center gap-space-xs min-w-0">
+<span class="material-symbols-outlined text-outline text-[16px]">link</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant truncate">https://store.service.io/items/detail/90281</span>
+</div>
+<div class="flex items-center gap-1 flex-shrink-0">
+<button class="copy-url-btn p-1 rounded hover:bg-surface-container text-outline hover:text-on-surface transition-colors" data-url="https://store.service.io/items/detail/90281" title="URL 복사" type="button">
+<span class="material-symbols-outlined text-[16px]">content_copy</span>
+</button>
+<a class="p-1 rounded hover:bg-surface-container text-outline hover:text-on-surface transition-colors" href="https://store.service.io/items/detail/90281" rel="noopener noreferrer" target="_blank" title="새 탭에서 열기">
+<span class="material-symbols-outlined text-[16px]">open_in_new</span>
+</a>
+</div>
+</div>
+<!-- Tags List -->
+<div class="flex flex-wrap gap-1">
+<span class="px-2 py-0.5 rounded font-code-sm text-code-sm bg-surface-container text-on-surface-variant">#상품/스토어</span>
+<span class="px-2 py-0.5 rounded font-code-sm text-code-sm bg-surface-container text-on-surface-variant">#동적SKU</span>
+</div>
+<!-- Metric Telemetry Box -->
+<div class="p-space-md rounded-xl bg-surface-bright flex flex-col gap-space-xs">
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>QA 메트릭 상태</span>
+<span class="font-metric-mono text-on-tertiary-container font-semibold">100% PASS</span>
+</div>
+<div class="w-full h-1.5 rounded-full bg-surface-container-high overflow-hidden">
+<div class="h-full bg-on-tertiary-container rounded-full" style="width: 100%;"></div>
+</div>
+<div class="grid grid-cols-3 gap-2 pt-space-xs text-center">
+<div class="flex flex-col">
+<span class="font-code-sm text-code-sm text-outline">요구사항</span>
+<span class="font-metric-mono text-headline-sm text-on-surface">5개</span>
+</div>
+<div class="flex flex-col">
+<span class="font-code-sm text-code-sm text-outline">등록 테스트</span>
+<span class="font-metric-mono text-headline-sm text-on-surface">18개</span>
+</div>
+<div class="flex flex-col">
+<span class="font-code-sm text-code-sm text-outline">최근 소요</span>
+<span class="font-metric-mono text-headline-sm text-on-surface">2.1s</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Card Action Footer -->
+<div class="px-space-lg py-space-md bg-surface-container-low flex items-center justify-between">
+<button class="run-test-btn inline-flex items-center gap-1.5 px-space-md py-1.5 rounded-lg bg-surface-container-lowest text-on-surface font-label-md text-label-md hover:bg-primary hover:text-on-primary shadow-sm transition-all duration-150" data-project="실시간 상품 옵션 상세 뷰" type="button">
+<span class="material-symbols-outlined text-[16px] text-secondary">play_arrow</span>
+<span>즉시 실행</span>
+</button>
+<div class="flex items-center gap-space-sm">
+<a class="inline-flex items-center gap-1 font-label-md text-label-md text-secondary hover:text-secondary-container transition-colors" href="#">
+<span>프로젝트 관리</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+<button class="p-1 rounded text-outline hover:text-on-surface hover:bg-surface-container transition-colors" title="옵션" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</div>
+</article>
+<!-- Card 4: 주문 정산 및 환불 처리 대시보드 -->
+<article class="project-card flex flex-col justify-between bg-surface-container-lowest rounded-xl shadow-sm hover:shadow-xl transition-all duration-200 overflow-hidden group">
+<div class="p-space-lg flex flex-col gap-space-md">
+<!-- Top bar -->
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0 text-secondary">
+<span class="material-symbols-outlined text-[18px]">admin_panel_settings</span>
+</div>
+<div class="flex flex-col min-w-0">
+<h2 class="font-headline-sm text-headline-sm text-on-surface truncate group-hover:text-secondary transition-colors" title="주문 정산 및 환불 처리 대시보드">
+                주문 정산 및 환불 처리 대시보드
+              </h2>
+<span class="font-code-sm text-code-sm text-outline">대규모 데이터 그리드 & 배치 트랜잭션</span>
+</div>
+</div>
+<!-- Status Badge (Warning/Inspection) -->
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm flex-shrink-0">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+<span>단언 실패 2건</span>
+</span>
+</div>
+<!-- Target Webpage URL Box -->
+<div class="flex items-center justify-between p-space-xs pl-space-md rounded-lg bg-surface-container-low text-on-surface">
+<div class="flex items-center gap-space-xs min-w-0">
+<span class="material-symbols-outlined text-outline text-[16px]">link</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant truncate">https://admin.service.io/settlement/refunds</span>
+</div>
+<div class="flex items-center gap-1 flex-shrink-0">
+<button class="copy-url-btn p-1 rounded hover:bg-surface-container text-outline hover:text-on-surface transition-colors" data-url="https://admin.service.io/settlement/refunds" title="URL 복사" type="button">
+<span class="material-symbols-outlined text-[16px]">content_copy</span>
+</button>
+<a class="p-1 rounded hover:bg-surface-container text-outline hover:text-on-surface transition-colors" href="https://admin.service.io/settlement/refunds" rel="noopener noreferrer" target="_blank" title="새 탭에서 열기">
+<span class="material-symbols-outlined text-[16px]">open_in_new</span>
+</a>
+</div>
+</div>
+<!-- Tags List -->
+<div class="flex flex-wrap gap-1">
+<span class="px-2 py-0.5 rounded font-code-sm text-code-sm bg-surface-container text-on-surface-variant">#백오피스</span>
+<span class="px-2 py-0.5 rounded font-code-sm text-code-sm bg-surface-container text-on-surface-variant">#결제</span>
+<span class="px-2 py-0.5 rounded font-code-sm text-code-sm bg-surface-container text-on-surface-variant">#정산감사</span>
+</div>
+<!-- Metric Telemetry Box -->
+<div class="p-space-md rounded-xl bg-surface-bright flex flex-col gap-space-xs">
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>QA 메트릭 상태</span>
+<span class="font-metric-mono text-error font-semibold">91.4% PASS (2 Failed)</span>
+</div>
+<div class="w-full h-1.5 rounded-full bg-surface-container-high overflow-hidden">
+<div class="h-full bg-error rounded-full" style="width: 91.4%;"></div>
+</div>
+<div class="grid grid-cols-3 gap-2 pt-space-xs text-center">
+<div class="flex flex-col">
+<span class="font-code-sm text-code-sm text-outline">요구사항</span>
+<span class="font-metric-mono text-headline-sm text-on-surface">8개</span>
+</div>
+<div class="flex flex-col">
+<span class="font-code-sm text-code-sm text-outline">등록 테스트</span>
+<span class="font-metric-mono text-headline-sm text-on-surface">42개</span>
+</div>
+<div class="flex flex-col">
+<span class="font-code-sm text-code-sm text-outline">최근 소요</span>
+<span class="font-metric-mono text-headline-sm text-on-surface">5.2s</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Card Action Footer -->
+<div class="px-space-lg py-space-md bg-surface-container-low flex items-center justify-between">
+<button class="run-test-btn inline-flex items-center gap-1.5 px-space-md py-1.5 rounded-lg bg-surface-container-lowest text-on-surface font-label-md text-label-md hover:bg-primary hover:text-on-primary shadow-sm transition-all duration-150" data-project="주문 정산 및 환불 처리 대시보드" type="button">
+<span class="material-symbols-outlined text-[16px] text-secondary">play_arrow</span>
+<span>즉시 실행</span>
+</button>
+<div class="flex items-center gap-space-sm">
+<a class="inline-flex items-center gap-1 font-label-md text-label-md text-secondary hover:text-secondary-container transition-colors" href="#">
+<span>프로젝트 관리</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+<button class="p-1 rounded text-outline hover:text-on-surface hover:bg-surface-container transition-colors" title="옵션" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</div>
+</article>
+<!-- Card 5: 장바구니 및 쿠폰 할인 검증기 -->
+<article class="project-card flex flex-col justify-between bg-surface-container-lowest rounded-xl shadow-sm hover:shadow-xl transition-all duration-200 overflow-hidden group">
+<div class="p-space-lg flex flex-col gap-space-md">
+<!-- Top bar -->
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0 text-secondary">
+<span class="material-symbols-outlined text-[18px]">shopping_cart</span>
+</div>
+<div class="flex flex-col min-w-0">
+<h2 class="font-headline-sm text-headline-sm text-on-surface truncate group-hover:text-secondary transition-colors" title="장바구니 및 쿠폰 할인 검증기">
+                장바구니 및 쿠폰 할인 검증기
+              </h2>
+<span class="font-code-sm text-code-sm text-outline">실시간 금액 재계산 & 자동 프로모션</span>
+</div>
+</div>
+<!-- Status Badge -->
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-tertiary-container text-on-tertiary-container font-label-sm text-label-sm flex-shrink-0">
+<span class="w-1.5 h-1.5 rounded-full bg-on-tertiary-container animate-pulse"></span>
+<span>정상 운영</span>
+</span>
+</div>
+<!-- Target Webpage URL Box -->
+<div class="flex items-center justify-between p-space-xs pl-space-md rounded-lg bg-surface-container-low text-on-surface">
+<div class="flex items-center gap-space-xs min-w-0">
+<span class="material-symbols-outlined text-outline text-[16px]">link</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant truncate">https://store.service.io/checkout/cart</span>
+</div>
+<div class="flex items-center gap-1 flex-shrink-0">
+<button class="copy-url-btn p-1 rounded hover:bg-surface-container text-outline hover:text-on-surface transition-colors" data-url="https://store.service.io/checkout/cart" title="URL 복사" type="button">
+<span class="material-symbols-outlined text-[16px]">content_copy</span>
+</button>
+<a class="p-1 rounded hover:bg-surface-container text-outline hover:text-on-surface transition-colors" href="https://store.service.io/checkout/cart" rel="noopener noreferrer" target="_blank" title="새 탭에서 열기">
+<span class="material-symbols-outlined text-[16px]">open_in_new</span>
+</a>
+</div>
+</div>
+<!-- Tags List -->
+<div class="flex flex-wrap gap-1">
+<span class="px-2 py-0.5 rounded font-code-sm text-code-sm bg-surface-container text-on-surface-variant">#결제</span>
+<span class="px-2 py-0.5 rounded font-code-sm text-code-sm bg-surface-container text-on-surface-variant">#상품/스토어</span>
+<span class="px-2 py-0.5 rounded font-code-sm text-code-sm bg-surface-container text-on-surface-variant">#프로모션</span>
+</div>
+<!-- Metric Telemetry Box -->
+<div class="p-space-md rounded-xl bg-surface-bright flex flex-col gap-space-xs">
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>QA 메트릭 상태</span>
+<span class="font-metric-mono text-on-tertiary-container font-semibold">100% PASS</span>
+</div>
+<div class="w-full h-1.5 rounded-full bg-surface-container-high overflow-hidden">
+<div class="h-full bg-on-tertiary-container rounded-full" style="width: 100%;"></div>
+</div>
+<div class="grid grid-cols-3 gap-2 pt-space-xs text-center">
+<div class="flex flex-col">
+<span class="font-code-sm text-code-sm text-outline">요구사항</span>
+<span class="font-metric-mono text-headline-sm text-on-surface">3개</span>
+</div>
+<div class="flex flex-col">
+<span class="font-code-sm text-code-sm text-outline">등록 테스트</span>
+<span class="font-metric-mono text-headline-sm text-on-surface">19개</span>
+</div>
+<div class="flex flex-col">
+<span class="font-code-sm text-code-sm text-outline">최근 소요</span>
+<span class="font-metric-mono text-headline-sm text-on-surface">1.5s</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Card Action Footer -->
+<div class="px-space-lg py-space-md bg-surface-container-low flex items-center justify-between">
+<button class="run-test-btn inline-flex items-center gap-1.5 px-space-md py-1.5 rounded-lg bg-surface-container-lowest text-on-surface font-label-md text-label-md hover:bg-primary hover:text-on-primary shadow-sm transition-all duration-150" data-project="장바구니 및 쿠폰 할인 검증기" type="button">
+<span class="material-symbols-outlined text-[16px] text-secondary">play_arrow</span>
+<span>즉시 실행</span>
+</button>
+<div class="flex items-center gap-space-sm">
+<a class="inline-flex items-center gap-1 font-label-md text-label-md text-secondary hover:text-secondary-container transition-colors" href="#">
+<span>프로젝트 관리</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+<button class="p-1 rounded text-outline hover:text-on-surface hover:bg-surface-container transition-colors" title="옵션" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</div>
+</article>
+<!-- Card 6: 계정 비밀번호 변경 및 MFA 설정 -->
+<article class="project-card flex flex-col justify-between bg-surface-container-lowest rounded-xl shadow-sm hover:shadow-xl transition-all duration-200 overflow-hidden group">
+<div class="p-space-lg flex flex-col gap-space-md">
+<!-- Top bar -->
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center flex-shrink-0 text-secondary">
+<span class="material-symbols-outlined text-[18px]">security</span>
+</div>
+<div class="flex flex-col min-w-0">
+<h2 class="font-headline-sm text-headline-sm text-on-surface truncate group-hover:text-secondary transition-colors" title="계정 비밀번호 변경 및 MFA 설정">
+                계정 비밀번호 변경 및 MFA 설정
+              </h2>
+<span class="font-code-sm text-code-sm text-outline">보안 키페어 검증 & TOTP 입력 폼</span>
+</div>
+</div>
+<!-- Status Badge -->
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-tertiary-container text-on-tertiary-container font-label-sm text-label-sm flex-shrink-0">
+<span class="w-1.5 h-1.5 rounded-full bg-on-tertiary-container animate-pulse"></span>
+<span>정상 운영</span>
+</span>
+</div>
+<!-- Target Webpage URL Box -->
+<div class="flex items-center justify-between p-space-xs pl-space-md rounded-lg bg-surface-container-low text-on-surface">
+<div class="flex items-center gap-space-xs min-w-0">
+<span class="material-symbols-outlined text-outline text-[16px]">link</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant truncate">https://auth.service.io/account/security/mfa</span>
+</div>
+<div class="flex items-center gap-1 flex-shrink-0">
+<button class="copy-url-btn p-1 rounded hover:bg-surface-container text-outline hover:text-on-surface transition-colors" data-url="https://auth.service.io/account/security/mfa" title="URL 복사" type="button">
+<span class="material-symbols-outlined text-[16px]">content_copy</span>
+</button>
+<a class="p-1 rounded hover:bg-surface-container text-outline hover:text-on-surface transition-colors" href="https://auth.service.io/account/security/mfa" rel="noopener noreferrer" target="_blank" title="새 탭에서 열기">
+<span class="material-symbols-outlined text-[16px]">open_in_new</span>
+</a>
+</div>
+</div>
+<!-- Tags List -->
+<div class="flex flex-wrap gap-1">
+<span class="px-2 py-0.5 rounded font-code-sm text-code-sm bg-surface-container text-on-surface-variant">#인증/회원가입</span>
+<span class="px-2 py-0.5 rounded font-code-sm text-code-sm bg-surface-container text-on-surface-variant">#백오피스</span>
+<span class="px-2 py-0.5 rounded font-code-sm text-code-sm bg-surface-container text-on-surface-variant">#보안모듈</span>
+</div>
+<!-- Metric Telemetry Box -->
+<div class="p-space-md rounded-xl bg-surface-bright flex flex-col gap-space-xs">
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>QA 메트릭 상태</span>
+<span class="font-metric-mono text-on-tertiary-container font-semibold">100% PASS</span>
+</div>
+<div class="w-full h-1.5 rounded-full bg-surface-container-high overflow-hidden">
+<div class="h-full bg-on-tertiary-container rounded-full" style="width: 100%;"></div>
+</div>
+<div class="grid grid-cols-3 gap-2 pt-space-xs text-center">
+<div class="flex flex-col">
+<span class="font-code-sm text-code-sm text-outline">요구사항</span>
+<span class="font-metric-mono text-headline-sm text-on-surface">4개</span>
+</div>
+<div class="flex flex-col">
+<span class="font-code-sm text-code-sm text-outline">등록 테스트</span>
+<span class="font-metric-mono text-headline-sm text-on-surface">15개</span>
+</div>
+<div class="flex flex-col">
+<span class="font-code-sm text-code-sm text-outline">최근 소요</span>
+<span class="font-metric-mono text-headline-sm text-on-surface">1.2s</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Card Action Footer -->
+<div class="px-space-lg py-space-md bg-surface-container-low flex items-center justify-between">
+<button class="run-test-btn inline-flex items-center gap-1.5 px-space-md py-1.5 rounded-lg bg-surface-container-lowest text-on-surface font-label-md text-label-md hover:bg-primary hover:text-on-primary shadow-sm transition-all duration-150" data-project="계정 비밀번호 변경 및 MFA 설정" type="button">
+<span class="material-symbols-outlined text-[16px] text-secondary">play_arrow</span>
+<span>즉시 실행</span>
+</button>
+<div class="flex items-center gap-space-sm">
+<a class="inline-flex items-center gap-1 font-label-md text-label-md text-secondary hover:text-secondary-container transition-colors" href="#">
+<span>프로젝트 관리</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+<button class="p-1 rounded text-outline hover:text-on-surface hover:bg-surface-container transition-colors" title="옵션" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</div>
+</article>
+</div>
+<!-- Bottom Concise Pagination & Item Counter -->
+<section class="flex flex-col sm:flex-row items-center justify-between gap-space-md pt-space-md pb-space-lg">
+<span class="font-body-sm text-body-sm text-outline">
+      전체 <strong class="text-on-surface font-semibold">12개</strong> 프로젝트 중 <strong class="text-on-surface font-semibold">1 - 6</strong> 표시 중
+    </span>
+<nav aria-label="페이지 이동" class="inline-flex items-center gap-space-xs p-1 rounded-xl bg-surface-container-lowest shadow-sm">
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-outline-variant cursor-not-allowed" disabled="" type="button">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<button class="w-8 h-8 rounded-lg bg-primary text-on-primary font-metric-mono text-label-md flex items-center justify-center font-bold shadow-sm" type="button">
+        1
+      </button>
+<button class="w-8 h-8 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface font-metric-mono text-label-md flex items-center justify-center transition-colors" type="button">
+        2
+      </button>
+<button class="px-space-sm h-8 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface font-label-md text-label-md flex items-center gap-0.5 transition-colors" type="button">
+<span>다음</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</nav>
+</section>
+<!-- Interactive Modal: 새 프로젝트 생성 (Hidden by Default) -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-inverse-surface/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-200" id="newProjectModal">
+<div class="w-full max-w-lg mx-4 rounded-xl bg-surface-container-lowest p-space-xl shadow-2xl flex flex-col gap-space-lg transform scale-95 transition-transform duration-200" id="modalCard">
+<div class="flex items-start justify-between">
+<div>
+<h3 class="font-headline-lg text-headline-lg text-on-surface">새 단일 페이지 QA 프로젝트</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">테스트 스위트를 격리할 단일 웹페이지 URL을 등록하세요.</p>
+</div>
+<button class="p-1 rounded-lg text-outline hover:text-on-surface hover:bg-surface-container-low transition-colors" id="closeModalBtn" type="button">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<div class="flex flex-col gap-space-md">
+<div class="flex flex-col gap-1">
+<label class="font-label-md text-label-md text-on-surface">프로젝트 명칭</label>
+<input class="h-10 px-space-md rounded-lg bg-surface-container-low font-body-md text-body-md text-on-surface focus:outline-none focus:bg-surface-container" placeholder="예: 주문서 작성 및 약관동의 페이지" type="text"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-md text-label-md text-on-surface">타겟 웹페이지 URL</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-space-sm text-outline text-[18px]">public</span>
+<input class="w-full h-10 pl-9 pr-space-md font-metric-mono text-body-sm rounded-lg bg-surface-container-low text-on-surface focus:outline-none focus:bg-surface-container" placeholder="https://domain.io/path" type="url"/>
+</div>
+<span class="font-code-sm text-code-sm text-outline">프로젝트 당 단 하나의 메인 URL 엔드포인트만 매핑됩니다.</span>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-md text-label-md text-on-surface">기본 태그 지정</label>
+<input class="h-10 px-space-md rounded-lg bg-surface-container-low font-body-sm text-body-sm text-on-surface focus:outline-none focus:bg-surface-container" placeholder="#결제, #체크아웃, #스테이징 (쉼표 구분)" type="text"/>
+</div>
+</div>
+<div class="flex items-center justify-end gap-space-sm pt-space-sm">
+<button class="px-space-lg py-space-sm rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low transition-colors" id="cancelModalBtn" type="button">
+          취소
+        </button>
+<button class="px-space-lg py-space-sm rounded-lg font-label-md text-label-md bg-primary text-on-primary hover:bg-primary-container transition-colors shadow-md" id="submitModalBtn" type="button">
+          프로젝트 환경 생성
+        </button>
+</div>
+</div>
+</div>
+</div>
+<script>
+  (function () {
+    // 1. Toast Notification Helper
+    const toast = document.getElementById('quickToast');
+    const toastMessage = document.getElementById('toastMessage');
+    let toastTimeout = null;
+
+    function showToast(msg) {
+      if (!toast) return;
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastMessage.textContent = msg;
+      toast.classList.remove('opacity-0', 'translate-y-12', 'pointer-events-none');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'translate-y-12', 'pointer-events-none');
+      }, 2600);
+    }
+
+    // 2. URL Clipboard Copy
+    document.querySelectorAll('.copy-url-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const url = btn.getAttribute('data-url');
+        if (url) {
+          navigator.clipboard.writeText(url).then(() => {
+            showToast(`URL이 클립보드에 복사되었습니다: ${url}`);
+          }).catch(() => {
+            showToast('복사 권한이 거부되었습니다.');
+          });
+        }
+      });
+    });
+
+    // 3. Quick Run Test Action Micro-interaction
+    document.querySelectorAll('.run-test-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const projectName = btn.getAttribute('data-project');
+        const icon = btn.querySelector('.material-symbols-outlined');
+        const originalIcon = icon.textContent;
+
+        // Visual feedback
+        icon.textContent = 'hourglass_top';
+        btn.classList.add('opacity-75', 'pointer-events-none');
+
+        showToast(`'${projectName}' 단일 페이지 테스트가 백그라운드에서 트리거되었습니다.`);
+
+        setTimeout(() => {
+          icon.textContent = originalIcon;
+          btn.classList.remove('opacity-75', 'pointer-events-none');
+        }, 1500);
+      });
+    });
+
+    // 4. Tag Chip Filtering Interaction
+    const tagChips = document.querySelectorAll('.tag-chip');
+    const projectCards = document.querySelectorAll('.project-card');
+
+    tagChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        tagChips.forEach(c => {
+          c.classList.remove('active', 'bg-primary', 'text-on-primary');
+          c.classList.add('bg-surface-container-low', 'text-on-surface-variant');
+          const badge = c.querySelector('span:last-child');
+          if (badge) {
+            badge.classList.remove('bg-white/20', 'text-white');
+            badge.classList.add('bg-surface-container', 'text-outline');
+          }
+        });
+
+        chip.classList.add('active', 'bg-primary', 'text-on-primary');
+        chip.classList.remove('bg-surface-container-low', 'text-on-surface-variant');
+        const activeBadge = chip.querySelector('span:last-child');
+        if (activeBadge) {
+          activeBadge.classList.add('bg-white/20', 'text-white');
+          activeBadge.classList.remove('bg-surface-container', 'text-outline');
+        }
+
+        const tagKey = chip.getAttribute('data-tag');
+        const tagText = chip.querySelector('span:first-child').textContent.replace('#', '').trim();
+
+        projectCards.forEach(card => {
+          if (tagKey === 'all') {
+            card.style.display = 'flex';
+          } else {
+            const cardTags = card.querySelectorAll('.flex-wrap span');
+            let hasTag = false;
+            cardTags.forEach(t => {
+              if (t.textContent.includes(tagText)) hasTag = true;
+            });
+            card.style.display = hasTag ? 'flex' : 'none';
+          }
+        });
+      });
+    });
+
+    // 5. Search Bar Filter
+    const searchInput = document.getElementById('projectSearchInput');
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase().trim();
+        projectCards.forEach(card => {
+          const title = card.querySelector('h2').textContent.toLowerCase();
+          const url = card.querySelector('.font-code-sm.truncate').textContent.toLowerCase();
+          if (title.includes(query) || url.includes(query)) {
+            card.style.display = 'flex';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    }
+
+    // 6. New Project Creation Modal
+    const modal = document.getElementById('newProjectModal');
+    const modalCard = document.getElementById('modalCard');
+    const openBtn = document.getElementById('openNewProjectModal');
+    const closeBtn = document.getElementById('closeModalBtn');
+    const cancelBtn = document.getElementById('cancelModalBtn');
+    const submitBtn = document.getElementById('submitModalBtn');
+
+    function openModal() {
+      if (!modal) return;
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+      modal.classList.add('opacity-100');
+      modalCard.classList.remove('scale-95');
+      modalCard.classList.add('scale-100');
+    }
+
+    function closeModal() {
+      if (!modal) return;
+      modal.classList.add('opacity-0', 'pointer-events-none');
+      modal.classList.remove('opacity-100');
+      modalCard.classList.remove('scale-100');
+      modalCard.classList.add('scale-95');
+    }
+
+    if (openBtn) openBtn.addEventListener('click', openModal);
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+    if (submitBtn) {
+      submitBtn.addEventListener('click', () => {
+        closeModal();
+        showToast('신규 웹페이지 QA 프로젝트 환경이 등록되었습니다.');
+      });
+    }
+
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+      });
+    }
+  })();
+</script></main></div></body></html>
