@@ -7,3 +7,8 @@ artifacts/
 generated/
 .playwright/
 *.log
+
+# Design tool working files (API requests/responses, plugin package) kept local only
+docs/design/stitch-*.json
+docs/design/*.zip
+docs/github-readme.md
