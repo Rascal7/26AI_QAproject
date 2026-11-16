@@ -72,6 +72,8 @@ SQLite는 Python 기본 라이브러리입니다. 별도 DB 서버를 설치할 
 .\.venv\Scripts\python.exe -m qa_system.runner --restore-demo
 ```
 
+코드 스타일은 `pyproject.toml`의 ruff 설정을 따릅니다. 개발 도구는 `requirements-dev.txt`로 설치하고, 커밋 전에 `.\.venv\Scripts\python.exe -m ruff format .`과 `.\.venv\Scripts\python.exe -m ruff check .`을 실행합니다.
+
 Chromium이 설치되지 않은 상태에서 실행하면 각 테스트가 ERROR로 기록되고, 오류 내용에 설치 명령이 표시됩니다. Chromium을 내려받을 수 없는 PC에서는 QA 앱은 `.env`에, 명령줄 `qa_system.runner`는 환경변수에 `QA_BROWSER_CHANNEL=msedge`를 설정하면 설치된 Microsoft Edge로 테스트 실행과 페이지 구조 읽기를 합니다. pytest를 직접 실행할 때는 `--browser-channel msedge`를 함께 지정합니다.
 앱이 실행 도중 종료되어 `RUNNING`으로 남은 기록은 실행 제한 시간이 지나면 다음 앱 시작 또는 프로젝트 삭제 시 ERROR로 정리됩니다.
 

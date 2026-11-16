@@ -1,0 +1,14 @@
+# Code style for the project. Run before committing:
+#   .venv\Scripts\python.exe -m ruff format .
+#   .venv\Scripts\python.exe -m ruff check .
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+extend-exclude = ["artifacts", "data", "docs"]
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.ruff.lint]
+# Real defects only (syntax errors, undefined names, unused imports/variables), not style preferences.
+select = ["E9", "F"]
