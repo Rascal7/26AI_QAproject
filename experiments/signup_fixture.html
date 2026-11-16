@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>회원가입</title>
+<style>
+  body { font-family: sans-serif; background: #f5f6fa; }
+  main { max-width: 420px; margin: 48px auto; background: #fff; padding: 24px; border-radius: 8px; }
+  .row { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+  .msg { color: #c62828; min-height: 1.2em; }
+</style>
+</head>
+<body>
+<!-- Experiment fixture: a page without data-testid attributes and with non-obvious ids/names,
+     so selector guessing cannot rely on common conventions such as #email or #password. -->
+<main>
+  <h2 class="page-heading">계정 만들기</h2>
+  <form id="join" novalidate>
+    <div class="row"><label for="u-mail">이메일 주소</label><input id="u-mail" name="userMail" type="email"></div>
+    <div class="row"><label for="u-pw">비밀번호</label><input id="u-pw" name="userPw" type="password"></div>
+    <div class="row"><label for="u-pw2">비밀번호 확인</label><input id="u-pw2" name="userPwConfirm" type="password"></div>
+    <label class="terms"><input id="agree" name="terms" type="checkbox"> 이용약관에 동의합니다</label>
+    <div class="msg" id="join-msg" role="alert"></div>
+    <button class="btn-primary" type="submit">가입하기</button>
+  </form>
+  <p><a href="/login">이미 계정이 있나요? 로그인</a></p>
+</main>
+<script>
+  const form = document.getElementById('join');
+  const message = document.getElementById('join-msg');
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const mail = form.userMail.value.trim();
+    let error = '';
+    if (!mail) error = '이메일 주소를 입력해 주세요.';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) error = '올바른 이메일 주소가 아닙니다.';
+    else if (!form.userPw.value) error = '비밀번호를 입력해 주세요.';
+    else if (form.userPw.value !== form.userPwConfirm.value) error = '비밀번호가 일치하지 않습니다.';
+    else if (!form.terms.checked) error = '이용약관 동의가 필요합니다.';
+    message.textContent = error;
+    if (!error) window.location.assign('/welcome');
+  });
+</script>
+</body>
+</html>

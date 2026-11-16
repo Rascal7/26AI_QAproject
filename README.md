@@ -105,6 +105,22 @@ API 구현 참고: [OpenAI Structured Outputs 공식 문서](https://developers.
 
 GitHub 저장소에는 앱 소스·테스트·설치 안내를 제공합니다. 로컬 실행에 GitHub 계정은 필요하지 않습니다.
 
+## AI 기능 효과 측정
+
+측정 결과 요약은 [AI 기능 효과 측정](docs/ai-evaluation.md)에 있습니다. 페이지 구조를 전달하면 AI 테스트를 수정 없이 실행했을 때의 PASS 비율이 40%에서 90%로 올랐고, 실패 원인 분석은 테스트 문제 9건과 실제 제품 결함 18건을 모두 맞게 구분했습니다.
+
+```powershell
+.\.venv\Scripts\python.exe -m experiments.ai_quality --reps 3
+.\.venv\Scripts\python.exe -m experiments.triage_faults --reps 3
+```
+
+로그인 데모와 실험용 회원가입 페이지(`experiments/signup_fixture.html`, `data-testid` 없음)에서 시나리오 5개씩, 같은 요청을 **페이지 구조 없음 / 전달** 두 조건으로 AI에 보냅니다.
+생성된 테스트는 수정 없이 형식 검사 → 시작 페이지 선택자 확인 → QA 실행기로 실제 실행합니다. 결과는 `experiments/results/`에 보고서(.md), 원자료(.json), 수동 판정용 CSV로 저장됩니다.
+FAIL마다 AI 실패 분석도 실행합니다(`--no-triage`로 생략). 실제 OpenAI API를 대상×시나리오×2×반복 횟수만큼, 그리고 FAIL마다 1번 더 호출합니다(기본 60회 + FAIL 수). 임시 QA DB를 사용하므로 `data/qa.db`는 바뀌지 않습니다. 시범 실행은 `--reps 1 --limit 2`.
+`triage_faults`는 의도적 결함 버전의 FAIL을 결함 표시를 가린 채 분석해, AI가 실제 제품 결함을 제품 결함으로 구분하는지 확인합니다.
+
+**실패 원인 분석:** 실행 화면의 **실패하면 AI 원인 분석 실행**(API 키가 있으면 기본 켜짐)을 사용하면 FAIL마다 요구사항과 실행 증거를 AI에 보내 테스트 정의 문제·제품 결함·실행 환경 문제로 구분합니다. 관찰한 사실과 추정 원인을 나눠 보여주고, 다운로드 보고서에도 덧붙입니다. 실행당 최대 10건이며, 실행 기록의 실패 분석 탭에서 나중에 실행할 수도 있습니다. 증거 파일 경로는 AI에 보내지 않습니다.
+
 ## 실제 웹사이트 검사와 프로젝트 삭제
 
 `실제 웹사이트 QA · Example Domain` 프로젝트에는 공개 URL에 Chromium으로 접속한 실행 결과가 저장되어 있습니다. 실행 `87da0bfc43564f2e`는 HTTP 200 및 안내 링크 표시 PASS 2건, 예상한 h1 제목 부재 FAIL 1건입니다. 제목 실패는 기대 구조와 실제 페이지의 차이이며 사이트 장애를 의미하지 않습니다. 앞선 네트워크·임시 폴더 권한 오류 기록도 보존합니다. 이 사이트는 문서 예제용이므로 정기 모니터링 대상으로 사용하지 않습니다.

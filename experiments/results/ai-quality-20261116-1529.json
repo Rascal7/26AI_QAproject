@@ -1,0 +1,4481 @@
+{
+  "meta": {
+    "started": "2026-11-16 15:29",
+    "model": "gpt-4.1-mini",
+    "reps": 3,
+    "targets": [
+      "login",
+      "signup"
+    ],
+    "scenarios_per_target": 5,
+    "browser": "msedge",
+    "runs": {
+      "login/without": "ccf08566383941d1",
+      "login/with": "ad1145f8247a4f30",
+      "signup/without": "02d49c228b2540a1",
+      "signup/with": "4e9ae71594b448f5"
+    },
+    "python": "3.14.5",
+    "capture_seconds": {
+      "login": 3.6,
+      "signup": 3.49
+    }
+  },
+  "summary": {
+    "without": {
+      "requests": 30,
+      "generation_errors": 0,
+      "generated": 30,
+      "format_ok": 30,
+      "selectors": 144,
+      "selectors_unique": 89,
+      "selectors_missing": 44,
+      "selectors_multiple": 10,
+      "selectors_invalid": 1,
+      "tests_all_selectors_unique": 1,
+      "passed": 12,
+      "failed": 6,
+      "errors": 12,
+      "mean_generation_seconds": 3.45
+    },
+    "with": {
+      "requests": 30,
+      "generation_errors": 0,
+      "generated": 30,
+      "format_ok": 30,
+      "selectors": 173,
+      "selectors_unique": 173,
+      "selectors_missing": 0,
+      "selectors_multiple": 0,
+      "selectors_invalid": 0,
+      "tests_all_selectors_unique": 30,
+      "passed": 27,
+      "failed": 3,
+      "errors": 0,
+      "mean_generation_seconds": 3.18
+    }
+  },
+  "records": [
+    {
+      "target": "login",
+      "scenario": "empty-email",
+      "condition": "without",
+      "rep": 0,
+      "index": 0,
+      "generation_seconds": 7.91,
+      "drafts_in_response": 1,
+      "description": "이메일을 입력하지 않고 로그인 버튼 클릭 시 '이메일을 입력하세요.' 오류 메시지 확인",
+      "expected": "이메일을 입력하지 않으면 이메일 입력창 아래에 '이메일을 입력하세요.' 문구가 표시된다.",
+      "review_notes": "페이지 구조를 제공받지 않아 이메일 입력창과 로그인 버튼의 선택자를 email input[type='email'], 로그인 button 텍스트로 추정하였음. 이 선택자가 맞는지 검토가 필요함.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/login"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='email']",
+          "value": ""
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='password']",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "button:has-text('로그인')",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "text=이메일을 입력하세요.",
+          "value": ""
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "input[type='email']",
+          "input[type='password']",
+          "button:has-text('로그인')",
+          "text=이메일을 입력하세요."
+        ],
+        "total": 4,
+        "unique": 3,
+        "multiple": [],
+        "missing": [
+          "text=이메일을 입력하세요."
+        ],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-e3cedf72b319",
+      "format_ok": true,
+      "run_id": "ccf08566383941d1",
+      "outcome": "PASS"
+    },
+    {
+      "target": "login",
+      "scenario": "empty-email",
+      "condition": "without",
+      "rep": 1,
+      "index": 0,
+      "generation_seconds": 3.35,
+      "drafts_in_response": 1,
+      "description": "이메일을 입력하지 않고 로그인 버튼 클릭 시 '이메일을 입력하세요.' 오류 메시지 표시 확인",
+      "expected": "이메일 입력란 아래에 '이메일을 입력하세요.' 문구가 보여야 한다.",
+      "review_notes": "페이지 구조가 제공되지 않아 이메일 입력창은 'input[type=\"email\"]', 비밀번호 입력창은 'input[type=\"password\"]', 로그인 버튼은 'button:has-text(\"로그인\")'로 추정하여 선택자를 지정함. 실제 구조와 다를 수 있으니 검토를 요청함.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/login"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='email']",
+          "value": ""
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='password']",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "button:has-text('로그인')",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "text=이메일을 입력하세요.",
+          "value": ""
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "input[type='email']",
+          "input[type='password']",
+          "button:has-text('로그인')",
+          "text=이메일을 입력하세요."
+        ],
+        "total": 4,
+        "unique": 3,
+        "multiple": [],
+        "missing": [
+          "text=이메일을 입력하세요."
+        ],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-f521136f7130",
+      "format_ok": true,
+      "run_id": "ccf08566383941d1",
+      "outcome": "PASS"
+    },
+    {
+      "target": "login",
+      "scenario": "empty-email",
+      "condition": "without",
+      "rep": 2,
+      "index": 0,
+      "generation_seconds": 2.65,
+      "drafts_in_response": 1,
+      "description": "이메일을 비운 채 로그인 버튼 클릭 시 이메일 오류 문구 확인",
+      "expected": "이메일 입력창 아래에 '이메일을 입력하세요.' 메시지가 보인다.",
+      "review_notes": "이메일 및 비밀번호 입력창과 로그인 버튼의 선택자를 페이지 구조를 알지 못해 추정했습니다. 실제 요소의 태그, 타입, 버튼 텍스트 확인 후 조정이 필요합니다.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/login"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='email']",
+          "value": ""
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='password']",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "button:has-text('로그인')",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "text=이메일을 입력하세요.",
+          "value": ""
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "input[type='email']",
+          "input[type='password']",
+          "button:has-text('로그인')",
+          "text=이메일을 입력하세요."
+        ],
+        "total": 4,
+        "unique": 3,
+        "multiple": [],
+        "missing": [
+          "text=이메일을 입력하세요."
+        ],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-c8ae4fa61587",
+      "format_ok": true,
+      "run_id": "ccf08566383941d1",
+      "outcome": "PASS"
+    },
+    {
+      "target": "login",
+      "scenario": "empty-email",
+      "condition": "with",
+      "rep": 0,
+      "index": 0,
+      "generation_seconds": 2.86,
+      "drafts_in_response": 1,
+      "description": "이메일을 비워 두고 로그인 버튼 클릭 시 '이메일을 입력하세요.' 오류 문구가 이메일 입력창 아래에 표시되는지 확인한다.",
+      "expected": "이메일 오류 문구 '이메일을 입력하세요.'가 [data-testid=\"email-error\"] 요소에 표시된다.",
+      "review_notes": "",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/login"
+        },
+        {
+          "action": "fill",
+          "selector": "[data-testid=\"email-input\"]",
+          "value": ""
+        },
+        {
+          "action": "fill",
+          "selector": "[data-testid=\"password-input\"]",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "[data-testid=\"login-submit\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_text",
+          "selector": "[data-testid=\"email-error\"]",
+          "value": "이메일을 입력하세요."
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "[data-testid=\"email-input\"]",
+          "[data-testid=\"password-input\"]",
+          "[data-testid=\"login-submit\"]",
+          "[data-testid=\"email-error\"]"
+        ],
+        "total": 4,
+        "unique": 4,
+        "multiple": [],
+        "missing": [],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-cf7dd5f3ef3e",
+      "format_ok": true,
+      "run_id": "ad1145f8247a4f30",
+      "outcome": "PASS"
+    },
+    {
+      "target": "login",
+      "scenario": "empty-email",
+      "condition": "with",
+      "rep": 1,
+      "index": 0,
+      "generation_seconds": 3.24,
+      "drafts_in_response": 1,
+      "description": "이메일을 비워두고 로그인 버튼을 클릭하면 '이메일을 입력하세요.' 메시지가 이메일 입력창 아래에 표시되는지 확인한다.",
+      "expected": "'이메일을 입력하세요.' 오류 메시지가 이메일 입력란 아래에 보여야 한다.",
+      "review_notes": "[data-testid=\"email-error\"]가 이메일 입력창 아래의 오류 문구 요소로 page_context에서 확인됨.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/login"
+        },
+        {
+          "action": "fill",
+          "selector": "[data-testid=\"email-input\"]",
+          "value": ""
+        },
+        {
+          "action": "fill",
+          "selector": "[data-testid=\"password-input\"]",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "[data-testid=\"login-submit\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "[data-testid=\"email-error\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_text",
+          "selector": "[data-testid=\"email-error\"]",
+          "value": "이메일을 입력하세요."
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "[data-testid=\"email-input\"]",
+          "[data-testid=\"password-input\"]",
+          "[data-testid=\"login-submit\"]",
+          "[data-testid=\"email-error\"]",
+          "[data-testid=\"email-error\"]"
+        ],
+        "total": 5,
+        "unique": 5,
+        "multiple": [],
+        "missing": [],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-cf28d691beb5",
+      "format_ok": true,
+      "run_id": "ad1145f8247a4f30",
+      "outcome": "PASS"
+    },
+    {
+      "target": "login",
+      "scenario": "empty-email",
+      "condition": "with",
+      "rep": 2,
+      "index": 0,
+      "generation_seconds": 2.65,
+      "drafts_in_response": 1,
+      "description": "이메일 입력 없이 로그인 버튼 클릭 시 이메일 오류 문구가 보이는지 확인한다.",
+      "expected": "이메일 입력창 아래에 \"이메일을 입력하세요.\" 문구가 나타난다.",
+      "review_notes": "페이지 컨텍스트의 email-error 요소를 사용하여 오류 문구가 표시되는지 확인함.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/login"
+        },
+        {
+          "action": "fill",
+          "selector": "[data-testid=\"password-input\"]",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "[data-testid=\"login-submit\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "[data-testid=\"email-error\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_text",
+          "selector": "[data-testid=\"email-error\"]",
+          "value": "이메일을 입력하세요."
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "[data-testid=\"password-input\"]",
+          "[data-testid=\"login-submit\"]",
+          "[data-testid=\"email-error\"]",
+          "[data-testid=\"email-error\"]"
+        ],
+        "total": 4,
+        "unique": 4,
+        "multiple": [],
+        "missing": [],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-cfa0ab77f840",
+      "format_ok": true,
+      "run_id": "ad1145f8247a4f30",
+      "outcome": "PASS"
+    },
+    {
+      "target": "login",
+      "scenario": "empty-password",
+      "condition": "without",
+      "rep": 0,
+      "index": 0,
+      "generation_seconds": 3.32,
+      "drafts_in_response": 1,
+      "description": "이메일만 입력하고 비밀번호를 비운 채 로그인 시 \"비밀번호를 입력하세요.\" 오류 문구 표시 확인",
+      "expected": "비밀번호 입력란 아래에 \"비밀번호를 입력하세요.\" 라는 안내 문구가 보여야 한다.",
+      "review_notes": "비밀번호 입력란과 오류 메시지 위치 선택자는 페이지 구조를 알 수 없어 추정한 것입니다. 실제 구조와 맞는지 검토가 필요합니다.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/login"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='email']",
+          "value": "qa.user@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='password']",
+          "value": ""
+        },
+        {
+          "action": "click",
+          "selector": "button[type='submit']",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "text=비밀번호를 입력하세요.",
+          "value": ""
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "input[type='email']",
+          "input[type='password']",
+          "button[type='submit']",
+          "text=비밀번호를 입력하세요."
+        ],
+        "total": 4,
+        "unique": 3,
+        "multiple": [],
+        "missing": [
+          "text=비밀번호를 입력하세요."
+        ],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-46eb50c60384",
+      "format_ok": true,
+      "run_id": "ccf08566383941d1",
+      "outcome": "PASS"
+    },
+    {
+      "target": "login",
+      "scenario": "empty-password",
+      "condition": "without",
+      "rep": 1,
+      "index": 0,
+      "generation_seconds": 4.03,
+      "drafts_in_response": 1,
+      "description": "이메일만 입력하고 비밀번호를 비운 채 로그인 시 비밀번호 오류 문구 표시 확인",
+      "expected": "비밀번호를 입력하세요. 라는 오류 문구가 비밀번호 입력창 아래에 표시된다.",
+      "review_notes": "비밀번호 입력창 바로 아래에 오류 문구가 나타난다고 하였으나, 페이지 구조가 제공되지 않아 오류 메시지가 비밀번호 입력창 바로 다음 형제로 위치한 '.error-message' 클래스 요소라고 추정함. 실제 구조 확인 필요.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/login"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='email']",
+          "value": "qa.user@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='password']",
+          "value": ""
+        },
+        {
+          "action": "click",
+          "selector": "button[type='submit']",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "input[type='password'] + .error-message",
+          "value": ""
+        },
+        {
+          "action": "assert_text",
+          "selector": "input[type='password'] + .error-message",
+          "value": "비밀번호를 입력하세요."
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "input[type='email']",
+          "input[type='password']",
+          "button[type='submit']",
+          "input[type='password'] + .error-message",
+          "input[type='password'] + .error-message"
+        ],
+        "total": 5,
+        "unique": 3,
+        "multiple": [],
+        "missing": [
+          "input[type='password'] + .error-message",
+          "input[type='password'] + .error-message"
+        ],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-ce86e049b883",
+      "format_ok": true,
+      "run_id": "ccf08566383941d1",
+      "outcome": "FAIL",
+      "run_error": "Locator expected to be visible\nActual value: None\nError: element(s) not found \nCall log:\n  - Expect \"to_be_visible\" locator(\"input[type='password'] + .error-message\") with timeout 5000ms\n  - waiting for locator(\"input[type='password'] + .error-message\")\n\nAria snapshot:\n- main:\n  - text: QA LAB · LOG",
+      "triage": {
+        "likely_cause": "test_definition",
+        "confidence": "high",
+        "suggested_action": "테스트 케이스 내 오류 메시지 위치 선택자 'input[type='password'] + .error-message'를 실제 DOM 구조에 맞게 수정하여 오류 문구를 올바르게 찾도록 변경하세요."
+      },
+      "triage_previous": {
+        "likely_cause": "test_definition",
+        "confidence": "high",
+        "suggested_action": "테스트 스크립트 내 오류 메시지 선택자를 실제 페이지 오류 메시지 요소('비밀번호' 입력창 주변에 있는 'paragraph' 태그) 구조에 맞게 수정하여 올바른 요소를 찾도록 개선하세요."
+      }
+    },
+    {
+      "target": "login",
+      "scenario": "empty-password",
+      "condition": "without",
+      "rep": 2,
+      "index": 0,
+      "generation_seconds": 3.22,
+      "drafts_in_response": 1,
+      "description": "이메일만 입력하고 비밀번호를 비워 로그인 시도 후 비밀번호 오류 문구가 나타나는지 확인한다.",
+      "expected": "비밀번호 입력창 아래에 '비밀번호를 입력하세요.' 문구가 보여야 한다.",
+      "review_notes": "페이지 구조를 알 수 없어 이메일과 비밀번호 입력창을 input[type='email']과 input[type='password']로, 로그인 버튼을 button[type='submit']으로 추정하였습니다. 오류 문구는 '비밀번호를 입력하세요.' 텍스트로 찾도록 했습니다. 검토 부탁합니다.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/login"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='email']",
+          "value": "qa.user@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='password']",
+          "value": ""
+        },
+        {
+          "action": "click",
+          "selector": "button[type='submit']",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "text=비밀번호를 입력하세요.",
+          "value": ""
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "input[type='email']",
+          "input[type='password']",
+          "button[type='submit']",
+          "text=비밀번호를 입력하세요."
+        ],
+        "total": 4,
+        "unique": 3,
+        "multiple": [],
+        "missing": [
+          "text=비밀번호를 입력하세요."
+        ],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-1d9beeb90729",
+      "format_ok": true,
+      "run_id": "ccf08566383941d1",
+      "outcome": "PASS"
+    },
+    {
+      "target": "login",
+      "scenario": "empty-password",
+      "condition": "with",
+      "rep": 0,
+      "index": 0,
+      "generation_seconds": 3.14,
+      "drafts_in_response": 1,
+      "description": "이메일 입력 후 비밀번호를 비워서 로그인 시도 시 비밀번호 입력창 아래에 안내 문구 '비밀번호를 입력하세요.'가 표시되는지 확인한다.",
+      "expected": "비밀번호 입력창 아래에 '비밀번호를 입력하세요.' 오류 문구가 보인다.",
+      "review_notes": "",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/login"
+        },
+        {
+          "action": "fill",
+          "selector": "[data-testid=\"email-input\"]",
+          "value": "qa.user@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "[data-testid=\"password-input\"]",
+          "value": ""
+        },
+        {
+          "action": "click",
+          "selector": "[data-testid=\"login-submit\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "[data-testid=\"password-error\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_text",
+          "selector": "[data-testid=\"password-error\"]",
+          "value": "비밀번호를 입력하세요."
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "[data-testid=\"email-input\"]",
+          "[data-testid=\"password-input\"]",
+          "[data-testid=\"login-submit\"]",
+          "[data-testid=\"password-error\"]",
+          "[data-testid=\"password-error\"]"
+        ],
+        "total": 5,
+        "unique": 5,
+        "multiple": [],
+        "missing": [],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-4c7320963ca7",
+      "format_ok": true,
+      "run_id": "ad1145f8247a4f30",
+      "outcome": "PASS"
+    },
+    {
+      "target": "login",
+      "scenario": "empty-password",
+      "condition": "with",
+      "rep": 1,
+      "index": 0,
+      "generation_seconds": 3.09,
+      "drafts_in_response": 1,
+      "description": "이메일만 입력하고 비밀번호를 비운 채 로그인 요청 시 '비밀번호를 입력하세요.' 오류 메시지가 표시되는지 확인한다.",
+      "expected": "비밀번호 입력란 아래에 '비밀번호를 입력하세요.' 메시지가 나타난다.",
+      "review_notes": "비밀번호 오류 문구는 [data-testid=\"password-error\"] 요소를 사용한다. 처음에 비어 있다가 오류시 텍스트가 채워지는 구조다.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/login"
+        },
+        {
+          "action": "fill",
+          "selector": "[data-testid=\"email-input\"]",
+          "value": "qa.user@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "[data-testid=\"password-input\"]",
+          "value": ""
+        },
+        {
+          "action": "click",
+          "selector": "[data-testid=\"login-submit\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "[data-testid=\"password-error\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_text",
+          "selector": "[data-testid=\"password-error\"]",
+          "value": "비밀번호를 입력하세요."
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "[data-testid=\"email-input\"]",
+          "[data-testid=\"password-input\"]",
+          "[data-testid=\"login-submit\"]",
+          "[data-testid=\"password-error\"]",
+          "[data-testid=\"password-error\"]"
+        ],
+        "total": 5,
+        "unique": 5,
+        "multiple": [],
+        "missing": [],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-6cc96f91e01e",
+      "format_ok": true,
+      "run_id": "ad1145f8247a4f30",
+      "outcome": "PASS"
+    },
+    {
+      "target": "login",
+      "scenario": "empty-password",
+      "condition": "with",
+      "rep": 2,
+      "index": 0,
+      "generation_seconds": 3.14,
+      "drafts_in_response": 1,
+      "description": "이메일만 입력하고 비밀번호를 비운 채 로그인하면 비밀번호 입력창 아래에 \"비밀번호를 입력하세요.\" 안내 문구가 표시되는지 확인한다.",
+      "expected": "비밀번호를 입력하지 않은 상태에서 로그인 시도 시, 서버 요청 없이 클라이언트 측에서 \"비밀번호를 입력하세요.\" 오류 문구가 보여야 한다.",
+      "review_notes": "비밀번호 오류 문구는 [data-testid=\"password-error\"] 요소에 표시되며, 처음에는 비어 있다가 빈 비밀번호 제출 시 클라이언트 검증에 의해 문구가 나타난다.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/login"
+        },
+        {
+          "action": "fill",
+          "selector": "[data-testid=\"email-input\"]",
+          "value": "qa.user@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "[data-testid=\"password-input\"]",
+          "value": ""
+        },
+        {
+          "action": "click",
+          "selector": "[data-testid=\"login-submit\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "[data-testid=\"password-error\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_text",
+          "selector": "[data-testid=\"password-error\"]",
+          "value": "비밀번호를 입력하세요."
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "[data-testid=\"email-input\"]",
+          "[data-testid=\"password-input\"]",
+          "[data-testid=\"login-submit\"]",
+          "[data-testid=\"password-error\"]",
+          "[data-testid=\"password-error\"]"
+        ],
+        "total": 5,
+        "unique": 5,
+        "multiple": [],
+        "missing": [],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-d469e72d4d27",
+      "format_ok": true,
+      "run_id": "ad1145f8247a4f30",
+      "outcome": "PASS"
+    },
+    {
+      "target": "login",
+      "scenario": "wrong-password",
+      "condition": "without",
+      "rep": 0,
+      "index": 0,
+      "generation_seconds": 3.4,
+      "drafts_in_response": 1,
+      "description": "틀린 비밀번호로 로그인 시 오류 메시지 표시 확인",
+      "expected": "로그인 시도 후 '이메일 또는 비밀번호가 올바르지 않습니다.' 메시지가 로그인 폼 아래에 표시된다.",
+      "review_notes": "페이지 구조가 제공되지 않아 input 필드와 버튼 선택자를 이메일, 비밀번호 input[type], 로그인 버튼 button[type=submit] 으로 추정했습니다. 검토 부탁드립니다.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/login"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='email']",
+          "value": "qa.user@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='password']",
+          "value": "${QA_TEST_WRONG_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "button[type='submit']",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "text=이메일 또는 비밀번호가 올바르지 않습니다.",
+          "value": ""
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "input[type='email']",
+          "input[type='password']",
+          "button[type='submit']",
+          "text=이메일 또는 비밀번호가 올바르지 않습니다."
+        ],
+        "total": 4,
+        "unique": 3,
+        "multiple": [],
+        "missing": [
+          "text=이메일 또는 비밀번호가 올바르지 않습니다."
+        ],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-15d8a62c0745",
+      "format_ok": true,
+      "run_id": "ccf08566383941d1",
+      "outcome": "PASS"
+    },
+    {
+      "target": "login",
+      "scenario": "wrong-password",
+      "condition": "without",
+      "rep": 1,
+      "index": 0,
+      "generation_seconds": 3.14,
+      "drafts_in_response": 1,
+      "description": "테스트 계정 이메일에 틀린 비밀번호 입력 후 로그인 시도 시 실패 안내 메시지가 올바르게 표시되는지 확인한다.",
+      "expected": "\"이메일 또는 비밀번호가 올바르지 않습니다.\" 안내 문구가 보이며 로그인에 실패한다.",
+      "review_notes": "페이지 세부 구조 미제공으로 이메일 입력창은 input[type='email'], 비밀번호 입력창은 input[type='password'], 로그인 버튼은 button[type='submit']으로 가정하였음. 실패 메시지는 포함 텍스트 선택자를 사용함. 실제 구조 확인 필요.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/login"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='email']",
+          "value": "qa.user@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='password']",
+          "value": "${QA_TEST_WRONG_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "button[type='submit']",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "text=이메일 또는 비밀번호가 올바르지 않습니다.",
+          "value": ""
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "input[type='email']",
+          "input[type='password']",
+          "button[type='submit']",
+          "text=이메일 또는 비밀번호가 올바르지 않습니다."
+        ],
+        "total": 4,
+        "unique": 3,
+        "multiple": [],
+        "missing": [
+          "text=이메일 또는 비밀번호가 올바르지 않습니다."
+        ],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-b11e327b6520",
+      "format_ok": true,
+      "run_id": "ccf08566383941d1",
+      "outcome": "PASS"
+    },
+    {
+      "target": "login",
+      "scenario": "wrong-password",
+      "condition": "without",
+      "rep": 2,
+      "index": 0,
+      "generation_seconds": 3.22,
+      "drafts_in_response": 1,
+      "description": "테스트 계정에 틀린 비밀번호를 입력하고 로그인하면 오류 메시지 표시 확인",
+      "expected": "로그인 시 '이메일 또는 비밀번호가 올바르지 않습니다.' 오류 메시지가 나타난다.",
+      "review_notes": "이메일 및 비밀번호 입력창과 로그인 버튼 선택자는 페이지 구조가 주어지지 않아 일반적인 입력 요소 및 버튼 타입으로 추정했습니다. 실제 선택자 확인이 필요합니다.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/login"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type=\"email\"]",
+          "value": "qa.user@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type=\"password\"]",
+          "value": "${QA_TEST_WRONG_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "button[type=\"submit\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "text=이메일 또는 비밀번호가 올바르지 않습니다.",
+          "value": ""
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "input[type=\"email\"]",
+          "input[type=\"password\"]",
+          "button[type=\"submit\"]",
+          "text=이메일 또는 비밀번호가 올바르지 않습니다."
+        ],
+        "total": 4,
+        "unique": 3,
+        "multiple": [],
+        "missing": [
+          "text=이메일 또는 비밀번호가 올바르지 않습니다."
+        ],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-c639504e55b6",
+      "format_ok": true,
+      "run_id": "ccf08566383941d1",
+      "outcome": "PASS"
+    },
+    {
+      "target": "login",
+      "scenario": "wrong-password",
+      "condition": "with",
+      "rep": 0,
+      "index": 0,
+      "generation_seconds": 4.77,
+      "drafts_in_response": 1,
+      "description": "테스트 계정에 틀린 비밀번호를 입력하고 로그인 시도 시, 로그인 실패 안내 메시지가 보이는지 확인한다.",
+      "expected": "\"이메일 또는 비밀번호가 올바르지 않습니다.\" 안내 메시지가 [data-testid=\"login-error\"] 요소에 표시된다.",
+      "review_notes": "오류 메시지 표시 영역은 [data-testid=\"login-error\"] 요소를 사용하였다.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/login"
+        },
+        {
+          "action": "assert_status",
+          "selector": "",
+          "value": "200"
+        },
+        {
+          "action": "fill",
+          "selector": "[data-testid=\"email-input\"]",
+          "value": "qa.user@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "[data-testid=\"password-input\"]",
+          "value": "${QA_TEST_WRONG_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "[data-testid=\"login-submit\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "[data-testid=\"login-error\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_text",
+          "selector": "[data-testid=\"login-error\"]",
+          "value": "이메일 또는 비밀번호가 올바르지 않습니다."
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "[data-testid=\"email-input\"]",
+          "[data-testid=\"password-input\"]",
+          "[data-testid=\"login-submit\"]",
+          "[data-testid=\"login-error\"]",
+          "[data-testid=\"login-error\"]"
+        ],
+        "total": 5,
+        "unique": 5,
+        "multiple": [],
+        "missing": [],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-64855c4a4677",
+      "format_ok": true,
+      "run_id": "ad1145f8247a4f30",
+      "outcome": "PASS"
+    },
+    {
+      "target": "login",
+      "scenario": "wrong-password",
+      "condition": "with",
+      "rep": 1,
+      "index": 0,
+      "generation_seconds": 2.88,
+      "drafts_in_response": 1,
+      "description": "틀린 비밀번호로 로그인 시도 후 오류 메시지 표시 확인",
+      "expected": "이메일 또는 비밀번호가 올바르지 않습니다. 라는 오류 메시지가 로그인 폼 아래에 표시되고, 페이지는 /login 상태를 유지한다.",
+      "review_notes": "로그인 실패 후에 로그인 에러 메시지가 [data-testid=\"login-error\"] 요소에 표시되는 것으로 예상함.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/login"
+        },
+        {
+          "action": "assert_status",
+          "selector": "",
+          "value": "200"
+        },
+        {
+          "action": "fill",
+          "selector": "[data-testid=\"email-input\"]",
+          "value": "qa.user@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "[data-testid=\"password-input\"]",
+          "value": "${QA_TEST_WRONG_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "[data-testid=\"login-submit\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_text",
+          "selector": "[data-testid=\"login-error\"]",
+          "value": "이메일 또는 비밀번호가 올바르지 않습니다."
+        },
+        {
+          "action": "assert_url",
+          "selector": "",
+          "value": "/login"
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "[data-testid=\"email-input\"]",
+          "[data-testid=\"password-input\"]",
+          "[data-testid=\"login-submit\"]",
+          "[data-testid=\"login-error\"]"
+        ],
+        "total": 4,
+        "unique": 4,
+        "multiple": [],
+        "missing": [],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-3aeabf6d7c6e",
+      "format_ok": true,
+      "run_id": "ad1145f8247a4f30",
+      "outcome": "PASS"
+    },
+    {
+      "target": "login",
+      "scenario": "wrong-password",
+      "condition": "with",
+      "rep": 2,
+      "index": 0,
+      "generation_seconds": 3.12,
+      "drafts_in_response": 1,
+      "description": "잘못된 비밀번호로 로그인 시 오류 메시지 확인",
+      "expected": "오류 메시지 '이메일 또는 비밀번호가 올바르지 않습니다.'가 화면에 표시된다.",
+      "review_notes": "[data-testid=\"login-error\"]는 로그인 실패 시에 오류 메시지가 표시되는 요소로, 페이지 문서 내에 초기 빈 요소로 확인됨.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/login"
+        },
+        {
+          "action": "fill",
+          "selector": "[data-testid=\"email-input\"]",
+          "value": "qa.user@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "[data-testid=\"password-input\"]",
+          "value": "${QA_TEST_WRONG_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "[data-testid=\"login-submit\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "[data-testid=\"login-error\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_text",
+          "selector": "[data-testid=\"login-error\"]",
+          "value": "이메일 또는 비밀번호가 올바르지 않습니다."
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "[data-testid=\"email-input\"]",
+          "[data-testid=\"password-input\"]",
+          "[data-testid=\"login-submit\"]",
+          "[data-testid=\"login-error\"]",
+          "[data-testid=\"login-error\"]"
+        ],
+        "total": 5,
+        "unique": 5,
+        "multiple": [],
+        "missing": [],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-85391b97becb",
+      "format_ok": true,
+      "run_id": "ad1145f8247a4f30",
+      "outcome": "PASS"
+    },
+    {
+      "target": "login",
+      "scenario": "login-success",
+      "condition": "without",
+      "rep": 0,
+      "index": 0,
+      "generation_seconds": 2.94,
+      "drafts_in_response": 1,
+      "description": "테스트 계정으로 정상 로그인시 /home으로 이동하여 '로그인 완료' 제목이 보여지는지 확인한다.",
+      "expected": "/home 경로 접속 및 '로그인 완료' 텍스트 확인",
+      "review_notes": "페이지 내 input과 버튼의 선택자를 추정하였으니 실제 페이지에 맞게 확인 후 조정 바랍니다.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/login"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='email']",
+          "value": "qa.user@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='password']",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "button[type='submit']",
+          "value": ""
+        },
+        {
+          "action": "assert_url",
+          "selector": "",
+          "value": "/home"
+        },
+        {
+          "action": "assert_visible",
+          "selector": "text=로그인 완료",
+          "value": ""
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "input[type='email']",
+          "input[type='password']",
+          "button[type='submit']",
+          "text=로그인 완료"
+        ],
+        "total": 4,
+        "unique": 3,
+        "multiple": [],
+        "missing": [
+          "text=로그인 완료"
+        ],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-4700cb965429",
+      "format_ok": true,
+      "run_id": "ccf08566383941d1",
+      "outcome": "PASS"
+    },
+    {
+      "target": "login",
+      "scenario": "login-success",
+      "condition": "without",
+      "rep": 1,
+      "index": 0,
+      "generation_seconds": 2.63,
+      "drafts_in_response": 1,
+      "description": "테스트 계정으로 정상 로그인 후 로그인 완료 화면으로 이동하는지 확인",
+      "expected": "/home 경로로 이동하고 '로그인 완료' 제목을 표시한다",
+      "review_notes": "페이지 구조를 알 수 없어 email과 password input, 로그인 버튼 selector는 Playwright CSS로 추정했습니다. 확인 부탁드립니다.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/login"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='email']",
+          "value": "qa.user@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='password']",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "button[type='submit']",
+          "value": ""
+        },
+        {
+          "action": "assert_url",
+          "selector": "",
+          "value": "/home"
+        },
+        {
+          "action": "assert_visible",
+          "selector": "text=로그인 완료",
+          "value": ""
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "input[type='email']",
+          "input[type='password']",
+          "button[type='submit']",
+          "text=로그인 완료"
+        ],
+        "total": 4,
+        "unique": 3,
+        "multiple": [],
+        "missing": [
+          "text=로그인 완료"
+        ],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-6c3df5419413",
+      "format_ok": true,
+      "run_id": "ccf08566383941d1",
+      "outcome": "PASS"
+    },
+    {
+      "target": "login",
+      "scenario": "login-success",
+      "condition": "without",
+      "rep": 2,
+      "index": 0,
+      "generation_seconds": 2.84,
+      "drafts_in_response": 1,
+      "description": "테스트 계정으로 정상 로그인 시 /home 페이지로 이동하고 '로그인 완료' 제목이 표시되는지 확인한다.",
+      "expected": "/home 페이지로 이동 및 '로그인 완료' 텍스트 노출 확인",
+      "review_notes": "페이지 구조를 알 수 없어서 이메일과 비밀번호 입력 필드를 각각 'input[type=\"email\"]', 'input[type=\"password\"]', 로그인 버튼은 'button[type=\"submit\"]'으로 추정하여 작성하였습니다. 검토 부탁드립니다.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/login"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='email']",
+          "value": "qa.user@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='password']",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "button[type='submit']",
+          "value": ""
+        },
+        {
+          "action": "assert_url",
+          "selector": "",
+          "value": "/home"
+        },
+        {
+          "action": "assert_visible",
+          "selector": "text=로그인 완료",
+          "value": ""
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "input[type='email']",
+          "input[type='password']",
+          "button[type='submit']",
+          "text=로그인 완료"
+        ],
+        "total": 4,
+        "unique": 3,
+        "multiple": [],
+        "missing": [
+          "text=로그인 완료"
+        ],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-ad2b5983cc3d",
+      "format_ok": true,
+      "run_id": "ccf08566383941d1",
+      "outcome": "PASS"
+    },
+    {
+      "target": "login",
+      "scenario": "login-success",
+      "condition": "with",
+      "rep": 0,
+      "index": 0,
+      "generation_seconds": 3.04,
+      "drafts_in_response": 1,
+      "description": "테스트 계정으로 정상 로그인 시 /home 으로 이동하고 '로그인 완료' 제목이 보여지는지 확인한다.",
+      "expected": "/home 경로로 이동하고 '로그인 완료' 텍스트가 화면에 보여야 한다.",
+      "review_notes": "로그인 성공 후 /home 경로의 h1 요소를 확인하는 선택자는 로그인 완료 페이지의 예상 요소를 추정하여 작성함.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/login"
+        },
+        {
+          "action": "fill",
+          "selector": "[data-testid=\"email-input\"]",
+          "value": "qa.user@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "[data-testid=\"password-input\"]",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "[data-testid=\"login-submit\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_url",
+          "selector": "",
+          "value": "/home"
+        },
+        {
+          "action": "assert_visible",
+          "selector": "h1",
+          "value": ""
+        },
+        {
+          "action": "assert_text",
+          "selector": "h1",
+          "value": "로그인 완료"
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "[data-testid=\"email-input\"]",
+          "[data-testid=\"password-input\"]",
+          "[data-testid=\"login-submit\"]",
+          "h1",
+          "h1"
+        ],
+        "total": 5,
+        "unique": 5,
+        "multiple": [],
+        "missing": [],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-3c88b7e74874",
+      "format_ok": true,
+      "run_id": "ad1145f8247a4f30",
+      "outcome": "PASS"
+    },
+    {
+      "target": "login",
+      "scenario": "login-success",
+      "condition": "with",
+      "rep": 1,
+      "index": 0,
+      "generation_seconds": 2.76,
+      "drafts_in_response": 1,
+      "description": "테스트 계정으로 정상 로그인하여 로그인 완료 화면으로 이동하는지 확인",
+      "expected": "/home 경로로 이동하고 \"로그인 완료\" 제목이 보여야 한다",
+      "review_notes": "로그인 후 /home 경로로 이동하여 h1 요소에 \"로그인 완료\" 텍스트가 표시되는지 확인하는 테스트입니다.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/login"
+        },
+        {
+          "action": "assert_status",
+          "selector": "",
+          "value": "200"
+        },
+        {
+          "action": "fill",
+          "selector": "[data-testid=\"email-input\"]",
+          "value": "qa.user@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "[data-testid=\"password-input\"]",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "[data-testid=\"login-submit\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_url",
+          "selector": "",
+          "value": "/home"
+        },
+        {
+          "action": "assert_text",
+          "selector": "h1",
+          "value": "로그인 완료"
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "[data-testid=\"email-input\"]",
+          "[data-testid=\"password-input\"]",
+          "[data-testid=\"login-submit\"]",
+          "h1"
+        ],
+        "total": 4,
+        "unique": 4,
+        "multiple": [],
+        "missing": [],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-022502017c4e",
+      "format_ok": true,
+      "run_id": "ad1145f8247a4f30",
+      "outcome": "PASS"
+    },
+    {
+      "target": "login",
+      "scenario": "login-success",
+      "condition": "with",
+      "rep": 2,
+      "index": 0,
+      "generation_seconds": 3.06,
+      "drafts_in_response": 1,
+      "description": "테스트 계정으로 정상 로그인하면 /home 으로 이동해 \"로그인 완료\" 제목을 보여준다.",
+      "expected": "/home 경로로 이동하며 로그인 완료 제목이 보여야 한다.",
+      "review_notes": "로그인 후에 이동하는 /home 페이지의 h1 선택자는 예상 기반으로 작성함.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/login"
+        },
+        {
+          "action": "assert_status",
+          "selector": "",
+          "value": "200"
+        },
+        {
+          "action": "fill",
+          "selector": "[data-testid=\"email-input\"]",
+          "value": "qa.user@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "[data-testid=\"password-input\"]",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "[data-testid=\"login-submit\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_url",
+          "selector": "",
+          "value": "/home"
+        },
+        {
+          "action": "assert_text",
+          "selector": "h1",
+          "value": "로그인 완료"
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "[data-testid=\"email-input\"]",
+          "[data-testid=\"password-input\"]",
+          "[data-testid=\"login-submit\"]",
+          "h1"
+        ],
+        "total": 4,
+        "unique": 4,
+        "multiple": [],
+        "missing": [],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-ad9a316a451e",
+      "format_ok": true,
+      "run_id": "ad1145f8247a4f30",
+      "outcome": "PASS"
+    },
+    {
+      "target": "login",
+      "scenario": "layout",
+      "condition": "without",
+      "rep": 0,
+      "index": 0,
+      "generation_seconds": 3.27,
+      "drafts_in_response": 1,
+      "description": "로그인 화면에 제목, 이메일 입력창, 비밀번호 입력창, 로그인 버튼이 모두 보이는지 확인한다.",
+      "expected": "로그인 화면의 기본 요소들이 모두 정상적으로 보여야 한다.",
+      "review_notes": "페이지 구조가 제공되지 않아 각 요소의 선택자는 추정함. 제목은 '로그인 데모' 텍스트, 이메일과 비밀번호 입력창은 각각 input[type='email'], input[type='password'], 로그인 버튼은 텍스트가 '로그인'인 button으로 선택하였음. 검토를 요청함.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/login"
+        },
+        {
+          "action": "assert_visible",
+          "selector": "text=로그인 데모",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "input[type='email']",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "input[type='password']",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "button:has-text(\"로그인\")",
+          "value": ""
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "text=로그인 데모",
+          "input[type='email']",
+          "input[type='password']",
+          "button:has-text(\"로그인\")"
+        ],
+        "total": 4,
+        "unique": 3,
+        "multiple": [],
+        "missing": [
+          "text=로그인 데모"
+        ],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-000d83a5b0d7",
+      "format_ok": true,
+      "run_id": "ccf08566383941d1",
+      "outcome": "FAIL",
+      "run_error": "Locator expected to be visible\nActual value: None\nError: element(s) not found \nCall log:\n  - Expect \"to_be_visible\" locator(\"text=로그인 데모\") with timeout 5000ms\n  - waiting for locator(\"text=로그인 데모\")\n\nAria snapshot:\n- main:\n  - text: QA LAB · LOGIN DEMO\n  - heading \"QA 데모 로그인\" [level=1]\n  - paragraph:",
+      "triage": {
+        "likely_cause": "test_definition",
+        "confidence": "high",
+        "suggested_action": "테스트 단계 중 제목을 확인하는 assert_visible의 selector를 page 내 존재하는 정확한 텍스트(예: 'QA 데모 로그인' 헤딩 텍스트)로 수정하여 테스트가 실제 UI와 일치하도록 변경한다."
+      },
+      "triage_previous": {
+        "likely_cause": "test_definition",
+        "confidence": "high",
+        "suggested_action": "테스트에서 로그인 페이지 제목 텍스트 선택자를 실제 페이지 제목 ('QA 데모 로그인' 등)으로 수정하여 'text=로그인 데모' 대신 올바른 텍스트 선택자를 사용하도록 변경한다."
+      }
+    },
+    {
+      "target": "login",
+      "scenario": "layout",
+      "condition": "without",
+      "rep": 1,
+      "index": 0,
+      "generation_seconds": 2.59,
+      "drafts_in_response": 1,
+      "description": "로그인 화면에 제목, 이메일 입력창, 비밀번호 입력창, 로그인 버튼이 모두 보이는지 확인한다.",
+      "expected": "로그인 화면에서 제목, 이메일 입력창, 비밀번호 입력창, 로그인 버튼이 모두 화면에 보여야 한다.",
+      "review_notes": "각 요소의 선택자는 일반적인 웹 표준에 따른 추정이며, 실제 페이지 구조에 따라 수정이 필요할 수 있으니 검토 바랍니다.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/login"
+        },
+        {
+          "action": "assert_visible",
+          "selector": "h1",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "input[type='email']",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "input[type='password']",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "button:has-text(\"로그인\")",
+          "value": ""
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "h1",
+          "input[type='email']",
+          "input[type='password']",
+          "button:has-text(\"로그인\")"
+        ],
+        "total": 4,
+        "unique": 4,
+        "multiple": [],
+        "missing": [],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-b96b77e4aea2",
+      "format_ok": true,
+      "run_id": "ccf08566383941d1",
+      "outcome": "PASS"
+    },
+    {
+      "target": "login",
+      "scenario": "layout",
+      "condition": "without",
+      "rep": 2,
+      "index": 0,
+      "generation_seconds": 2.71,
+      "drafts_in_response": 1,
+      "description": "로그인 화면에 제목, 이메일 입력창, 비밀번호 입력창, 로그인 버튼이 모두 보이는지 확인한다.",
+      "expected": "로그인 화면에서 제목 텍스트, 이메일 입력창, 비밀번호 입력창, 로그인 버튼이 모두 사용자에게 보여진다.",
+      "review_notes": "페이지 구조가 제공되지 않아 제목과 입력창, 버튼의 선택자를 추정하여 작성하였습니다. 실제 UI와 다를 수 있으니 검토를 부탁드립니다.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/login"
+        },
+        {
+          "action": "assert_visible",
+          "selector": "text=로그인 데모",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "input[type='email']",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "input[type='password']",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "button:text('로그인')",
+          "value": ""
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "text=로그인 데모",
+          "input[type='email']",
+          "input[type='password']",
+          "button:text('로그인')"
+        ],
+        "total": 4,
+        "unique": 3,
+        "multiple": [],
+        "missing": [
+          "text=로그인 데모"
+        ],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-629e27280ae8",
+      "format_ok": true,
+      "run_id": "ccf08566383941d1",
+      "outcome": "FAIL",
+      "run_error": "Locator expected to be visible\nActual value: None\nError: element(s) not found \nCall log:\n  - Expect \"to_be_visible\" locator(\"text=로그인 데모\") with timeout 5000ms\n  - waiting for locator(\"text=로그인 데모\")\n\nAria snapshot:\n- main:\n  - text: QA LAB · LOGIN DEMO\n  - heading \"QA 데모 로그인\" [level=1]\n  - paragraph:",
+      "triage": {
+        "likely_cause": "test_definition",
+        "confidence": "high",
+        "suggested_action": "테스트 스크립트의 제목 텍스트 선택자를 실제 페이지의 제목인 'QA 데모 로그인'으로 수정하여 테스트가 올바른 요소를 찾도록 개선하세요."
+      },
+      "triage_previous": {
+        "likely_cause": "test_definition",
+        "confidence": "high",
+        "suggested_action": "테스트의 제목 확인 단계에서 사용하는 셀렉터를 'text=QA 데모 로그인' 등 실제 페이지에 존재하는 텍스트로 수정하여 테스트가 올바른 요소를 찾도록 변경하세요."
+      }
+    },
+    {
+      "target": "login",
+      "scenario": "layout",
+      "condition": "with",
+      "rep": 0,
+      "index": 0,
+      "generation_seconds": 2.96,
+      "drafts_in_response": 1,
+      "description": "로그인 화면에 제목, 이메일 입력창, 비밀번호 입력창, 로그인 버튼이 모두 보이는지 확인한다.",
+      "expected": "로그인 화면 제목은 'QA 데모 로그인'이며, 이메일 입력창, 비밀번호 입력창, 로그인 버튼이 각각 보여야 한다.",
+      "review_notes": "페이지 로딩 시점에 제공된 요소 정보 및 URL을 활용하여 작성함.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/login"
+        },
+        {
+          "action": "assert_status",
+          "selector": "",
+          "value": "200"
+        },
+        {
+          "action": "assert_visible",
+          "selector": "h1",
+          "value": ""
+        },
+        {
+          "action": "assert_text",
+          "selector": "h1",
+          "value": "QA 데모 로그인"
+        },
+        {
+          "action": "assert_visible",
+          "selector": "[data-testid=\"email-input\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "[data-testid=\"password-input\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "[data-testid=\"login-submit\"]",
+          "value": ""
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "h1",
+          "h1",
+          "[data-testid=\"email-input\"]",
+          "[data-testid=\"password-input\"]",
+          "[data-testid=\"login-submit\"]"
+        ],
+        "total": 5,
+        "unique": 5,
+        "multiple": [],
+        "missing": [],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-fe50f00be7e6",
+      "format_ok": true,
+      "run_id": "ad1145f8247a4f30",
+      "outcome": "PASS"
+    },
+    {
+      "target": "login",
+      "scenario": "layout",
+      "condition": "with",
+      "rep": 1,
+      "index": 0,
+      "generation_seconds": 3.17,
+      "drafts_in_response": 1,
+      "description": "로그인 화면에 제목, 이메일 입력창, 비밀번호 입력창, 로그인 버튼이 모두 보이는지 확인한다.",
+      "expected": "로그인 화면에서 제목 'QA 데모 로그인'가 보이고, 이메일 입력창, 비밀번호 입력창, 로그인 버튼이 모두 화면에 보여야 한다.",
+      "review_notes": "시작 페이지 요소를 기반으로 테스트 단계 생성",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/login"
+        },
+        {
+          "action": "assert_status",
+          "selector": "",
+          "value": "200"
+        },
+        {
+          "action": "assert_visible",
+          "selector": "h1",
+          "value": ""
+        },
+        {
+          "action": "assert_text",
+          "selector": "h1",
+          "value": "QA 데모 로그인"
+        },
+        {
+          "action": "assert_visible",
+          "selector": "[data-testid=\"email-input\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "[data-testid=\"password-input\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "[data-testid=\"login-submit\"]",
+          "value": ""
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "h1",
+          "h1",
+          "[data-testid=\"email-input\"]",
+          "[data-testid=\"password-input\"]",
+          "[data-testid=\"login-submit\"]"
+        ],
+        "total": 5,
+        "unique": 5,
+        "multiple": [],
+        "missing": [],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-7ad8ff1e4b2a",
+      "format_ok": true,
+      "run_id": "ad1145f8247a4f30",
+      "outcome": "PASS"
+    },
+    {
+      "target": "login",
+      "scenario": "layout",
+      "condition": "with",
+      "rep": 2,
+      "index": 0,
+      "generation_seconds": 2.54,
+      "drafts_in_response": 1,
+      "description": "로그인 화면 요소들이 모두 정상적으로 보이는지 확인한다.",
+      "expected": "로그인 페이지에 제목 'QA 데모 로그인', 이메일 입력창, 비밀번호 입력창, 로그인 버튼이 모두 화면에 보여야 한다.",
+      "review_notes": "시작 페이지의 elements 정보를 토대로 선별한 selectors를 사용하였습니다.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/login"
+        },
+        {
+          "action": "assert_status",
+          "selector": "",
+          "value": "200"
+        },
+        {
+          "action": "assert_visible",
+          "selector": "h1",
+          "value": ""
+        },
+        {
+          "action": "assert_text",
+          "selector": "h1",
+          "value": "QA 데모 로그인"
+        },
+        {
+          "action": "assert_visible",
+          "selector": "[data-testid=\"email-input\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "[data-testid=\"password-input\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "[data-testid=\"login-submit\"]",
+          "value": ""
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "h1",
+          "h1",
+          "[data-testid=\"email-input\"]",
+          "[data-testid=\"password-input\"]",
+          "[data-testid=\"login-submit\"]"
+        ],
+        "total": 5,
+        "unique": 5,
+        "multiple": [],
+        "missing": [],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-8dbce91feaf5",
+      "format_ok": true,
+      "run_id": "ad1145f8247a4f30",
+      "outcome": "PASS"
+    },
+    {
+      "target": "signup",
+      "scenario": "empty-email",
+      "condition": "without",
+      "rep": 0,
+      "index": 0,
+      "generation_seconds": 3.3,
+      "drafts_in_response": 1,
+      "description": "이메일 입력 없이 회원가입 시도 시 \"이메일 주소를 입력해 주세요.\" 안내 문구가 나타나는지 확인",
+      "expected": "사용자가 이메일 없이 가입 버튼을 클릭하면 \"이메일 주소를 입력해 주세요.\" 문구가 페이지에 표시된다.",
+      "review_notes": "입력 필드의 name 속성과 버튼의 type 속성은 페이지 구조를 추정하여 선택하였습니다. 실제 선택자 검토가 필요합니다.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/signup"
+        },
+        {
+          "action": "fill",
+          "selector": "input[name='password']",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "fill",
+          "selector": "input[name='passwordConfirm']",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "input[type='checkbox'][name='terms']",
+          "value": ""
+        },
+        {
+          "action": "click",
+          "selector": "button[type='submit']",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "text=이메일 주소를 입력해 주세요.",
+          "value": ""
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "input[name='password']",
+          "input[name='passwordConfirm']",
+          "input[type='checkbox'][name='terms']",
+          "button[type='submit']",
+          "text=이메일 주소를 입력해 주세요."
+        ],
+        "total": 5,
+        "unique": 2,
+        "multiple": [],
+        "missing": [
+          "input[name='password']",
+          "input[name='passwordConfirm']",
+          "text=이메일 주소를 입력해 주세요."
+        ],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-a026aa983e93",
+      "format_ok": true,
+      "run_id": "02d49c228b2540a1",
+      "outcome": "ERROR",
+      "run_error": "Locator.get_attribute: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"input[name='password']\")\n"
+    },
+    {
+      "target": "signup",
+      "scenario": "empty-email",
+      "condition": "without",
+      "rep": 1,
+      "index": 0,
+      "generation_seconds": 3.16,
+      "drafts_in_response": 1,
+      "description": "이메일을 비운 채 가입하기를 클릭하면 '이메일 주소를 입력해 주세요.' 안내 문구가 보여야 한다.",
+      "expected": "'이메일 주소를 입력해 주세요.' 문구가 페이지에 보여야 한다.",
+      "review_notes": "페이지 구조가 제공되지 않아 이메일, 비밀번호, 비밀번호 확인, 약관 동의, 가입 버튼에 대한 css 선택자를 추정했습니다. 검토를 요청합니다.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/signup"
+        },
+        {
+          "action": "fill",
+          "selector": "input[name='password']",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "fill",
+          "selector": "input[name='passwordConfirm']",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "input[type='checkbox'][name='terms']",
+          "value": ""
+        },
+        {
+          "action": "click",
+          "selector": "button[type='submit']",
+          "value": ""
+        },
+        {
+          "action": "assert_text",
+          "selector": "form",
+          "value": "이메일 주소를 입력해 주세요."
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "input[name='password']",
+          "input[name='passwordConfirm']",
+          "input[type='checkbox'][name='terms']",
+          "button[type='submit']",
+          "form"
+        ],
+        "total": 5,
+        "unique": 3,
+        "multiple": [],
+        "missing": [
+          "input[name='password']",
+          "input[name='passwordConfirm']"
+        ],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-babf3ac9d9ff",
+      "format_ok": true,
+      "run_id": "02d49c228b2540a1",
+      "outcome": "ERROR",
+      "run_error": "Locator.get_attribute: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"input[name='password']\")\n"
+    },
+    {
+      "target": "signup",
+      "scenario": "empty-email",
+      "condition": "without",
+      "rep": 2,
+      "index": 0,
+      "generation_seconds": 4.08,
+      "drafts_in_response": 1,
+      "description": "이메일을 입력하지 않고 가입하기를 눌렀을 때 '이메일 주소를 입력해 주세요.' 안내 문구가 표시되는지 확인한다.",
+      "expected": "'이메일 주소를 입력해 주세요.' 메시지가 표시된다.",
+      "review_notes": "페이지 내 요소 선택자는 문서에 명확하게 명시되어 있지 않아 일반적인 input name이나 text 선택자를 추정하여 작성하였으니 검토 부탁드립니다.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/signup"
+        },
+        {
+          "action": "fill",
+          "selector": "input[name='password']",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "fill",
+          "selector": "input[name='passwordConfirm']",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "input[type='checkbox'][name='terms']",
+          "value": ""
+        },
+        {
+          "action": "click",
+          "selector": "button[type='submit']",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "text=이메일 주소를 입력해 주세요.",
+          "value": ""
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "input[name='password']",
+          "input[name='passwordConfirm']",
+          "input[type='checkbox'][name='terms']",
+          "button[type='submit']",
+          "text=이메일 주소를 입력해 주세요."
+        ],
+        "total": 5,
+        "unique": 2,
+        "multiple": [],
+        "missing": [
+          "input[name='password']",
+          "input[name='passwordConfirm']",
+          "text=이메일 주소를 입력해 주세요."
+        ],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-0a255f186cbd",
+      "format_ok": true,
+      "run_id": "02d49c228b2540a1",
+      "outcome": "ERROR",
+      "run_error": "Locator.get_attribute: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator(\"input[name='password']\")\n"
+    },
+    {
+      "target": "signup",
+      "scenario": "empty-email",
+      "condition": "with",
+      "rep": 0,
+      "index": 0,
+      "generation_seconds": 3.24,
+      "drafts_in_response": 1,
+      "description": "빈 이메일 주소로 가입 시 '이메일 주소를 입력해 주세요.' 안내 문구가 표시되는지 확인한다.",
+      "expected": "이메일 주소 입력란이 비어 있을 때 가입하기 버튼 클릭 후 안내 문구가 정확히 보임",
+      "review_notes": "#join-msg 영역은 폼 하단에 안내 메시지를 표시하는 역할 영역입니다.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/signup"
+        },
+        {
+          "action": "fill",
+          "selector": "#u-mail",
+          "value": ""
+        },
+        {
+          "action": "fill",
+          "selector": "#u-pw",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "fill",
+          "selector": "#u-pw2",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "#agree",
+          "value": ""
+        },
+        {
+          "action": "click",
+          "selector": "button[type=\"submit\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "#join-msg",
+          "value": ""
+        },
+        {
+          "action": "assert_text",
+          "selector": "#join-msg",
+          "value": "이메일 주소를 입력해 주세요."
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "#u-mail",
+          "#u-pw",
+          "#u-pw2",
+          "#agree",
+          "button[type=\"submit\"]",
+          "#join-msg",
+          "#join-msg"
+        ],
+        "total": 7,
+        "unique": 7,
+        "multiple": [],
+        "missing": [],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-47c19493d97d",
+      "format_ok": true,
+      "run_id": "4e9ae71594b448f5",
+      "outcome": "PASS"
+    },
+    {
+      "target": "signup",
+      "scenario": "empty-email",
+      "condition": "with",
+      "rep": 1,
+      "index": 0,
+      "generation_seconds": 2.66,
+      "drafts_in_response": 1,
+      "description": "이메일 주소를 빈 값으로 두고 가입하기를 클릭하면 '이메일 주소를 입력해 주세요.' 안내 문구가 표시되는지 확인한다.",
+      "expected": "폼의 안내 영역(#join-msg)에 '이메일 주소를 입력해 주세요.' 문구가 보여야 한다.",
+      "review_notes": "초기 페이지의 폼 안내 영역인 #join-msg를 사용하여 에러 메시지 표현을 확인함.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/signup"
+        },
+        {
+          "action": "fill",
+          "selector": "#u-mail",
+          "value": ""
+        },
+        {
+          "action": "fill",
+          "selector": "#u-pw",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "fill",
+          "selector": "#u-pw2",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "#agree",
+          "value": ""
+        },
+        {
+          "action": "click",
+          "selector": "button[type=\"submit\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "#join-msg",
+          "value": ""
+        },
+        {
+          "action": "assert_text",
+          "selector": "#join-msg",
+          "value": "이메일 주소를 입력해 주세요."
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "#u-mail",
+          "#u-pw",
+          "#u-pw2",
+          "#agree",
+          "button[type=\"submit\"]",
+          "#join-msg",
+          "#join-msg"
+        ],
+        "total": 7,
+        "unique": 7,
+        "multiple": [],
+        "missing": [],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-08837996ce79",
+      "format_ok": true,
+      "run_id": "4e9ae71594b448f5",
+      "outcome": "PASS"
+    },
+    {
+      "target": "signup",
+      "scenario": "empty-email",
+      "condition": "with",
+      "rep": 2,
+      "index": 0,
+      "generation_seconds": 3.24,
+      "drafts_in_response": 1,
+      "description": "이메일을 비운 상태에서 비밀번호, 비밀번호 확인, 이용약관 동의 후 가입하기를 누르면 이메일 안내 문구가 보인다",
+      "expected": "메일 주소가 없으면 '#join-msg' 영역에 '이메일 주소를 입력해 주세요.' 메시지가 표시된다.",
+      "review_notes": "'#join-msg' 는 initially_empty 안내 영역으로, 이메일 입력 없이 제출 시 메시지가 표시되는 영역임.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/signup"
+        },
+        {
+          "action": "fill",
+          "selector": "#u-pw",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "fill",
+          "selector": "#u-pw2",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "#agree",
+          "value": ""
+        },
+        {
+          "action": "click",
+          "selector": "button[type=\"submit\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "#join-msg",
+          "value": ""
+        },
+        {
+          "action": "assert_text",
+          "selector": "#join-msg",
+          "value": "이메일 주소를 입력해 주세요."
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "#u-pw",
+          "#u-pw2",
+          "#agree",
+          "button[type=\"submit\"]",
+          "#join-msg",
+          "#join-msg"
+        ],
+        "total": 6,
+        "unique": 6,
+        "multiple": [],
+        "missing": [],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-d90acfbc3b37",
+      "format_ok": true,
+      "run_id": "4e9ae71594b448f5",
+      "outcome": "PASS"
+    },
+    {
+      "target": "signup",
+      "scenario": "password-mismatch",
+      "condition": "without",
+      "rep": 0,
+      "index": 0,
+      "generation_seconds": 3.29,
+      "drafts_in_response": 1,
+      "description": "올바른 이메일과 비밀번호를 입력하고 비밀번호 확인을 다르게 입력한 후 가입 시도 시 비밀번호 불일치 안내가 표시되는지 확인한다.",
+      "expected": "비밀번호가 일치하지 않습니다. 라는 안내 메시지가 폼 내에 표시된다.",
+      "review_notes": "페이지 구조가 제공되지 않아 input 요소의 타입과 순서를 기준으로 선택자를 추정했습니다. 버튼 텍스트는 '가입'으로 추정했습니다. UI 변경 시 선택자 수정이 필요할 수 있으니 검토 부탁드립니다.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/signup"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='email']",
+          "value": "user@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='password']:nth-of-type(1)",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='password']:nth-of-type(2)",
+          "value": "${QA_TEST_WRONG_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "input[type='checkbox'][name='terms']",
+          "value": ""
+        },
+        {
+          "action": "click",
+          "selector": "button:has-text(\"가입\")",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "text=비밀번호가 일치하지 않습니다.",
+          "value": ""
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "input[type='email']",
+          "input[type='password']:nth-of-type(1)",
+          "input[type='password']:nth-of-type(2)",
+          "input[type='checkbox'][name='terms']",
+          "button:has-text(\"가입\")",
+          "text=비밀번호가 일치하지 않습니다."
+        ],
+        "total": 6,
+        "unique": 3,
+        "multiple": [
+          "input[type='password']:nth-of-type(1)"
+        ],
+        "missing": [
+          "input[type='password']:nth-of-type(2)",
+          "text=비밀번호가 일치하지 않습니다."
+        ],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-606e3e4835f6",
+      "format_ok": true,
+      "run_id": "02d49c228b2540a1",
+      "outcome": "ERROR",
+      "run_error": "Locator.get_attribute: Error: strict mode violation: locator(\"input[type='password']:nth-of-type(1)\") resolved to 2 elements:\n    1) <input id=\"u-pw\" name=\"userPw\" type=\"password\"/> aka get_by_role(\"textbox\", name=\"비밀번호\", exact=True)\n    2) <input id=\"u-pw2\" type=\"password\" name=\"userPwConfirm\"/> ak"
+    },
+    {
+      "target": "signup",
+      "scenario": "password-mismatch",
+      "condition": "without",
+      "rep": 1,
+      "index": 0,
+      "generation_seconds": 3.49,
+      "drafts_in_response": 1,
+      "description": "올바른 이메일과 서로 다른 비밀번호 확인 입력 시 '비밀번호가 일치하지 않습니다.' 메시지 확인",
+      "expected": "'비밀번호가 일치하지 않습니다.' 오류 메시지가 표시된다.",
+      "review_notes": "페이지 내 input, button, checkbox의 정확한 선택자가 제공되지 않아 유형과 순서를 기준으로 추정하였음. 텍스트 기반 에러 메시지 위치도 추정하였으니 실제 페이지 구조에 따른 검사 필요.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/signup"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='email']",
+          "value": "test@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='password']:nth-of-type(1)",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='password']:nth-of-type(2)",
+          "value": "${QA_TEST_WRONG_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "input[type='checkbox'][name='terms']",
+          "value": ""
+        },
+        {
+          "action": "click",
+          "selector": "button[type='submit']",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "text=비밀번호가 일치하지 않습니다.",
+          "value": ""
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "input[type='email']",
+          "input[type='password']:nth-of-type(1)",
+          "input[type='password']:nth-of-type(2)",
+          "input[type='checkbox'][name='terms']",
+          "button[type='submit']",
+          "text=비밀번호가 일치하지 않습니다."
+        ],
+        "total": 6,
+        "unique": 3,
+        "multiple": [
+          "input[type='password']:nth-of-type(1)"
+        ],
+        "missing": [
+          "input[type='password']:nth-of-type(2)",
+          "text=비밀번호가 일치하지 않습니다."
+        ],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-0e5a80a4190e",
+      "format_ok": true,
+      "run_id": "02d49c228b2540a1",
+      "outcome": "ERROR",
+      "run_error": "Locator.get_attribute: Error: strict mode violation: locator(\"input[type='password']:nth-of-type(1)\") resolved to 2 elements:\n    1) <input id=\"u-pw\" name=\"userPw\" type=\"password\"/> aka get_by_role(\"textbox\", name=\"비밀번호\", exact=True)\n    2) <input id=\"u-pw2\" type=\"password\" name=\"userPwConfirm\"/> ak"
+    },
+    {
+      "target": "signup",
+      "scenario": "password-mismatch",
+      "condition": "without",
+      "rep": 2,
+      "index": 0,
+      "generation_seconds": 3.57,
+      "drafts_in_response": 1,
+      "description": "올바른 이메일, 비밀번호, 다른 비밀번호 확인 입력 시 '비밀번호가 일치하지 않습니다.' 안내 확인",
+      "expected": "비밀번호와 비밀번호 확인이 다를 때 적절한 오류 메시지가 보여진다.",
+      "review_notes": "비밀번호 입력 필드와 오류 메시지의 선택자를 추정하였으니 실제 페이지 구조에 맞게 검토 및 수정이 필요합니다.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/signup"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='email']",
+          "value": "test@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='password']:nth-of-type(1)",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='password']:nth-of-type(2)",
+          "value": "${QA_TEST_WRONG_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "input[type='checkbox']",
+          "value": ""
+        },
+        {
+          "action": "click",
+          "selector": "button[type='submit']",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "text=비밀번호가 일치하지 않습니다.",
+          "value": ""
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "input[type='email']",
+          "input[type='password']:nth-of-type(1)",
+          "input[type='password']:nth-of-type(2)",
+          "input[type='checkbox']",
+          "button[type='submit']",
+          "text=비밀번호가 일치하지 않습니다."
+        ],
+        "total": 6,
+        "unique": 3,
+        "multiple": [
+          "input[type='password']:nth-of-type(1)"
+        ],
+        "missing": [
+          "input[type='password']:nth-of-type(2)",
+          "text=비밀번호가 일치하지 않습니다."
+        ],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-4f1a14ce3355",
+      "format_ok": true,
+      "run_id": "02d49c228b2540a1",
+      "outcome": "ERROR",
+      "run_error": "Locator.get_attribute: Error: strict mode violation: locator(\"input[type='password']:nth-of-type(1)\") resolved to 2 elements:\n    1) <input id=\"u-pw\" name=\"userPw\" type=\"password\"/> aka get_by_role(\"textbox\", name=\"비밀번호\", exact=True)\n    2) <input id=\"u-pw2\" type=\"password\" name=\"userPwConfirm\"/> ak"
+    },
+    {
+      "target": "signup",
+      "scenario": "password-mismatch",
+      "condition": "with",
+      "rep": 0,
+      "index": 0,
+      "generation_seconds": 3.41,
+      "drafts_in_response": 1,
+      "description": "비밀번호 확인이 다를 경우 '비밀번호가 일치하지 않습니다.' 안내 메시지가 표시되는지 확인한다.",
+      "expected": "비밀번호 확인이 다를 때 오류 메시지가 '#join-msg' 안에 포함되어 보여야 한다.",
+      "review_notes": "가입 폼의 '#join-msg'가 initially_empty 안내 영역이며, 비밀번호 불일치 오류 메시지가 이 영역 내에 표시됨을 전제로 작성함.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/signup"
+        },
+        {
+          "action": "assert_status",
+          "selector": "",
+          "value": "200"
+        },
+        {
+          "action": "fill",
+          "selector": "#u-mail",
+          "value": "test@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "#u-pw",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "fill",
+          "selector": "#u-pw2",
+          "value": "${QA_TEST_WRONG_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "#agree",
+          "value": ""
+        },
+        {
+          "action": "click",
+          "selector": "button[type=\"submit\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "#join-msg",
+          "value": ""
+        },
+        {
+          "action": "assert_text",
+          "selector": "#join-msg",
+          "value": "비밀번호가 일치하지 않습니다."
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "#u-mail",
+          "#u-pw",
+          "#u-pw2",
+          "#agree",
+          "button[type=\"submit\"]",
+          "#join-msg",
+          "#join-msg"
+        ],
+        "total": 7,
+        "unique": 7,
+        "multiple": [],
+        "missing": [],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-18c226b7923c",
+      "format_ok": true,
+      "run_id": "4e9ae71594b448f5",
+      "outcome": "PASS"
+    },
+    {
+      "target": "signup",
+      "scenario": "password-mismatch",
+      "condition": "with",
+      "rep": 1,
+      "index": 0,
+      "generation_seconds": 3.09,
+      "drafts_in_response": 1,
+      "description": "비밀번호 확인이 다르면 '비밀번호가 일치하지 않습니다.' 안내가 표시되는지 확인한다.",
+      "expected": "비밀번호 확인 입력 값이 다를 때 가입 불가하고, '#join-msg' 영역에 '비밀번호가 일치하지 않습니다.' 문구가 보여진다.",
+      "review_notes": "'#join-msg'는 초기에는 빈 화면이며 입력 오류 메시지를 보여주는 영역이다.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/signup"
+        },
+        {
+          "action": "assert_status",
+          "selector": "",
+          "value": "200"
+        },
+        {
+          "action": "fill",
+          "selector": "#u-mail",
+          "value": "test@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "#u-pw",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "fill",
+          "selector": "#u-pw2",
+          "value": "${QA_TEST_WRONG_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "#agree",
+          "value": ""
+        },
+        {
+          "action": "click",
+          "selector": "button[type=\"submit\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "#join-msg",
+          "value": ""
+        },
+        {
+          "action": "assert_text",
+          "selector": "#join-msg",
+          "value": "비밀번호가 일치하지 않습니다."
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "#u-mail",
+          "#u-pw",
+          "#u-pw2",
+          "#agree",
+          "button[type=\"submit\"]",
+          "#join-msg",
+          "#join-msg"
+        ],
+        "total": 7,
+        "unique": 7,
+        "multiple": [],
+        "missing": [],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-6cda70d8ac25",
+      "format_ok": true,
+      "run_id": "4e9ae71594b448f5",
+      "outcome": "PASS"
+    },
+    {
+      "target": "signup",
+      "scenario": "password-mismatch",
+      "condition": "with",
+      "rep": 2,
+      "index": 0,
+      "generation_seconds": 3.16,
+      "drafts_in_response": 1,
+      "description": "올바른 이메일과 비밀번호 입력, 비밀번호 확인이 다르게 입력한 경우 '비밀번호가 일치하지 않습니다.' 안내가 표시되는지 확인한다.",
+      "expected": "비밀번호 확인 불일치 안내 문구가 '#join-msg' 요소에 표시된다.",
+      "review_notes": "#join-msg 요소는 시작 페이지에서 확인된 폼 안내 영역으로, 불일치 안내 문구가 여기에 표시되는 것을 확인한다.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/signup"
+        },
+        {
+          "action": "fill",
+          "selector": "#u-mail",
+          "value": "user@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "#u-pw",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "fill",
+          "selector": "#u-pw2",
+          "value": "${QA_TEST_WRONG_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "#agree",
+          "value": ""
+        },
+        {
+          "action": "click",
+          "selector": "button[type=\"submit\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "#join-msg",
+          "value": ""
+        },
+        {
+          "action": "assert_text",
+          "selector": "#join-msg",
+          "value": "비밀번호가 일치하지 않습니다."
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "#u-mail",
+          "#u-pw",
+          "#u-pw2",
+          "#agree",
+          "button[type=\"submit\"]",
+          "#join-msg",
+          "#join-msg"
+        ],
+        "total": 7,
+        "unique": 7,
+        "multiple": [],
+        "missing": [],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-a8b4ec5e08ba",
+      "format_ok": true,
+      "run_id": "4e9ae71594b448f5",
+      "outcome": "PASS"
+    },
+    {
+      "target": "signup",
+      "scenario": "terms-required",
+      "condition": "without",
+      "rep": 0,
+      "index": 0,
+      "generation_seconds": 3.4,
+      "drafts_in_response": 1,
+      "description": "모든 필드에 올바른 값을 입력하고 약관 동의하지 않은 상태에서 가입 시 \"이용약관 동의가 필요합니다.\" 안내가 표시되는지 확인한다.",
+      "expected": "약관 동의하지 않은 상태에서 가입 시 \"이용약관 동의가 필요합니다.\" 메시지가 화면에 보여야 한다.",
+      "review_notes": "페이지에 데이터-testid가 없고 폼 구조가 제공되지 않아, 이메일과 비밀번호 입력 필드 선택자를 추정하였습니다. 약관 동의 체크박스 선택자도 구조를 알 수 없어 선택하지 않았습니다. 메시지 표시 영역도 텍스트 기반으로 추정했습니다. 실제 페이지 구조 확인 후 선택자 검토 요청드립니다.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/signup"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='email']",
+          "value": "test@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='password']",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "fill",
+          "selector": "input[name='passwordConfirm']",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "button[type='submit']",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "text=이용약관 동의가 필요합니다.",
+          "value": ""
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "input[type='email']",
+          "input[type='password']",
+          "input[name='passwordConfirm']",
+          "button[type='submit']",
+          "text=이용약관 동의가 필요합니다."
+        ],
+        "total": 5,
+        "unique": 2,
+        "multiple": [
+          "input[type='password']"
+        ],
+        "missing": [
+          "input[name='passwordConfirm']",
+          "text=이용약관 동의가 필요합니다."
+        ],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-f3d70aa72179",
+      "format_ok": true,
+      "run_id": "02d49c228b2540a1",
+      "outcome": "ERROR",
+      "run_error": "Locator.get_attribute: Error: strict mode violation: locator(\"input[type='password']\") resolved to 2 elements:\n    1) <input id=\"u-pw\" name=\"userPw\" type=\"password\"/> aka get_by_role(\"textbox\", name=\"비밀번호\", exact=True)\n    2) <input id=\"u-pw2\" type=\"password\" name=\"userPwConfirm\"/> aka get_by_role(\""
+    },
+    {
+      "target": "signup",
+      "scenario": "terms-required",
+      "condition": "without",
+      "rep": 1,
+      "index": 0,
+      "generation_seconds": 3.76,
+      "drafts_in_response": 1,
+      "description": "모든 입력 값을 올바르게 입력하고 약관에 동의하지 않은 상태에서 가입 시도 시 '이용약관 동의가 필요합니다.' 안내 메시지를 확인한다.",
+      "expected": "'이용약관 동의가 필요합니다.' 안내 메시지가 폼 내에서 보여진다.",
+      "review_notes": "페이지의 정확한 폼 및 약관 체크박스 선택자 정보가 없어 input과 버튼의 기본 CSS 선택자를 추정하였고, 안내 메시지도 텍스트 기반 선택자를 사용함. 실제 구조에 따라 선택자 조정 필요.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/signup"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='email']",
+          "value": "test@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='password']",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "fill",
+          "selector": "input[name='passwordConfirm']",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "button[type='submit']",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "text=이용약관 동의가 필요합니다.",
+          "value": ""
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "input[type='email']",
+          "input[type='password']",
+          "input[name='passwordConfirm']",
+          "button[type='submit']",
+          "text=이용약관 동의가 필요합니다."
+        ],
+        "total": 5,
+        "unique": 2,
+        "multiple": [
+          "input[type='password']"
+        ],
+        "missing": [
+          "input[name='passwordConfirm']",
+          "text=이용약관 동의가 필요합니다."
+        ],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-ff7dc600cf69",
+      "format_ok": true,
+      "run_id": "02d49c228b2540a1",
+      "outcome": "ERROR",
+      "run_error": "Locator.get_attribute: Error: strict mode violation: locator(\"input[type='password']\") resolved to 2 elements:\n    1) <input id=\"u-pw\" name=\"userPw\" type=\"password\"/> aka get_by_role(\"textbox\", name=\"비밀번호\", exact=True)\n    2) <input id=\"u-pw2\" type=\"password\" name=\"userPwConfirm\"/> aka get_by_role(\""
+    },
+    {
+      "target": "signup",
+      "scenario": "terms-required",
+      "condition": "without",
+      "rep": 2,
+      "index": 0,
+      "generation_seconds": 3.17,
+      "drafts_in_response": 1,
+      "description": "모든 입력 필드를 올바르게 입력하였으나, 약관 동의만 하지 않고 가입 시도 시 '이용약관 동의가 필요합니다.' 안내 문구가 표시되는지 확인한다.",
+      "expected": "'이용약관 동의가 필요합니다.' 문구가 폼 안내 영역에 표시된다.",
+      "review_notes": "signup 페이지의 입력 필드와 버튼의 선택자가 명확하지 않아 일반적인 input[type='email'], input[type='password'], input[name='passwordConfirm'], button[type='submit']를 사용하였습니다. 실제 DOM 구조 확인 후 선택자 조정이 필요합니다.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/signup"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='email']",
+          "value": "test@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='password']",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "fill",
+          "selector": "input[name='passwordConfirm']",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "assert_visible",
+          "selector": "form",
+          "value": ""
+        },
+        {
+          "action": "click",
+          "selector": "button[type='submit']",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "text=이용약관 동의가 필요합니다.",
+          "value": ""
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "input[type='email']",
+          "input[type='password']",
+          "input[name='passwordConfirm']",
+          "form",
+          "button[type='submit']",
+          "text=이용약관 동의가 필요합니다."
+        ],
+        "total": 6,
+        "unique": 3,
+        "multiple": [
+          "input[type='password']"
+        ],
+        "missing": [
+          "input[name='passwordConfirm']",
+          "text=이용약관 동의가 필요합니다."
+        ],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-a321df60b5ba",
+      "format_ok": true,
+      "run_id": "02d49c228b2540a1",
+      "outcome": "ERROR",
+      "run_error": "Locator.get_attribute: Error: strict mode violation: locator(\"input[type='password']\") resolved to 2 elements:\n    1) <input id=\"u-pw\" name=\"userPw\" type=\"password\"/> aka get_by_role(\"textbox\", name=\"비밀번호\", exact=True)\n    2) <input id=\"u-pw2\" type=\"password\" name=\"userPwConfirm\"/> aka get_by_role(\""
+    },
+    {
+      "target": "signup",
+      "scenario": "terms-required",
+      "condition": "with",
+      "rep": 0,
+      "index": 0,
+      "generation_seconds": 3.59,
+      "drafts_in_response": 1,
+      "description": "모든 입력값을 올바르게 입력하고 약관 동의 없이 가입 버튼 클릭 시 약관 동의 안내 메시지 확인",
+      "expected": "약관에 동의하지 않았기 때문에 '#join-msg' 요소에 '이용약관 동의가 필요합니다.' 메시지가 표시된다.",
+      "review_notes": "약관 동의 체크박스 '#agree'를 체크하지 않고 제출했을 때 경고 메시지가 '#join-msg' 영역에 표시되는지 확인하는 테스트이다.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/signup"
+        },
+        {
+          "action": "assert_status",
+          "selector": "",
+          "value": "200"
+        },
+        {
+          "action": "fill",
+          "selector": "#u-mail",
+          "value": "test@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "#u-pw",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "fill",
+          "selector": "#u-pw2",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "assert_visible",
+          "selector": "button[type=\"submit\"]",
+          "value": ""
+        },
+        {
+          "action": "click",
+          "selector": "button[type=\"submit\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_text",
+          "selector": "#join-msg",
+          "value": "이용약관 동의가 필요합니다."
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "#u-mail",
+          "#u-pw",
+          "#u-pw2",
+          "button[type=\"submit\"]",
+          "button[type=\"submit\"]",
+          "#join-msg"
+        ],
+        "total": 6,
+        "unique": 6,
+        "multiple": [],
+        "missing": [],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-124cd24a652f",
+      "format_ok": true,
+      "run_id": "4e9ae71594b448f5",
+      "outcome": "PASS"
+    },
+    {
+      "target": "signup",
+      "scenario": "terms-required",
+      "condition": "with",
+      "rep": 1,
+      "index": 0,
+      "generation_seconds": 3.41,
+      "drafts_in_response": 1,
+      "description": "모든 입력값이 올바르지만 약관 동의 없이 가입 시도 시 '이용약관 동의가 필요합니다.' 안내 메시지가 표시되는지 확인한다.",
+      "expected": "약관 미동의 시 가입 실패, '#join-msg' 요소에 '이용약관 동의가 필요합니다.' 텍스트가 보여져야 한다.",
+      "review_notes": "#join-msg 선택자는 페이지 컨텍스트의 폼 안내 영역으로 확인됨.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/signup"
+        },
+        {
+          "action": "assert_status",
+          "selector": "",
+          "value": "200"
+        },
+        {
+          "action": "assert_visible",
+          "selector": "#join",
+          "value": ""
+        },
+        {
+          "action": "fill",
+          "selector": "#u-mail",
+          "value": "testuser@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "#u-pw",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "fill",
+          "selector": "#u-pw2",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "assert_visible",
+          "selector": "button[type=\"submit\"]",
+          "value": ""
+        },
+        {
+          "action": "click",
+          "selector": "button[type=\"submit\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "#join-msg",
+          "value": ""
+        },
+        {
+          "action": "assert_text",
+          "selector": "#join-msg",
+          "value": "이용약관 동의가 필요합니다."
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "#join",
+          "#u-mail",
+          "#u-pw",
+          "#u-pw2",
+          "button[type=\"submit\"]",
+          "button[type=\"submit\"]",
+          "#join-msg",
+          "#join-msg"
+        ],
+        "total": 8,
+        "unique": 8,
+        "multiple": [],
+        "missing": [],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-2f6ec66fe3ee",
+      "format_ok": true,
+      "run_id": "4e9ae71594b448f5",
+      "outcome": "PASS"
+    },
+    {
+      "target": "signup",
+      "scenario": "terms-required",
+      "condition": "with",
+      "rep": 2,
+      "index": 0,
+      "generation_seconds": 3.91,
+      "drafts_in_response": 1,
+      "description": "모든 입력값이 올바르나 약관 동의 없이 가입 시 '이용약관 동의가 필요합니다.' 안내 표시 확인",
+      "expected": "약관 동의 체크박스를 선택하지 않고 가입 버튼 클릭 시, '#join-msg' 영역에 '이용약관 동의가 필요합니다.' 텍스트가 표시되어야 한다.",
+      "review_notes": "약관 동의 체크박스는 '#agree'이고, 이를 클릭하지 않고 가입 시 나타나는 안내문을 '#join-msg'에서 확인함.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/signup"
+        },
+        {
+          "action": "assert_status",
+          "selector": "",
+          "value": "200"
+        },
+        {
+          "action": "fill",
+          "selector": "#u-mail",
+          "value": "test@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "#u-pw",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "fill",
+          "selector": "#u-pw2",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "assert_visible",
+          "selector": "button[type=\"submit\"]",
+          "value": ""
+        },
+        {
+          "action": "click",
+          "selector": "button[type=\"submit\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "#join-msg",
+          "value": ""
+        },
+        {
+          "action": "assert_text",
+          "selector": "#join-msg",
+          "value": "이용약관 동의가 필요합니다."
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "#u-mail",
+          "#u-pw",
+          "#u-pw2",
+          "button[type=\"submit\"]",
+          "button[type=\"submit\"]",
+          "#join-msg",
+          "#join-msg"
+        ],
+        "total": 7,
+        "unique": 7,
+        "multiple": [],
+        "missing": [],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-937542c78d0d",
+      "format_ok": true,
+      "run_id": "4e9ae71594b448f5",
+      "outcome": "PASS"
+    },
+    {
+      "target": "signup",
+      "scenario": "signup-success",
+      "condition": "without",
+      "rep": 0,
+      "index": 0,
+      "generation_seconds": 3.76,
+      "drafts_in_response": 1,
+      "description": "모든 입력값을 올바르게 입력하고 약관에 동의한 후 회원가입을 시도하면 /welcome 페이지로 이동하고 '가입을 환영합니다' 문구가 보이는지 확인한다.",
+      "expected": "/welcome 페이지로 이동하며, '가입을 환영합니다' 텍스트가 화면에 보여야 한다.",
+      "review_notes": "입력 필드와 버튼의 선택자는 페이지 구조가 없어서 추정한 것입니다. 이메일 입력은 input[type='email'], 비밀번호와 비밀번호 확인은 각각 input[type='password'], 약관 동의 체크박스는 input[type='checkbox'], 가입 버튼은 button[type='submit']로 가정했습니다. 실제와 다를 수 있으니 검토 부탁드립니다.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/signup"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='email']",
+          "value": "test@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='password']",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "fill",
+          "selector": "input[name='passwordConfirm']",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "input[type='checkbox']",
+          "value": ""
+        },
+        {
+          "action": "click",
+          "selector": "button[type='submit']",
+          "value": ""
+        },
+        {
+          "action": "assert_url",
+          "selector": "",
+          "value": "/welcome"
+        },
+        {
+          "action": "assert_text",
+          "selector": "body",
+          "value": "가입을 환영합니다"
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "input[type='email']",
+          "input[type='password']",
+          "input[name='passwordConfirm']",
+          "input[type='checkbox']",
+          "button[type='submit']",
+          "body"
+        ],
+        "total": 6,
+        "unique": 4,
+        "multiple": [
+          "input[type='password']"
+        ],
+        "missing": [
+          "input[name='passwordConfirm']"
+        ],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-6186a61cecdd",
+      "format_ok": true,
+      "run_id": "02d49c228b2540a1",
+      "outcome": "ERROR",
+      "run_error": "Locator.get_attribute: Error: strict mode violation: locator(\"input[type='password']\") resolved to 2 elements:\n    1) <input id=\"u-pw\" name=\"userPw\" type=\"password\"/> aka get_by_role(\"textbox\", name=\"비밀번호\", exact=True)\n    2) <input id=\"u-pw2\" type=\"password\" name=\"userPwConfirm\"/> aka get_by_role(\""
+    },
+    {
+      "target": "signup",
+      "scenario": "signup-success",
+      "condition": "without",
+      "rep": 1,
+      "index": 0,
+      "generation_seconds": 3.67,
+      "drafts_in_response": 1,
+      "description": "모든 값을 올바르게 입력하고 약관에 동의하여 회원가입에 성공해 환영 페이지로 이동하는지 확인한다.",
+      "expected": "/welcome 페이지로 이동하고 '가입을 환영합니다' 텍스트가 보여야 한다.",
+      "review_notes": "페이지 구조가 제공되지 않아 이메일, 비밀번호, 비밀번호 확인 입력란과 약관 확인박스, 가입 버튼의 선택자를 추정하였습니다. 실제 요소의 속성이나 텍스트와 다를 수 있으니 확인 부탁드립니다.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/signup"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='email']",
+          "value": "test@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type='password']",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "fill",
+          "selector": "input[name='passwordConfirm']",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "input[type='checkbox']#terms, label[for='terms'], text=이용약관 동의, input[type='checkbox']",
+          "value": ""
+        },
+        {
+          "action": "click",
+          "selector": "button[type='submit'], button:has-text('가입하기')",
+          "value": ""
+        },
+        {
+          "action": "assert_url",
+          "selector": "",
+          "value": "/welcome"
+        },
+        {
+          "action": "assert_text",
+          "selector": "body",
+          "value": "가입을 환영합니다"
+        },
+        {
+          "action": "assert_visible",
+          "selector": "text=가입을 환영합니다",
+          "value": ""
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "input[type='email']",
+          "input[type='password']",
+          "input[name='passwordConfirm']",
+          "input[type='checkbox']#terms, label[for='terms'], text=이용약관 동의, input[type='checkbox']",
+          "button[type='submit'], button:has-text('가입하기')",
+          "body",
+          "text=가입을 환영합니다"
+        ],
+        "total": 7,
+        "unique": 3,
+        "multiple": [
+          "input[type='password']"
+        ],
+        "missing": [
+          "input[name='passwordConfirm']",
+          "text=가입을 환영합니다"
+        ],
+        "invalid": [
+          "input[type='checkbox']#terms, label[for='terms'], text=이용약관 동의, input[type='checkbox']"
+        ]
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-bb18865abecd",
+      "format_ok": true,
+      "run_id": "02d49c228b2540a1",
+      "outcome": "ERROR",
+      "run_error": "Locator.get_attribute: Error: strict mode violation: locator(\"input[type='password']\") resolved to 2 elements:\n    1) <input id=\"u-pw\" name=\"userPw\" type=\"password\"/> aka get_by_role(\"textbox\", name=\"비밀번호\", exact=True)\n    2) <input id=\"u-pw2\" type=\"password\" name=\"userPwConfirm\"/> aka get_by_role(\""
+    },
+    {
+      "target": "signup",
+      "scenario": "signup-success",
+      "condition": "without",
+      "rep": 2,
+      "index": 0,
+      "generation_seconds": 3.6,
+      "drafts_in_response": 1,
+      "description": "올바른 이메일, 비밀번호, 비밀번호 확인을 입력하고 약관에 동의하여 정상적으로 회원가입 후 환영 페이지로 이동하는지 확인",
+      "expected": "/welcome 페이지로 이동하여 '가입을 환영합니다'라는 제목이 보여진다",
+      "review_notes": "페이지 구조가 제공되지 않아 이메일과 비밀번호 입력 필드는 타입으로 추정하여 선택하였습니다. 약관 동의 체크박스 이름도 추정입니다. 환영 문구의 정확한 선택자도 'text=' 선택자로 확인하였습니다. 검토 부탁드립니다.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/signup"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type=email]",
+          "value": "test@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type=password]:nth-of-type(1)",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "fill",
+          "selector": "input[type=password]:nth-of-type(2)",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "input[type=checkbox][name=terms]",
+          "value": ""
+        },
+        {
+          "action": "click",
+          "selector": "button[type=submit]",
+          "value": ""
+        },
+        {
+          "action": "assert_url",
+          "selector": "",
+          "value": "/welcome"
+        },
+        {
+          "action": "assert_visible",
+          "selector": "text=가입을 환영합니다",
+          "value": ""
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "input[type=email]",
+          "input[type=password]:nth-of-type(1)",
+          "input[type=password]:nth-of-type(2)",
+          "input[type=checkbox][name=terms]",
+          "button[type=submit]",
+          "text=가입을 환영합니다"
+        ],
+        "total": 6,
+        "unique": 3,
+        "multiple": [
+          "input[type=password]:nth-of-type(1)"
+        ],
+        "missing": [
+          "input[type=password]:nth-of-type(2)",
+          "text=가입을 환영합니다"
+        ],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-497dddcc5134",
+      "format_ok": true,
+      "run_id": "02d49c228b2540a1",
+      "outcome": "ERROR",
+      "run_error": "Locator.get_attribute: Error: strict mode violation: locator(\"input[type=password]:nth-of-type(1)\") resolved to 2 elements:\n    1) <input id=\"u-pw\" name=\"userPw\" type=\"password\"/> aka get_by_role(\"textbox\", name=\"비밀번호\", exact=True)\n    2) <input id=\"u-pw2\" type=\"password\" name=\"userPwConfirm\"/> aka "
+    },
+    {
+      "target": "signup",
+      "scenario": "signup-success",
+      "condition": "with",
+      "rep": 0,
+      "index": 0,
+      "generation_seconds": 3.14,
+      "drafts_in_response": 1,
+      "description": "모든 값을 올바르게 입력하고 약관에 동의한 뒤 가입하면 환영 페이지로 이동하고 제목을 확인한다.",
+      "expected": "/welcome 로 이동하여 '가입을 환영합니다' 제목이 보여진다.",
+      "review_notes": "가입 후 이동하는 /welcome 페이지의 h2 요소를 선택자로 사용했다。最初のページには存在しないため移動後に推定しました。",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/signup"
+        },
+        {
+          "action": "assert_status",
+          "selector": "",
+          "value": "200"
+        },
+        {
+          "action": "fill",
+          "selector": "#u-mail",
+          "value": "test@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "#u-pw",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "fill",
+          "selector": "#u-pw2",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "#agree",
+          "value": ""
+        },
+        {
+          "action": "click",
+          "selector": "button[type=\"submit\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_url",
+          "selector": "",
+          "value": "/welcome"
+        },
+        {
+          "action": "assert_visible",
+          "selector": "h2",
+          "value": ""
+        },
+        {
+          "action": "assert_text",
+          "selector": "h2",
+          "value": "가입을 환영합니다"
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "#u-mail",
+          "#u-pw",
+          "#u-pw2",
+          "#agree",
+          "button[type=\"submit\"]",
+          "h2",
+          "h2"
+        ],
+        "total": 7,
+        "unique": 7,
+        "multiple": [],
+        "missing": [],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-fbab9680bc5d",
+      "format_ok": true,
+      "run_id": "4e9ae71594b448f5",
+      "outcome": "FAIL",
+      "run_error": "Locator expected to be visible\nActual value: None\nError: element(s) not found \nCall log:\n  - Expect \"to_be_visible\" locator(\"h2\") with timeout 5000ms\n  - waiting for locator(\"h2\")\n\nAria snapshot:\n- heading \"가입을 환영합니다\" [level=1]",
+      "triage": {
+        "likely_cause": "test_definition",
+        "confidence": "high",
+        "suggested_action": "테스트의 기대 결과에서 '가입을 환영합니다' 텍스트를 찾는 요소 선택자를 h2에서 h1으로 수정하여 실제 제품 페이지와 일치시키도록 테스트 스크립트를 변경하세요."
+      },
+      "triage_previous": {
+        "likely_cause": "product_defect",
+        "confidence": "high",
+        "suggested_action": "버그 리포트: /welcome 페이지의 가입 환영 제목이 h1 태그로 되어 있으나, 테스트는 h2 태그로만 찾고 있어 선택자 불일치로 인해 제목 노출 검증 실패"
+      }
+    },
+    {
+      "target": "signup",
+      "scenario": "signup-success",
+      "condition": "with",
+      "rep": 1,
+      "index": 0,
+      "generation_seconds": 3.24,
+      "drafts_in_response": 1,
+      "description": "올바른 이메일, 비밀번호 입력과 약관 동의 후 가입하면 환영 페이지로 이동하는지 확인한다.",
+      "expected": "/welcome 페이지로 이동하여 '가입을 환영합니다' 문구가 보여진다.",
+      "review_notes": "가입 후 이동하는 /welcome 페이지에서 제목 요소(h2)에 '가입을 환영합니다'가 표시되는지 확인한다.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/signup"
+        },
+        {
+          "action": "assert_status",
+          "selector": "",
+          "value": "200"
+        },
+        {
+          "action": "fill",
+          "selector": "#u-mail",
+          "value": "user@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "#u-pw",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "fill",
+          "selector": "#u-pw2",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "#agree",
+          "value": ""
+        },
+        {
+          "action": "click",
+          "selector": "button[type=\"submit\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_url",
+          "selector": "",
+          "value": "/welcome"
+        },
+        {
+          "action": "assert_visible",
+          "selector": "h2",
+          "value": ""
+        },
+        {
+          "action": "assert_text",
+          "selector": "h2",
+          "value": "가입을 환영합니다"
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "#u-mail",
+          "#u-pw",
+          "#u-pw2",
+          "#agree",
+          "button[type=\"submit\"]",
+          "h2",
+          "h2"
+        ],
+        "total": 7,
+        "unique": 7,
+        "multiple": [],
+        "missing": [],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-1d37c60bf629",
+      "format_ok": true,
+      "run_id": "4e9ae71594b448f5",
+      "outcome": "FAIL",
+      "run_error": "Locator expected to be visible\nActual value: None\nError: element(s) not found \nCall log:\n  - Expect \"to_be_visible\" locator(\"h2\") with timeout 5000ms\n  - waiting for locator(\"h2\")\n\nAria snapshot:\n- heading \"가입을 환영합니다\" [level=1]",
+      "triage": {
+        "likely_cause": "test_definition",
+        "confidence": "high",
+        "suggested_action": "테스트 스크립트의 'assert_visible'와 'assert_text' 단계에서 선택자를 h1으로 변경하여 실제 페이지 구조에 맞게 수정한다."
+      },
+      "triage_previous": {
+        "likely_cause": "test_definition",
+        "confidence": "high",
+        "suggested_action": "테스트에서 '가입을 환영합니다' 문구가 포함된 요소 선택자를 현재 h2에서 h1으로 변경하여 테스트 정의를 실제 페이지 구조에 맞게 수정한다."
+      }
+    },
+    {
+      "target": "signup",
+      "scenario": "signup-success",
+      "condition": "with",
+      "rep": 2,
+      "index": 0,
+      "generation_seconds": 3.39,
+      "drafts_in_response": 1,
+      "description": "올바른 이메일, 비밀번호, 비밀번호 확인을 입력하고 이용약관에 동의하여 정상적으로 가입하고 환영 페이지로 이동하는지 확인하는 테스트",
+      "expected": "/welcome 경로로 이동하며 '가입을 환영합니다' 문구가 보여야 한다.",
+      "review_notes": "",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/signup"
+        },
+        {
+          "action": "assert_status",
+          "selector": "",
+          "value": "200"
+        },
+        {
+          "action": "fill",
+          "selector": "#u-mail",
+          "value": "testuser@example.com"
+        },
+        {
+          "action": "fill",
+          "selector": "#u-pw",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "fill",
+          "selector": "#u-pw2",
+          "value": "${QA_TEST_PASSWORD}"
+        },
+        {
+          "action": "click",
+          "selector": "#agree",
+          "value": ""
+        },
+        {
+          "action": "click",
+          "selector": "button[type=\"submit\"]",
+          "value": ""
+        },
+        {
+          "action": "assert_url",
+          "selector": "",
+          "value": "/welcome"
+        },
+        {
+          "action": "assert_visible",
+          "selector": "h2",
+          "value": ""
+        },
+        {
+          "action": "assert_text",
+          "selector": "h2",
+          "value": "가입을 환영합니다"
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "#u-mail",
+          "#u-pw",
+          "#u-pw2",
+          "#agree",
+          "button[type=\"submit\"]",
+          "h2",
+          "h2"
+        ],
+        "total": 7,
+        "unique": 7,
+        "multiple": [],
+        "missing": [],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-35bd360e27fb",
+      "format_ok": true,
+      "run_id": "4e9ae71594b448f5",
+      "outcome": "FAIL",
+      "run_error": "Locator expected to be visible\nActual value: None\nError: element(s) not found \nCall log:\n  - Expect \"to_be_visible\" locator(\"h2\") with timeout 5000ms\n  - waiting for locator(\"h2\")\n\nAria snapshot:\n- heading \"가입을 환영합니다\" [level=1]",
+      "triage": {
+        "likely_cause": "test_definition",
+        "confidence": "high",
+        "suggested_action": "테스트의 마지막 단계를 'h2' 선택자에서 'h1' 선택자로 수정해 실제 페이지의 헤딩 구조에 맞게 변경한다."
+      },
+      "triage_previous": {
+        "likely_cause": "product_defect",
+        "confidence": "high",
+        "suggested_action": "버그 리포트: /welcome 페이지에서 '가입을 환영합니다' 제목이 h1 태그로 표시되는데, 테스트는 h2 태그를 찾으려 하여 실패함. UI 마크업과 테스트 기대 셀렉터 불일치 문제로 수정 필요."
+      }
+    },
+    {
+      "target": "signup",
+      "scenario": "layout",
+      "condition": "without",
+      "rep": 0,
+      "index": 0,
+      "generation_seconds": 3.59,
+      "drafts_in_response": 1,
+      "description": "가입 화면에 제목, 이메일, 비밀번호, 비밀번호 확인 입력창, 약관 동의 체크박스, 가입 버튼이 모두 보이는지 확인한다.",
+      "expected": "제목, 3개의 입력창(이메일, 비밀번호, 비밀번호 확인), 약관 동의 체크박스, 가입 버튼이 화면에 표시된다.",
+      "review_notes": "입력창과 버튼의 선택자는 페이지 구조를 알 수 없어 타당하게 추정했습니다. 실제 CSS 선택자와 일치하는지 검토가 필요합니다.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/signup"
+        },
+        {
+          "action": "assert_visible",
+          "selector": "text=가입하기",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "input[type='email']",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "input[type='password']",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "input[name='passwordConfirm']",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "input[type='checkbox']",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "button:has-text(\"가입\")",
+          "value": ""
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "text=가입하기",
+          "input[type='email']",
+          "input[type='password']",
+          "input[name='passwordConfirm']",
+          "input[type='checkbox']",
+          "button:has-text(\"가입\")"
+        ],
+        "total": 6,
+        "unique": 4,
+        "multiple": [
+          "input[type='password']"
+        ],
+        "missing": [
+          "input[name='passwordConfirm']"
+        ],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-f440c00cf62b",
+      "format_ok": true,
+      "run_id": "02d49c228b2540a1",
+      "outcome": "FAIL",
+      "run_error": "Locator expected to be visible\nActual value: None\nError: strict mode violation: locator(\"input[type='password']\") resolved to 2 elements:\n    1) <input id=\"u-pw\" name=\"userPw\" type=\"password\"/> aka get_by_role(\"textbox\", name=\"비밀번호\", exact=True)\n    2) <input id=\"u-pw2\" type=\"password\" name=\"userPwC",
+      "triage": {
+        "likely_cause": "test_definition",
+        "confidence": "high",
+        "suggested_action": "비밀번호 입력창과 비밀번호 확인 입력창을 구분할 수 있도록 테스트의 CSS 선택자 또는 locator를 명확히 수정하세요. 예를 들어, 'input[name=\"userPw\"]'와 'input[name=\"userPwConfirm\"]' 같이 고유 속성을 활용하여 두 요소를 정확히 지정하도록 테스트 정의를 개선하세요."
+      },
+      "triage_previous": {
+        "likely_cause": "test_definition",
+        "confidence": "high",
+        "suggested_action": "테스트의 비밀번호 입력창 선택자를 구체적이고 고유한 선택자로 수정한다. 예를 들어, 비밀번호는 'input#u-pw' 또는 'input[name=\"userPw\"]', 비밀번호 확인은 'input#u-pw2' 또는 'input[name=\"userPwConfirm\"]' 등으로 각각 지정해야 한다."
+      }
+    },
+    {
+      "target": "signup",
+      "scenario": "layout",
+      "condition": "without",
+      "rep": 1,
+      "index": 0,
+      "generation_seconds": 3.36,
+      "drafts_in_response": 1,
+      "description": "가입 화면에 제목, 이메일·비밀번호·비밀번호 확인 입력창, 약관 동의 체크박스, 가입 버튼이 모두 보이는지 확인한다.",
+      "expected": "가입 화면에 요구된 모든 요소들이 화면에 정상적으로 노출된다.",
+      "review_notes": "페이지 구조를 받지 못해 입력창과 버튼 선택자를 추정하였으니, 실제 구조와 맞는지 확인 부탁드립니다.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/signup"
+        },
+        {
+          "action": "assert_visible",
+          "selector": "text=회원가입, text=이메일, input[type=email]",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "input[type=password] >> nth=0",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "input[type=password] >> nth=1",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "input[type=checkbox]",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "button:has-text(\"가입\")",
+          "value": ""
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "text=회원가입, text=이메일, input[type=email]",
+          "input[type=password] >> nth=0",
+          "input[type=password] >> nth=1",
+          "input[type=checkbox]",
+          "button:has-text(\"가입\")"
+        ],
+        "total": 5,
+        "unique": 4,
+        "multiple": [],
+        "missing": [
+          "text=회원가입, text=이메일, input[type=email]"
+        ],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-ac0ba2696021",
+      "format_ok": true,
+      "run_id": "02d49c228b2540a1",
+      "outcome": "FAIL",
+      "run_error": "Locator expected to be visible\nActual value: None\nError: element(s) not found \nCall log:\n  - Expect \"to_be_visible\" locator(\"text=회원가입, text=이메일, input[type=email]\") with timeout 5000ms\n  - waiting for locator(\"text=회원가입, text=이메일, input[type=email]\")\n\nAria snapshot:\n- main:\n  - heading \"계정 만들기\" [le",
+      "triage": {
+        "likely_cause": "test_definition",
+        "confidence": "high",
+        "suggested_action": "테스트의 선택자들(text=회원가입, 버튼 텍스트 등)을 실제 페이지 요소 텍스트('계정 만들기', '가입하기' 등)에 맞게 수정하여 테스트가 올바른 요소를 찾도록 변경하세요."
+      },
+      "triage_previous": {
+        "likely_cause": "test_definition",
+        "confidence": "high",
+        "suggested_action": "테스트의 셀렉터를 실제 페이지 구조에 맞게 수정한다. 예를 들어, 제목을 'text=계정 만들기'로 변경하고, 버튼 텍스트는 '가입하기'로 조정하여 정확한 요소를 찾도록 테스트 단계를 개선할 것."
+      }
+    },
+    {
+      "target": "signup",
+      "scenario": "layout",
+      "condition": "without",
+      "rep": 2,
+      "index": 0,
+      "generation_seconds": 3.22,
+      "drafts_in_response": 1,
+      "description": "가입 화면에 제목, 이메일·비밀번호·비밀번호 확인 입력창, 약관 동의 체크박스, 가입 버튼이 모두 보이는지 확인한다.",
+      "expected": "모든 필수 요소가 화면에 정상적으로 보인다.",
+      "review_notes": "페이지 구조를 제공받지 않아 선택자는 추정한 것입니다. 제목은 '가입하기' 혹은 '가입' 텍스트로 추정했으며, 입력창은 이름 또는 타입 기준으로 선택했습니다. 검토를 부탁드립니다.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/signup"
+        },
+        {
+          "action": "assert_visible",
+          "selector": "text=가입하기, text=이메일, input[type='email']",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "input[name='password'], input[name='password_confirm']",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "input[type='checkbox'][name='terms']",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "button:has-text(\"가입\")",
+          "value": ""
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "text=가입하기, text=이메일, input[type='email']",
+          "input[name='password'], input[name='password_confirm']",
+          "input[type='checkbox'][name='terms']",
+          "button:has-text(\"가입\")"
+        ],
+        "total": 4,
+        "unique": 2,
+        "multiple": [],
+        "missing": [
+          "text=가입하기, text=이메일, input[type='email']",
+          "input[name='password'], input[name='password_confirm']"
+        ],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-068698bd9c95",
+      "format_ok": true,
+      "run_id": "02d49c228b2540a1",
+      "outcome": "FAIL",
+      "run_error": "Locator expected to be visible\nActual value: None\nError: element(s) not found \nCall log:\n  - Expect \"to_be_visible\" locator(\"text=가입하기, text=이메일, input[type='email']\") with timeout 5000ms\n  - waiting for locator(\"text=가입하기, text=이메일, input[type='email']\")\n\nAria snapshot:\n- main:\n  - heading \"계정 만들기\"",
+      "triage": {
+        "likely_cause": "test_definition",
+        "confidence": "high",
+        "suggested_action": "테스트의 제목 텍스트 선택자를 '가입하기'에서 '계정 만들기'로 수정하고, 이메일 입력창 선택자를 페이지 구조에 맞게 조정하여 테스트를 재작성하라."
+      },
+      "triage_previous": {
+        "likely_cause": "test_definition",
+        "confidence": "high",
+        "suggested_action": "테스트 스크립트의 셀렉터를 실제 페이지 구조에 맞추어 수정한다. 예를 들어, 제목을 '계정 만들기'로 변경하고, 버튼 텍스트 '가입하기'가 맞는지 검증 후 조정한다."
+      }
+    },
+    {
+      "target": "signup",
+      "scenario": "layout",
+      "condition": "with",
+      "rep": 0,
+      "index": 0,
+      "generation_seconds": 3.24,
+      "drafts_in_response": 1,
+      "description": "가입 화면에 제목, 이메일·비밀번호·비밀번호 확인 입력창, 약관 동의 체크박스, 가입 버튼이 모두 보이는지 확인한다.",
+      "expected": "회원가입 화면에 모든 필수 요소가 화면에 보여야 한다.",
+      "review_notes": "요구사항과 시작 페이지 context에 있는 고유 셀렉터만 사용하여 각 요소의 가시성을 검증함.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/signup"
+        },
+        {
+          "action": "assert_status",
+          "selector": "",
+          "value": "200"
+        },
+        {
+          "action": "assert_visible",
+          "selector": "h2",
+          "value": ""
+        },
+        {
+          "action": "assert_text",
+          "selector": "h2",
+          "value": "계정 만들기"
+        },
+        {
+          "action": "assert_visible",
+          "selector": "#u-mail",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "#u-pw",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "#u-pw2",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "#agree",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "button[type=\"submit\"]",
+          "value": ""
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "h2",
+          "h2",
+          "#u-mail",
+          "#u-pw",
+          "#u-pw2",
+          "#agree",
+          "button[type=\"submit\"]"
+        ],
+        "total": 7,
+        "unique": 7,
+        "multiple": [],
+        "missing": [],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-a0f2c5548999",
+      "format_ok": true,
+      "run_id": "4e9ae71594b448f5",
+      "outcome": "PASS"
+    },
+    {
+      "target": "signup",
+      "scenario": "layout",
+      "condition": "with",
+      "rep": 1,
+      "index": 0,
+      "generation_seconds": 3.29,
+      "drafts_in_response": 1,
+      "description": "가입 화면에 제목, 이메일·비밀번호·비밀번호 확인 입력창, 약관 동의 체크박스, 가입 버튼이 모두 보이는지 확인한다.",
+      "expected": "회원가입 페이지 첫 화면에 제목 \"계정 만들기\"와 각각의 입력창 및 체크박스, 버튼이 모두 보여야 한다.",
+      "review_notes": "시작 페이지의 elements에 근거하여 selectror를 지정함.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/signup"
+        },
+        {
+          "action": "assert_status",
+          "selector": "",
+          "value": "200"
+        },
+        {
+          "action": "assert_visible",
+          "selector": "h2",
+          "value": ""
+        },
+        {
+          "action": "assert_text",
+          "selector": "h2",
+          "value": "계정 만들기"
+        },
+        {
+          "action": "assert_visible",
+          "selector": "#u-mail",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "#u-pw",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "#u-pw2",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "#agree",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "button[type=\"submit\"]",
+          "value": ""
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "h2",
+          "h2",
+          "#u-mail",
+          "#u-pw",
+          "#u-pw2",
+          "#agree",
+          "button[type=\"submit\"]"
+        ],
+        "total": 7,
+        "unique": 7,
+        "multiple": [],
+        "missing": [],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-f11951d7dce6",
+      "format_ok": true,
+      "run_id": "4e9ae71594b448f5",
+      "outcome": "PASS"
+    },
+    {
+      "target": "signup",
+      "scenario": "layout",
+      "condition": "with",
+      "rep": 2,
+      "index": 0,
+      "generation_seconds": 3.09,
+      "drafts_in_response": 1,
+      "description": "가입 화면 요소들이 모두 올바르게 보이는지 확인한다.",
+      "expected": "페이지에는 \"계정 만들기\" 제목과 이메일 입력창, 비밀번호 입력창, 비밀번호 확인 입력창, 이용약관 동의 체크박스, 가입하기 버튼이 보인다.",
+      "review_notes": "시작 페이지의 요소에서 유니크한 셀렉터를 사용하여 작성함.",
+      "steps": [
+        {
+          "action": "navigate",
+          "selector": "",
+          "value": "/signup"
+        },
+        {
+          "action": "assert_status",
+          "selector": "",
+          "value": "200"
+        },
+        {
+          "action": "assert_text",
+          "selector": "h2",
+          "value": "계정 만들기"
+        },
+        {
+          "action": "assert_visible",
+          "selector": "#u-mail",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "#u-pw",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "#u-pw2",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "#agree",
+          "value": ""
+        },
+        {
+          "action": "assert_visible",
+          "selector": "button[type=\"submit\"]",
+          "value": ""
+        }
+      ],
+      "selector_check": {
+        "selectors": [
+          "h2",
+          "#u-mail",
+          "#u-pw",
+          "#u-pw2",
+          "#agree",
+          "button[type=\"submit\"]"
+        ],
+        "total": 6,
+        "unique": 6,
+        "multiple": [],
+        "missing": [],
+        "invalid": []
+      },
+      "selector_check_error": null,
+      "case_id": "CASE-cee2f0697d99",
+      "format_ok": true,
+      "run_id": "4e9ae71594b448f5",
+      "outcome": "PASS"
+    }
+  ],
+  "page_contexts": {
+    "login": {
+      "title": "QA 데모 로그인",
+      "lang": "ko",
+      "elements": [
+        {
+          "tag": "h1",
+          "selector": "h1",
+          "unique": true,
+          "text": "QA 데모 로그인"
+        },
+        {
+          "tag": "form",
+          "selector": "[data-testid=\"login-form\"]",
+          "unique": true,
+          "text": "이메일 비밀번호 로그인"
+        },
+        {
+          "tag": "label",
+          "selector": "label:has-text(\"이메일\")",
+          "unique": true,
+          "text": "이메일"
+        },
+        {
+          "tag": "input",
+          "selector": "[data-testid=\"email-input\"]",
+          "unique": true,
+          "type": "email",
+          "name": "email",
+          "autocomplete": "username",
+          "label": "이메일"
+        },
+        {
+          "tag": "label",
+          "selector": "label:has-text(\"비밀번호\")",
+          "unique": true,
+          "text": "비밀번호"
+        },
+        {
+          "tag": "input",
+          "selector": "[data-testid=\"password-input\"]",
+          "unique": true,
+          "type": "password",
+          "name": "password",
+          "autocomplete": "current-password",
+          "label": "비밀번호"
+        },
+        {
+          "tag": "p",
+          "selector": "[data-testid=\"login-error\"]",
+          "unique": true,
+          "text": "",
+          "role": "alert",
+          "initially_empty": true
+        },
+        {
+          "tag": "button",
+          "selector": "[data-testid=\"login-submit\"]",
+          "unique": true,
+          "text": "로그인",
+          "type": "submit"
+        },
+        {
+          "tag": "p",
+          "selector": "[data-testid=\"email-error\"]",
+          "unique": true,
+          "text": "",
+          "initially_empty": true
+        },
+        {
+          "tag": "p",
+          "selector": "[data-testid=\"password-error\"]",
+          "unique": true,
+          "text": "",
+          "initially_empty": true
+        }
+      ],
+      "url": "http://127.0.0.1:52810/login",
+      "status": 200
+    },
+    "signup": {
+      "title": "회원가입",
+      "lang": "ko",
+      "elements": [
+        {
+          "tag": "h2",
+          "selector": "h2",
+          "unique": true,
+          "text": "계정 만들기"
+        },
+        {
+          "tag": "form",
+          "selector": "#join",
+          "unique": true,
+          "text": "이메일 주소 비밀번호 비밀번호 확인 이용약관에 동의합니다 가입하기"
+        },
+        {
+          "tag": "label",
+          "selector": "label:has-text(\"이메일 주소\")",
+          "unique": true,
+          "text": "이메일 주소"
+        },
+        {
+          "tag": "input",
+          "selector": "#u-mail",
+          "unique": true,
+          "type": "email",
+          "name": "userMail",
+          "label": "이메일 주소"
+        },
+        {
+          "tag": "label",
+          "selector": "label:has-text(\"비밀번호\")",
+          "unique": false,
+          "text": "비밀번호"
+        },
+        {
+          "tag": "input",
+          "selector": "#u-pw",
+          "unique": true,
+          "type": "password",
+          "name": "userPw",
+          "label": "비밀번호"
+        },
+        {
+          "tag": "label",
+          "selector": "label:has-text(\"비밀번호 확인\")",
+          "unique": true,
+          "text": "비밀번호 확인"
+        },
+        {
+          "tag": "input",
+          "selector": "#u-pw2",
+          "unique": true,
+          "type": "password",
+          "name": "userPwConfirm",
+          "label": "비밀번호 확인"
+        },
+        {
+          "tag": "label",
+          "selector": "label:has-text(\"이용약관에 동의합니다\")",
+          "unique": true,
+          "text": "이용약관에 동의합니다"
+        },
+        {
+          "tag": "input",
+          "selector": "#agree",
+          "unique": true,
+          "type": "checkbox",
+          "name": "terms",
+          "label": "이용약관에 동의합니다"
+        },
+        {
+          "tag": "div",
+          "selector": "#join-msg",
+          "unique": true,
+          "text": "",
+          "role": "alert"
+        },
+        {
+          "tag": "button",
+          "selector": "button[type=\"submit\"]",
+          "unique": true,
+          "text": "가입하기",
+          "type": "submit"
+        },
+        {
+          "tag": "a",
+          "selector": "a[href=\"/login\"]",
+          "unique": true,
+          "text": "이미 계정이 있나요? 로그인",
+          "href": "/login"
+        }
+      ],
+      "url": "http://127.0.0.1:52811/signup",
+      "status": 200
+    }
+  }
+}
