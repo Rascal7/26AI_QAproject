@@ -101,7 +101,8 @@ def execute_web_case(env, definition, base):
                 if not value:
                     raise ValueError('테스트 입력용 환경변수가 설정되지 않았습니다.')
                 env['secrets'].append(value)
-            if locator.get_attribute('type') == 'password' and not secret_match:
+            # Leaving a password empty is a normal validation test, not a secret.
+            if value and locator.get_attribute('type') == 'password' and not secret_match:
                 raise ValueError('비밀번호는 ${QA_TEST_PASSWORD} 환경변수 참조를 사용하세요.')
             locator.fill(value)
         elif action == 'click':

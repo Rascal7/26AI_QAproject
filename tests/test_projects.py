@@ -98,12 +98,23 @@ def test_real_web_project_execution_and_history(workspace,tmp_path):
         bad=save_case(pid,rid,dict(engine='web',description='의도적 문구 불일치',steps=[
             {'action':'navigate','selector':'','value':''},
             {'action':'assert_text','selector':'h1','value':'존재하지 않는 제목'}]),reviewed=True)
-        run_id=runner.run_suite([good,bad],project_id=pid)
+        empty_password=save_case(pid,rid,dict(engine='web',description='빈 비밀번호 안내',steps=[
+            {'action':'navigate','selector':'','value':''},
+            {'action':'fill','selector':'#email','value':'qa.user@example.com'},
+            {'action':'fill','selector':'#password','value':''},
+            {'action':'click','selector':'button[type=submit]','value':''},
+            {'action':'assert_text','selector':'#password-error','value':'비밀번호를 입력하세요.'}]),reviewed=True)
+        literal_password=save_case(pid,rid,dict(engine='web',description='비밀번호 원문 입력 차단',steps=[
+            {'action':'navigate','selector':'','value':''},
+            {'action':'fill','selector':'#password','value':'plain-text'},
+            {'action':'assert_visible','selector':'h1','value':''}]),reviewed=True)
+        run_id=runner.run_suite([good,bad,empty_password,literal_password],project_id=pid)
         run=storage.rows('SELECT * FROM test_runs WHERE run_id=?',(run_id,))[0]
         assert run['project_id']==pid
         assert run['target_url'].endswith('/login')
         results=storage.rows('SELECT outcome,details FROM test_results WHERE run_id=? ORDER BY id',(run_id,))
-        assert [r['outcome'] for r in results]==['PASS','FAIL'],results
+        assert [r['outcome'] for r in results]==['PASS','FAIL','PASS','ERROR'],results
+        assert '${QA_TEST_PASSWORD}' in json.loads(results[3]['details'])['error']
         assert json.loads(results[0]['details'])['expected']['requirement_id']==rid
         report=storage.rows('SELECT markdown FROM reports WHERE run_id=?',(run_id,))[0]['markdown']
         assert '브라우저 통합 검증' in report and '로그인 UI' in report
