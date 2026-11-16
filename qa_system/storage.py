@@ -41,7 +41,8 @@ def initialize(path=None):
         additions = {'projects': {'overview': "TEXT NOT NULL DEFAULT ''", 'exceptions': "TEXT NOT NULL DEFAULT ''",
                                  'mode': "TEXT NOT NULL DEFAULT 'web'", 'tags': "TEXT NOT NULL DEFAULT '[]'"},
                      'requirements': {'title': "TEXT NOT NULL DEFAULT ''", 'exceptions': "TEXT NOT NULL DEFAULT ''"},
-                     'test_cases': {'project_id': 'INTEGER REFERENCES projects(id)'}}
+                     'test_cases': {'project_id': 'INTEGER REFERENCES projects(id)'},
+                     'bug_reports': {'ai_analysis': 'TEXT'}}
         for table, columns in additions.items():
             present = {r['name'] for r in db.execute(f'PRAGMA table_info({table})')}
             for name, definition in columns.items():

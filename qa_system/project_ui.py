@@ -1,13 +1,15 @@
 import html
 import json
+import os
 from datetime import datetime, timedelta, timezone
 import streamlit as st
-from demo_web.db import ROOT, connect
+from demo_web.db import ROOT
 from qa_system import storage
 from qa_system.projects import create_project, save_project, requirements, save_requirement, cases, save_case, approve_case
 from qa_system.catalog import CASES
 from qa_system.web_tests import template_cases
-from qa_system.ai import generate_project_cases, analyze_results, canonical_code
+from qa_system.ai import generate_project_cases, canonical_code
+from qa_system import failure_analysis
 from qa_system.page_context import PageContextError, capture, check_selectors, step_selectors, summarize_check
 from qa_system.runner import run_suite
 from qa_system.ui import display_results, run_picker, local_time, VARIANTS, expected_text
@@ -499,6 +501,10 @@ def execution_page(project):
                 variant=st.selectbox('대상 버전',list(VARIANTS),format_func=VARIANTS.get)
         if project['mode']=='web':
             st.caption('등록한 사이트에서 실제로 입력과 클릭을 실행합니다.')
+        has_key=bool(os.getenv('OPENAI_API_KEY'))
+        auto_analyze=st.checkbox('실패하면 AI 원인 분석 실행',value=has_key,disabled=not has_key,key=f'auto_analyze_{pid}',
+            help=f'FAIL 항목마다 실행 증거를 AI에 보내 테스트 문제·제품 결함·환경 문제를 구분합니다. 실행당 최대 {failure_analysis.MAX_PER_RUN}건.'
+                 + ('' if has_key else ' API 키가 없어 사용할 수 없습니다.'))
     with right,st.container(border=True):
         st.subheader('실행')
         st.metric('선택한 테스트',len(selected))
@@ -507,6 +513,11 @@ def execution_page(project):
             try:
                 with st.status('테스트 실행 중',expanded=True) as status:
                     run_id=run_suite(selected,variant,st.session_state.get('reviewed_codes',{}),project_id=pid)
+                    if auto_analyze and failure_analysis.failures(run_id):
+                        status.update(label='실패 항목을 AI로 분석하고 있습니다…')
+                        _,errors=failure_analysis.analyze_run(run_id)
+                        if errors:
+                            st.warning('일부 실패는 AI 분석을 하지 못했습니다: '+', '.join(errors))
                     status.update(label='실행 완료',state='complete',expanded=False)
                 st.session_state[f'selected_run_{pid}']=run_id
                 st.session_state[f'last_project_run_{pid}']=run_id
@@ -514,6 +525,41 @@ def execution_page(project):
                 st.error(str(error))
         if st.session_state.get(f'last_project_run_{pid}'):
             st.button('실행 기록 보기 →',on_click=open_project,args=(pid,'실행 기록'),width='stretch')
+
+
+def failure_panel(run_id,report):
+    bugs=failure_analysis.failures(run_id)
+    if not bugs:
+        st.info('기록된 동작 불일치(FAIL)가 없습니다. 검증 오류는 검사 결과에서 확인하세요.')
+    for bug in bugs:
+        with st.expander(bug['title'],expanded=True):
+            facts=json.loads(bug['facts']); st.write(facts.get('error') or '기대 동작과 실제 동작이 다릅니다.')
+            if not bug.get('ai_analysis'):
+                st.caption(bug['hypothesis'])
+                continue
+            a=json.loads(bug['ai_analysis'])
+            cause=failure_analysis.CAUSE_LABELS[a['likely_cause']]
+            badge={'test_definition':st.warning,'product_defect':st.error,'environment':st.info,'unclear':st.info}[a['likely_cause']]
+            confidence=failure_analysis.CONFIDENCE_LABELS[a['confidence']]
+            badge(f"AI 분류: **{cause}** · 확신도 {confidence}\n\n{a['suggested_action']}")
+            for key,title in [('observed_facts','관찰한 사실 (실행 증거)'),('hypotheses','추정 원인 (AI 판단)'),('suggested_checks','다음 확인 사항')]:
+                st.markdown(f'**{title}**')
+                for item in a.get(key,[]): st.write('• '+item)
+    pending=[b for b in bugs if not b.get('ai_analysis')]
+    if pending and st.button(f'AI 원인 분석 · {len(pending)}건',key=f'analyze_{run_id}',disabled=not os.getenv('OPENAI_API_KEY')):
+        with st.spinner('실패 항목을 분석하고 있습니다…'):
+            _,errors=failure_analysis.analyze_run(run_id)
+        if errors:
+            st.error('분석하지 못한 항목: '+', '.join(errors)+'. API 설정과 연결을 확인하세요.')
+        else:
+            st.rerun()
+    if report and report['ai_analysis']:
+        # Earlier versions stored one report-level analysis; keep showing it for old runs.
+        with st.expander('이전 방식의 보고서 전체 AI 분석'):
+            parsed=json.loads(report['ai_analysis'])
+            for key,title in [('observed_facts','관찰한 사실'),('hypotheses','추정 원인'),('suggested_checks','다음 확인 사항')]:
+                st.markdown(f'**{title}**')
+                for item in parsed.get(key,[]): st.write('• '+item)
 
 
 def history_page(project):
@@ -525,30 +571,12 @@ def history_page(project):
     with results_tab:
         display_results(run_id)
     with analysis_tab:
-        bugs=storage.rows('SELECT b.* FROM bug_reports b JOIN test_results r ON b.result_id=r.id WHERE r.run_id=?',(run_id,))
-        if not bugs:
-            st.info('기록된 동작 불일치(FAIL)가 없습니다. 검증 오류는 검사 결과에서 확인하세요.')
-        for bug in bugs:
-            with st.expander(bug['title'],expanded=True):
-                facts=json.loads(bug['facts']); st.write(facts.get('error') or '기대 동작과 실제 동작이 다릅니다.')
-                st.caption(bug['hypothesis'])
-        if report and st.button('AI 근거 분석'):
-            try:
-                with st.spinner('분석 중…'):
-                    analysis=analyze_results(report['markdown'])
-                with connect(storage.QA_DB) as db:
-                    db.execute('UPDATE reports SET ai_analysis=? WHERE run_id=?',(storage.encode(analysis),run_id))
-                st.rerun()
-            except Exception as error:
-                st.error(f'분석 실패: {type(error).__name__}. API 설정을 확인하세요.')
-        if report and report['ai_analysis']:
-            parsed=json.loads(report['ai_analysis'])
-            for key,title in [('observed_facts','관찰한 사실'),('hypotheses','추정 원인'),('suggested_checks','다음 확인 사항')]:
-                st.subheader(title)
-                for item in parsed.get(key,[]): st.write('• '+item)
+        failure_panel(run_id,report)
     with report_tab:
         if report:
-            st.download_button('보고서 다운로드 · Markdown',report['markdown'],file_name=f'QA-{run_id}.md',type='primary')
-            with st.expander('보고서 전문'): st.markdown(report['markdown'])
+            appendix=failure_analysis.analysis_markdown(run_id)
+            full=report['markdown']+('\n'+appendix if appendix else '')
+            st.download_button('보고서 다운로드 · Markdown',full,file_name=f'QA-{run_id}.md',type='primary')
+            with st.expander('보고서 전문'): st.markdown(full)
         else:
             st.info('아직 보고서가 생성되지 않았습니다.')

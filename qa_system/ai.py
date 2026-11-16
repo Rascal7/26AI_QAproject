@@ -8,12 +8,6 @@ from qa_system.catalog import CASES
 from qa_system.evidence import redact
 
 
-class Analysis(BaseModel):
-    observed_facts: list[str]
-    hypotheses: list[str]
-    suggested_checks: list[str]
-
-
 def client():
     from dotenv import load_dotenv
     from openai import OpenAI
@@ -54,13 +48,6 @@ def validate_code(code, baseline_id):
     if actual != expected:
         raise ValueError('허용된 execute_case 호출 외 코드는 실행할 수 없습니다. 생성 코드를 검토하세요.')
     return code
-
-
-def analyze_results(report):
-    return request_parsed(Analysis,
-        'QA 보고서의 관찰 사실과 추정 원인을 엄격히 분리하세요. '
-        '기대된 401/403/503은 버그가 아닙니다. ERROR는 인프라·준비 실패이며 제품 결함으로 계산하지 마세요. '
-        'PASS를 버그로 만들거나 기대 결과를 변경하지 마세요. 한국어로 응답하세요.', report).model_dump()
 
 
 class BrowserStep(BaseModel):
