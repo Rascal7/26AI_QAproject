@@ -4,16 +4,7 @@ from pathlib import Path
 import streamlit as st
 from qa_system.storage import rows
 
-PAGES = ['시작', '① 준비', '② 테스트 검토', '③ 실행', '④ 결과·보고서']
 VARIANTS = {'normal':'정상 버전', 'skip_disabled':'비활성 검사 누락', 'skip_lock':'잠금 검사 누락', 'skip_revalidation':'삭제 사용자 재검증 누락', 'misclassify_hash':'손상 데이터 오류 분류 누락'}
-
-
-def go(page):
-    st.session_state.workflow_page = page
-
-
-def next_button(label, page, key):
-    st.button(label, type='primary', on_click=go, args=(page,), key=key)
 
 
 def local_time(value):
@@ -29,11 +20,6 @@ def expected_text(case):
     return {None:'입력 오류 안내 · 요청 없음', 200:'로그인 성공 · 홈 이동', 401:'잘못된 자격증명 차단',
             403:'제한된 계정 로그인 차단', 503:'안전한 오류 안내 · 세션 없음',
             302:'삭제 후 로그인 화면 복귀'}.get(case.get('expected_status'), '기술 상세 참조')
-
-
-def case_table(cases):
-    st.dataframe([{'검사 항목':c['description'], '분류':'DB 상태' if c.get('scenario_id') else '로그인',
-                   '기대 동작':expected_text(c), '테스트 ID':c['id']} for c in cases], hide_index=True, width='stretch')
 
 
 def run_picker(project_id=None):

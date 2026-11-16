@@ -1,13 +1,12 @@
 import html
 import json
 from datetime import datetime, timedelta, timezone
-from pathlib import Path
 import streamlit as st
 from demo_web.db import ROOT, connect
 from qa_system import storage
-from qa_system.projects import get_project, create_project, save_project, requirements, save_requirement, cases, save_case, approve_case
+from qa_system.projects import create_project, save_project, requirements, save_requirement, cases, save_case, approve_case
 from qa_system.catalog import CASES
-from qa_system.web_tests import template_cases, validate_steps
+from qa_system.web_tests import template_cases
 from qa_system.ai import generate_project_cases, analyze_results, canonical_code
 from qa_system.runner import run_suite
 from qa_system.ui import display_results, run_picker, local_time, VARIANTS, expected_text
@@ -39,6 +38,8 @@ def delete_project_dialog(project):
     st.write(f"'{project['name']}' 프로젝트를 삭제할까요?")
     st.warning('요구사항, 등록된 테스트, 실행 기록과 보고서가 목록에서 영구 삭제됩니다. 되돌릴 수 없습니다.')
     st.caption('로컬 artifacts 폴더의 스크린샷·추적 파일과 백업은 보관됩니다.')
+    if project['id'] == storage.baseline_project_id():
+        st.info('기본 로그인 데모의 기준 테스트 10개도 삭제됩니다. 필요하면 python -m qa_system.runner --restore-demo 로 다시 만들 수 있습니다.')
     cancel, confirm = st.columns(2)
     if cancel.button('취소', key='cancel_delete_project', width='stretch'):
         close_project_delete()

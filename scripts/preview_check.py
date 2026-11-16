@@ -1,4 +1,3 @@
-from pathlib import Path
 import sys
 from urllib.request import urlopen
 from playwright.sync_api import sync_playwright, expect

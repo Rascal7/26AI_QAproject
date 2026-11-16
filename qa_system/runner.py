@@ -2,16 +2,15 @@ import argparse
 import hashlib
 import json
 import os
-from pathlib import Path
 import subprocess
 import sys
 import uuid
 from demo_web.app import VARIANTS
 from demo_web.db import ROOT, connect
 from qa_system.ai import canonical_code, validate_code
-from qa_system.catalog import CASES, SCENARIOS, TARGET, validate_case
+from qa_system.catalog import CASES, SCENARIOS, validate_case
 from qa_system.evidence import redact
-from qa_system.storage import QA_DB, initialize, get_case, now, encode, rows
+from qa_system.storage import QA_DB, initialize, get_case, now, encode, rows, baseline_project_id, restore_demo, run_timeout
 from qa_system.reporting import build_report
 
 
@@ -26,8 +25,23 @@ def child_environment():
     return env
 
 
-def run_suite(case_ids=None, variant='normal', reviewed_codes=None, project_id=1):
+BROWSER_MISSING = ('Chromium 브라우저가 설치되지 않았습니다. '
+                   r'.venv\Scripts\python.exe -m playwright install chromium 을 실행한 뒤 다시 시도하세요.')
+
+
+def diagnose(output):
+    """Translate known environment failures in pytest output into an actionable message."""
+    if "Executable doesn't exist" in output or 'playwright install' in output:
+        return BROWSER_MISSING
+    return None
+
+
+def run_suite(case_ids=None, variant='normal', reviewed_codes=None, project_id=None):
     initialize()
+    if project_id is None:
+        project_id = baseline_project_id()
+        if project_id is None:
+            raise ValueError('기본 로그인 데모 프로젝트가 삭제되었습니다. python -m qa_system.runner --restore-demo 로 복구하세요.')
     from qa_system.projects import get_project
     from qa_system.web_tests import validate_steps
     project = get_project(project_id)
@@ -97,7 +111,7 @@ def run_suite(case_ids=None, variant='normal', reviewed_codes=None, project_id=1
             stderr=subprocess.PIPE, text=True, encoding='utf-8', errors='replace',
             start_new_session=os.name != 'nt')
         try:
-            stdout, stderr = process.communicate(timeout=max(90, len(selected)*35))
+            stdout, stderr = process.communicate(timeout=run_timeout(len(selected)))
         except subprocess.TimeoutExpired:
             infrastructure_error = '실행 제한 시간을 초과했습니다.'
             if os.name == 'nt':
@@ -108,6 +122,7 @@ def run_suite(case_ids=None, variant='normal', reviewed_codes=None, project_id=1
             process.kill()
             stdout, stderr = process.communicate(timeout=10)
         (out / 'pytest.log').write_text(redact(stdout + stderr), encoding='utf-8')
+        infrastructure_error = infrastructure_error or diagnose(stdout + stderr)
         if not infrastructure_error and process.returncode not in (0, 1):
             infrastructure_error = f'pytest 실행 오류 (exit {process.returncode}); pytest.log 확인'
     except OSError as exc:
@@ -145,7 +160,13 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--variant', choices=VARIANTS, default='normal')
     parser.add_argument('--reverse', action='store_true')
+    parser.add_argument('--restore-demo', action='store_true', help='삭제된 기본 로그인 데모 프로젝트와 기준 테스트 10개를 다시 만듭니다.')
     args = parser.parse_args()
-    result_id = run_suite(list(reversed(CASES)) if args.reverse else None, args.variant)
+    if args.restore_demo:
+        print(f'기본 로그인 데모 프로젝트: {restore_demo()}')
+    try:
+        result_id = run_suite(list(reversed(CASES)) if args.reverse else None, args.variant)
+    except ValueError as error:
+        raise SystemExit(str(error))
     print(build_report(result_id).split('##')[0])
     print(f'보고서: {ROOT / "artifacts" / result_id / "report.md"}')

@@ -68,7 +68,12 @@ SQLite는 Python 기본 라이브러리입니다. 별도 DB 서버를 설치할 
 .\.venv\Scripts\python.exe -m qa_system.runner --variant skip_revalidation
 # pytest 직접 실행 (QA DB 저장은 runner 이용)
 .\.venv\Scripts\python.exe -m pytest
+# 기본 로그인 데모 프로젝트를 삭제했다면 기준 테스트 10개와 함께 다시 만든 뒤 실행
+.\.venv\Scripts\python.exe -m qa_system.runner --restore-demo
 ```
+
+Chromium이 설치되지 않은 상태에서 실행하면 각 테스트가 ERROR로 기록되고, 오류 내용에 설치 명령이 표시됩니다.
+앱이 실행 도중 종료되어 `RUNNING`으로 남은 기록은 실행 제한 시간이 지나면 다음 앱 시작 또는 프로젝트 삭제 시 ERROR로 정리됩니다.
 
 수동 데모는 5000 포트를 유지하고, 데모의 DB 기준 테스트는 OS가 할당하는 루프백 포트를 씁니다. 수동 서버와의 충돌 없이 테스트별 DB를 연결하기 위한 구현상 조정입니다.
 데모의 DB 기준 테스트는 테스트별 새 SQLite DB와 브라우저 컨텍스트를 사용하고 종료 시 서버·연결·임시 DB를 정리합니다. 일반 웹 테스트는 등록 URL에 새 브라우저 컨텍스트로 접속합니다. `data/demo.db`와 `data/qa.db`는 자동 삭제하지 않습니다.
@@ -104,7 +109,7 @@ GitHub 저장소에는 앱 소스·테스트·설치 안내를 제공합니다. 
 
 `실제 웹사이트 QA · Example Domain` 프로젝트에는 공개 URL에 Chromium으로 접속한 실행 결과가 저장되어 있습니다. 실행 `87da0bfc43564f2e`는 HTTP 200 및 안내 링크 표시 PASS 2건, 예상한 h1 제목 부재 FAIL 1건입니다. 제목 실패는 기대 구조와 실제 페이지의 차이이며 사이트 장애를 의미하지 않습니다. 앞선 네트워크·임시 폴더 권한 오류 기록도 보존합니다. 이 사이트는 문서 예제용이므로 정기 모니터링 대상으로 사용하지 않습니다.
 
-프로젝트의 **설정 → 프로젝트 삭제 → 삭제 확인**에서 요구사항·테스트·실행 기록·DB 보고서를 함께 삭제합니다. 실행 중인 프로젝트는 삭제할 수 없습니다. 로컬 artifacts 증거 파일과 백업은 남습니다. 기본 로그인 데모도 삭제할 수 있으며 초기화 시 다시 생성되지 않습니다.
+프로젝트의 **설정 → 프로젝트 삭제 → 삭제 확인**에서 요구사항·테스트·실행 기록·DB 보고서를 함께 삭제합니다. 실행 중인 프로젝트는 삭제할 수 없습니다. 로컬 artifacts 증거 파일과 백업은 남습니다. 기본 로그인 데모도 삭제할 수 있으며 초기화 시 자동으로 다시 생성되지 않습니다. 필요하면 `python -m qa_system.runner --restore-demo`로 새 프로젝트 번호에 다시 만듭니다.
 
 공개 사이트 검사 결과는 [실행 요약](docs/public-website-result.md)을 참고하세요. 새 설치에서 직접 등록·실행하려면 `.\.venv\Scripts\python.exe -m scripts.run_public_website_sample`을 사용합니다. 실제 외부 접속이 발생하며 실행 시점의 화면에 따라 결과가 달라질 수 있습니다.
 

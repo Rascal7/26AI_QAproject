@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 from datetime import datetime, timezone
 from demo_web.db import ROOT, connect
-from qa_system.catalog import CASES, SCENARIOS, TARGET
+from qa_system.catalog import CASES, SCENARIOS, TARGET, VERSION
 from qa_system.evidence import redact
 
 QA_DB = Path(os.environ.get('QA_DB_PATH', ROOT / 'data/qa.db'))
@@ -47,39 +47,82 @@ def initialize(path=None):
             for name, definition in columns.items():
                 if name not in present:
                     db.execute(f'ALTER TABLE {table} ADD COLUMN {name} {definition}')
-        if db.execute("SELECT 1 FROM app_meta WHERE key='baseline_seeded'").fetchone():
-            return
-        db.execute('INSERT OR IGNORE INTO projects(id,name,target_url,mode) VALUES(1,?,?,?)', ('로그인 데모', TARGET, 'demo'))
-        db.execute("UPDATE projects SET mode='demo' WHERE id=1")
-        for key, scenario in SCENARIOS.items():
-            db.execute('INSERT OR IGNORE INTO db_scenarios VALUES(?,?,?)', (key, '1.0', encode(scenario)))
-        for key, case in CASES.items():
-            db.execute('INSERT OR IGNORE INTO requirements(id,project_id,spec,version) VALUES(?,1,?,?)', (case['requirement_id'], encode(case), '1.0'))
-            db.execute("UPDATE requirements SET title=? WHERE id=? AND title=''", (case['description'],case['requirement_id']))
-            db.execute('INSERT OR IGNORE INTO test_cases(id,requirement_id,scenario_id,source,definition,reviewed) VALUES(?,?,?,?,?,1)',
-                       (key, case['requirement_id'], case['scenario_id'], 'human', encode(case)))
-        db.execute('UPDATE test_cases SET project_id=(SELECT project_id FROM requirements WHERE requirements.id=test_cases.requirement_id) WHERE project_id IS NULL')
-        db.execute("INSERT INTO app_meta VALUES('baseline_seeded','1')")
+        if not db.execute("SELECT 1 FROM app_meta WHERE key='baseline_seeded'").fetchone():
+            db.execute('INSERT OR IGNORE INTO projects(id,name,target_url,mode) VALUES(1,?,?,?)', ('로그인 데모', TARGET, 'demo'))
+            db.execute("UPDATE projects SET mode='demo' WHERE id=1")
+            _insert_baseline(db, 1)
+            db.execute('UPDATE test_cases SET project_id=(SELECT project_id FROM requirements WHERE requirements.id=test_cases.requirement_id) WHERE project_id IS NULL')
+            db.execute("INSERT INTO app_meta VALUES('baseline_seeded','1')")
+    _initialized.add(Path(path).resolve())
+
+
+_initialized = set()
+
+
+def _insert_baseline(db, project_id):
+    for key, scenario in SCENARIOS.items():
+        db.execute('INSERT OR IGNORE INTO db_scenarios VALUES(?,?,?)', (key, VERSION, encode(scenario)))
+    for key, case in CASES.items():
+        db.execute('INSERT OR IGNORE INTO requirements(id,project_id,spec,version) VALUES(?,?,?,?)',
+                   (case['requirement_id'], project_id, encode(case), VERSION))
+        db.execute("UPDATE requirements SET title=? WHERE id=? AND title=''", (case['description'], case['requirement_id']))
+        db.execute('INSERT OR IGNORE INTO test_cases(id,requirement_id,scenario_id,source,definition,reviewed,project_id) VALUES(?,?,?,?,?,1,?)',
+                   (key, case['requirement_id'], case['scenario_id'], 'human', encode(case), project_id))
+
+
+def ensure_initialized():
+    # Schema setup once per database file, not on every query of every Streamlit rerun.
+    if Path(QA_DB).resolve() not in _initialized or not Path(QA_DB).exists():
+        initialize()
+
+
+def baseline_project_id():
+    """Project that owns the 10 human baseline tests, or None after it was deleted."""
+    found = rows('SELECT project_id FROM test_cases WHERE id=?', (next(iter(CASES)),))
+    return found[0]['project_id'] if found else None
+
+
+def restore_demo():
+    """Recreate the deleted login demo project with its baseline tests; never reuses another project's id."""
+    existing = baseline_project_id()
+    if existing is not None:
+        return existing
+    with connect(QA_DB) as db:
+        project_id = db.execute('INSERT INTO projects(name,target_url,mode) VALUES(?,?,?)',
+                                ('로그인 데모', TARGET, 'demo')).lastrowid
+        _insert_baseline(db, project_id)
+    return project_id
+
+
+def run_timeout(case_count):
+    return max(90, case_count * 35)
+
+
+def recover_stale_runs(grace_seconds=120):
+    """Mark runs left RUNNING by a crashed or closed app as ERROR once their time limit has passed."""
+    stale = []
+    current = datetime.now(timezone.utc)
+    for run in rows("SELECT run_id,started_at,snapshots FROM test_runs WHERE status='RUNNING'"):
+        try:
+            count = len(json.loads(run['snapshots'] or '{}').get('cases', [])) or 1
+            started = datetime.fromisoformat(run['started_at'])
+        except (TypeError, ValueError):
+            continue  # Unknown start time: never guess that a run is dead.
+        if started.tzinfo is None:
+            started = started.replace(tzinfo=timezone.utc)
+        if (current - started).total_seconds() > run_timeout(count) + grace_seconds:
+            stale.append(run['run_id'])
+    if stale:
+        with connect(QA_DB) as db:
+            db.executemany("UPDATE test_runs SET status='ERROR',finished_at=? WHERE run_id=? AND status='RUNNING'",
+                           [(now(), run_id) for run_id in stale])
+    return stale
 
 
 def rows(sql, params=()):
-    initialize()
+    ensure_initialized()
     with connect(QA_DB) as db:
         return [dict(r) for r in db.execute(sql, params).fetchall()]
-
-
-def save_ai_case(case):
-    from qa_system.catalog import validate_case
-    import re
-    if validate_case(case):
-        raise ValueError(validate_case(case))
-    if not re.fullmatch(r'AI-[A-Za-z0-9_-]{1,80}', case['id']):
-        raise ValueError('AI 테스트 ID는 AI-로 시작해야 합니다.')
-    case = dict(case, source='ai')
-    initialize()
-    with connect(QA_DB) as db:
-        db.execute('INSERT INTO test_cases(id,requirement_id,scenario_id,source,definition,reviewed,project_id) VALUES(?,?,?,?,?,1,1) ON CONFLICT(id) DO UPDATE SET requirement_id=excluded.requirement_id, scenario_id=excluded.scenario_id, definition=excluded.definition, reviewed=1',
-                   (case['id'], case['requirement_id'], case['scenario_id'], 'ai', encode(case)))
 
 
 def get_case(case_id):

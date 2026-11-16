@@ -119,6 +119,7 @@ def approve_case(project_id, case_id):
 def delete_project(project_id):
     """Remove owned database records atomically; keep local evidence files as archives."""
     storage.initialize()
+    storage.recover_stale_runs()
     with connect(storage.QA_DB) as db:
         db.execute('BEGIN IMMEDIATE')
         if not db.execute('SELECT 1 FROM projects WHERE id=?', (project_id,)).fetchone():

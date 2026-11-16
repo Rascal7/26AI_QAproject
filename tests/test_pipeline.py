@@ -3,7 +3,7 @@ import zipfile
 import pytest
 from qa_system.ai import canonical_code, validate_code
 from qa_system.catalog import CASES, validate_case
-from qa_system.evidence import redact, sanitize_trace
+from qa_system.evidence import sanitize_trace
 from qa_system.runner import child_environment
 from tests.db_scenarios import ScenarioDB
 

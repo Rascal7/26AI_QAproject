@@ -14,6 +14,7 @@ from qa_system.project_ui import delete_project_dialog
 
 load_dotenv(ROOT / '.env')
 storage.initialize()
+storage.recover_stale_runs()
 st.set_page_config(page_title='TestPilot · QA 워크스페이스',page_icon='◈',layout='wide')
 st.markdown('<style>' + (ROOT / 'qa_system/stitch.css').read_text(encoding='utf-8') + '</style>', unsafe_allow_html=True)
 st.session_state.setdefault('project_id',None)
