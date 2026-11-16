@@ -8,6 +8,7 @@ from qa_system.projects import create_project, save_project, requirements, save_
 from qa_system.catalog import CASES
 from qa_system.web_tests import template_cases
 from qa_system.ai import generate_project_cases, analyze_results, canonical_code
+from qa_system.page_context import PageContextError, capture, check_selectors, step_selectors, summarize_check
 from qa_system.runner import run_suite
 from qa_system.ui import display_results, run_picker, local_time, VARIANTS, expected_text
 from qa_system.workspace import project_list, run_list, all_tags, run_date
@@ -315,6 +316,28 @@ def step_editor(steps,key):
     return [{'action':reverse.get(r.get('동작'),''),'selector':r.get('요소 선택자') or '', 'value':r.get('값 / 경로') or ''} for r in edited]
 
 
+def selector_check_view(project,draft,steps,key):
+    """Show whether each selector exists on the start page; editing steps invalidates the result."""
+    check=draft.get('selector_check')
+    if check and check.get('selectors')!=step_selectors(steps):
+        check=None  # The reviewer edited selectors after the last check.
+    if check:
+        message=f"선택자 {check['total']}개 중 {check['unique']}개를 시작 페이지에서 정확히 1개로 확인했습니다."
+        problems=[('찾지 못함',check['missing']),('여러 요소와 일치',check['multiple']),('문법 오류',check['invalid'])]
+        details=' · '.join(f"{label}: {', '.join(values)}" for label,values in problems if values)
+        if details:
+            st.warning(message+' '+details+' (페이지 이동·클릭 뒤에 나타나는 요소라면 시작 페이지에 없는 것이 정상입니다.)')
+        else:
+            st.success(message)
+    if step_selectors(steps) and st.button('선택자 다시 확인',key='recheck_'+key):
+        try:
+            with st.spinner('실제 페이지에서 확인하고 있습니다…'):
+                draft['selector_check']=summarize_check(steps,check_selectors(project['target_url'],step_selectors(steps)))
+            st.rerun()
+        except PageContextError as error:
+            st.error(str(error))
+
+
 def tests_page(project):
     pid=project['id']; reqs=requirements(pid)
     notice=st.session_state.pop(f'tests_added_{pid}',None)
@@ -401,15 +424,39 @@ def case_adder(project,req):
     with ai_panel,st.container(border=True):
         st.subheader('AI 테스트 생성')
         prompt=st.text_area('어떤 테스트를 할까요?',placeholder='예: 이메일을 비우고 로그인하면 오류 문구가 표시되는지 확인해줘. 이메일은 #email, 버튼은 #submit이야.',height=120,key=f'prompt_{pid}_{rid}')
+        use_page=st.checkbox('페이지 구조를 읽어 AI에 전달',value=True,key=f'use_page_{pid}_{rid}',
+            help='등록한 URL을 브라우저로 열어 입력창·버튼·링크·안내 영역의 선택자를 AI에 전달합니다. 입력값은 읽지 않습니다.')
         st.caption('전체 기준과 선택한 요구사항을 함께 전달합니다. 생성 후 검토하세요.')
         draft_key=f'drafts_{pid}_{rid}'
         if st.button('✦ 테스트 생성',type='primary',disabled=not prompt.strip()):
+            context,context_error=None,None
+            if use_page:
+                try:
+                    with st.spinner('페이지 구조를 읽고 있습니다…'):
+                        context=capture(project['target_url'])
+                except PageContextError as error:
+                    context_error=str(error)
             try:
                 with st.spinner('테스트를 만들고 있습니다…'):
-                    st.session_state[draft_key]=generate_project_cases(project,req,prompt)
-                    st.session_state[draft_key+'_revision']=st.session_state.get(draft_key+'_revision',0)+1
+                    drafts=generate_project_cases(project,req,prompt,context)
+                if context:
+                    with st.spinner('생성된 선택자를 실제 페이지에서 확인하고 있습니다…'):
+                        counts=check_selectors(project['target_url'],[s for d in drafts for s in step_selectors(d['steps'])])
+                    for draft in drafts:
+                        draft['selector_check']=summarize_check(draft['steps'],counts)
+                st.session_state[draft_key]=drafts
+                st.session_state[draft_key+'_context']={'elements':len(context['elements']) if context else 0,'error':context_error}
+                st.session_state[draft_key+'_revision']=st.session_state.get(draft_key+'_revision',0)+1
+            except PageContextError as error:
+                st.error(str(error))
             except Exception as error:
                 st.error(f'생성 실패: {type(error).__name__}. API 설정과 연결을 확인하세요.')
+        context_info=st.session_state.get(draft_key+'_context')
+        if context_info and st.session_state.get(draft_key):
+            if context_info['error']:
+                st.warning('페이지 구조 없이 생성했습니다. 선택자가 추정값이므로 꼭 확인하세요. '+context_info['error'])
+            else:
+                st.caption(f"페이지에서 읽은 요소 {context_info['elements']}개를 바탕으로 생성했습니다.")
         for index,draft in enumerate(st.session_state.get(draft_key,[])):
             revision=st.session_state.get(draft_key+'_revision',0)
             with st.container(border=True):
@@ -418,6 +465,7 @@ def case_adder(project,req):
                 if draft.get('review_notes'):
                     st.warning(draft['review_notes'])
                 steps=step_editor(draft['steps'],f'ai_steps_{pid}_{rid}_{revision}_{index}')
+                selector_check_view(project,draft,steps,f'{pid}_{rid}_{revision}_{index}')
                 approved=st.checkbox('실행 단계와 선택자를 확인했습니다',key=f'ai_approved_{pid}_{rid}_{revision}_{index}')
                 saved=bool(draft.get('_saved_case_id'))
                 if st.button('등록 완료' if saved else '프로젝트에 추가',key=f'ai_save_{pid}_{rid}_{revision}_{index}',disabled=saved or not approved):

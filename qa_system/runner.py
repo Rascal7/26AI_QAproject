@@ -105,6 +105,9 @@ def run_suite(case_ids=None, variant='normal', reviewed_codes=None, project_id=N
                str(test_file), '--confcutdir', str(out), '--variant', variant,
                '--result-dir', str(out), '--qa-port', '0', '--browser', 'chromium', '--tb=no',
                '--basetemp', str(out / 'tmp'), '-p', 'no:cacheprovider']
+    if os.getenv('QA_BROWSER_CHANNEL'):
+        # Optional installed browser (e.g. msedge) when Playwright's Chromium is not downloaded.
+        command += ['--browser-channel', os.environ['QA_BROWSER_CHANNEL']]
     infrastructure_error = None
     try:
         process = subprocess.Popen(command, cwd=ROOT, env=child_environment(), stdout=subprocess.PIPE,

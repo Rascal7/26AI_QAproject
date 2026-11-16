@@ -26,7 +26,7 @@ def test_registration_refreshes_list_immediately(tmp_path, monkeypatch, kind):
         app.multiselect[0].select(app.multiselect[0].options[0]).run()
         label = '선택한 테스트 추가'
     elif kind == 'ai':
-        app.checkbox[0].check().run()
+        app.checkbox(key=f'ai_approved_{pid}_{rid}_0_0').check().run()
         label = '프로젝트에 추가'
     else:
         label = '테스트 추가'
