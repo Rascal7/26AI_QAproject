@@ -39,9 +39,11 @@ def test_running_project_cannot_be_deleted(tmp_path, monkeypatch):
 
 def test_delete_dialog_requires_confirmation(tmp_path, monkeypatch):
     from streamlit.testing.v1 import AppTest
+
     monkeypatch.setattr(storage, 'QA_DB', tmp_path / 'qa.db')
     storage.initialize()
     from demo_web.db import ROOT
+
     app = AppTest.from_file(str(ROOT / 'streamlit_app.py'), default_timeout=15)
     app.session_state.project_id = 1
     app.session_state.project_view = '프로젝트 설정'

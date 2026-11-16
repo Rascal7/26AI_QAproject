@@ -1,4 +1,5 @@
 """Open the existing QA server, or start it and open it when ready."""
+
 import argparse
 import importlib.util
 from pathlib import Path
@@ -39,14 +40,29 @@ def main():
         return 1
     with socket.socket() as probe:
         if probe.connect_ex(('127.0.0.1', 8501)) == 0:
-            print('Port 8501 is occupied, but the QA server is not ready. Retry shortly or close the application using this port.')
+            print(
+                'Port 8501 is occupied, but the QA server is not ready. Retry shortly or close the application using this port.'
+            )
             return 1
     print('Starting QA. Keep this window open while using the app.\n' + URL, flush=True)
-    process = subprocess.Popen([
-        sys.executable, '-m', 'streamlit', 'run', str(ROOT / 'streamlit_app.py'),
-        '--server.address', '127.0.0.1', '--server.port', '8501',
-        '--server.headless', 'true', '--browser.gatherUsageStats', 'false',
-    ], cwd=ROOT)
+    process = subprocess.Popen(
+        [
+            sys.executable,
+            '-m',
+            'streamlit',
+            'run',
+            str(ROOT / 'streamlit_app.py'),
+            '--server.address',
+            '127.0.0.1',
+            '--server.port',
+            '8501',
+            '--server.headless',
+            'true',
+            '--browser.gatherUsageStats',
+            'false',
+        ],
+        cwd=ROOT,
+    )
     try:
         for _ in range(60):
             if process.poll() is not None:
@@ -55,7 +71,10 @@ def main():
                 webbrowser.open(URL)
                 return process.wait()
             time.sleep(0.5)
-        print('Startup is taking longer than expected. See the server messages above; open ' + URL + ' when ready.', flush=True)
+        print(
+            'Startup is taking longer than expected. See the server messages above; open ' + URL + ' when ready.',
+            flush=True,
+        )
         return process.wait()
     except KeyboardInterrupt:
         process.terminate()

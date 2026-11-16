@@ -14,9 +14,15 @@ def seed(path):
     with connect(path) as db:
         # Never reset existing user data, including manual demo changes.
         if not db.execute('SELECT id FROM users WHERE email=?', (EMAIL,)).fetchone():
-            db.execute('INSERT INTO users(email,password_hash,display_name,created_at) VALUES(?,?,?,?)',
-                       (EMAIL, generate_password_hash(PASSWORD, method=HASH_METHOD), NAME,
-                        datetime.now(timezone.utc).isoformat()))
+            db.execute(
+                'INSERT INTO users(email,password_hash,display_name,created_at) VALUES(?,?,?,?)',
+                (
+                    EMAIL,
+                    generate_password_hash(PASSWORD, method=HASH_METHOD),
+                    NAME,
+                    datetime.now(timezone.utc).isoformat(),
+                ),
+            )
 
 
 if __name__ == '__main__':

@@ -6,9 +6,15 @@ from demo_web.seed import PASSWORD, WRONG_PASSWORD
 
 def redact(value, secrets=()):
     if isinstance(value, dict):
-        return {k: ('[REDACTED]' if k.lower() in
-                {'password', 'password_hash', 'cookie', 'cookies', 'authorization', 'headers', 'postdata'}
-                else redact(v, secrets)) for k, v in value.items()}
+        return {
+            k: (
+                '[REDACTED]'
+                if k.lower()
+                in {'password', 'password_hash', 'cookie', 'cookies', 'authorization', 'headers', 'postdata'}
+                else redact(v, secrets)
+            )
+            for k, v in value.items()
+        }
     if isinstance(value, list):
         return [redact(v, secrets) for v in value]
     if isinstance(value, str):
@@ -27,8 +33,11 @@ def sanitize_trace(source, destination, secrets=()):
             if name.endswith('.network'):
                 dst.writestr(name, '')
             elif name.endswith('.trace'):
-                lines = [json.dumps(redact(json.loads(line), secrets), ensure_ascii=False)
-                         for line in src.read(name).decode('utf-8').splitlines() if line.strip()]
+                lines = [
+                    json.dumps(redact(json.loads(line), secrets), ensure_ascii=False)
+                    for line in src.read(name).decode('utf-8').splitlines()
+                    if line.strip()
+                ]
                 dst.writestr(name, '\n'.join(lines) + '\n')
             elif name.startswith('resources/') and name.endswith(('.png', '.jpeg', '.jpg')):
                 dst.writestr(name, src.read(name))

@@ -1,4 +1,5 @@
 """Reviewed browser assertions shared by human and restricted AI-generated tests."""
+
 from playwright.sync_api import expect
 from demo_web.app import AUTH_MESSAGE, UNAVAILABLE_MESSAGE, ERROR_MESSAGE
 from demo_web.seed import EMAIL, PASSWORD, WRONG_PASSWORD
@@ -34,7 +35,9 @@ def execute_case(env, case_id):
         result['duplicate_rejected'] = db.reject_duplicate()
         result['observations'].append('중복 INSERT 무결성 오류 및 롤백, 원본 필드·해시 동일성 확인')
     requests = []
-    page.on('request', lambda r: requests.append(r.method) if r.method == 'POST' and r.url == url + '/api/login' else None)
+    page.on(
+        'request', lambda r: requests.append(r.method) if r.method == 'POST' and r.url == url + '/api/login' else None
+    )
     if case_id in ('TC-LOGIN-003', 'TC-LOGIN-004'):
         field = 'email' if case_id.endswith('003') else 'password'
         message = '이메일을 입력하세요.' if field == 'email' else '비밀번호를 입력하세요.'
@@ -50,13 +53,21 @@ def execute_case(env, case_id):
         page.goto(url + '/home')
         expect(page).to_have_url(url + '/login')
     else:
-        with page.expect_response(lambda r: r.url == url + '/api/login' and r.request.method == 'POST') as response_info:
+        with page.expect_response(
+            lambda r: r.url == url + '/api/login' and r.request.method == 'POST'
+        ) as response_info:
             page.get_by_test_id('login-submit').click(no_wait_after=True)
         response = response_info.value
         assert len(env['response_bodies']) == 1
         body = env['response_bodies'][0]
-        result['http'].append({'endpoint': '/api/login', 'status': response.status, 'body': body,
-                               'body_source': 'real_server_response_observer'})
+        result['http'].append(
+            {
+                'endpoint': '/api/login',
+                'status': response.status,
+                'body': body,
+                'body_source': 'real_server_response_observer',
+            }
+        )
         result['request_count'] = len(requests)
         expected_login_status = 200 if case_id == 'TC-DB-004' else contract['expected_status']
         assert response.status == expected_login_status, f'기대 HTTP {expected_login_status} / 실제 {response.status}'
@@ -88,7 +99,9 @@ def execute_case(env, case_id):
             assert body['message'] == message
             expect(page).to_have_url(url + '/login')
             expect(page.get_by_test_id('login-error')).to_have_text(message)
-            expect(page.get_by_test_id('login-form')).to_have_attribute('data-state', 'error' if response.status == 503 else 'rejected')
+            expect(page.get_by_test_id('login-form')).to_have_attribute(
+                'data-state', 'error' if response.status == 503 else 'rejected'
+            )
             expect(page.get_by_test_id('login-submit')).to_be_enabled()
             assert not session_present(env), '거부된 로그인에 세션이 생성되면 안 됩니다.'
             # Keep the error screen as evidence before testing protected-page access.

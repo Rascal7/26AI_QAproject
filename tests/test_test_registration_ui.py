@@ -13,12 +13,20 @@ def test_registration_refreshes_list_immediately(tmp_path, monkeypatch, kind):
     app = AppTest.from_string(
         'from qa_system.project_ui import tests_page\n'
         'from qa_system.projects import get_project\n'
-        f'tests_page(get_project({pid}))\n', default_timeout=15)
+        f'tests_page(get_project({pid}))\n',
+        default_timeout=15,
+    )
     app.session_state[f'req_filter_{pid}'] = rid
     if kind == 'ai':
-        app.session_state[f'drafts_{pid}_{rid}'] = [dict(
-            engine='web', source='ai', description='AI 접속 확인', expected='HTTP 200',
-            steps=[dict(action='navigate', value=''), dict(action='assert_status', value='200')])]
+        app.session_state[f'drafts_{pid}_{rid}'] = [
+            dict(
+                engine='web',
+                source='ai',
+                description='AI 접속 확인',
+                expected='HTTP 200',
+                steps=[dict(action='navigate', value=''), dict(action='assert_status', value='200')],
+            )
+        ]
     app.run()
     assert not app.exception
     app.button(key='show_test_modal').click().run()

@@ -49,8 +49,14 @@ def test_stale_running_run_is_closed_and_no_longer_blocks_deletion(workspace):
     fresh = datetime.now(timezone.utc).isoformat()
     snapshots = json.dumps({'cases': [{}, {}]})
     with sqlite3.connect(workspace) as db:
-        db.execute("INSERT INTO test_runs(run_id,project_id,started_at,status,snapshots) VALUES('stale',1,?,'RUNNING',?)", (old, snapshots))
-        db.execute("INSERT INTO test_runs(run_id,project_id,started_at,status,snapshots) VALUES('active',1,?,'RUNNING',?)", (fresh, snapshots))
+        db.execute(
+            "INSERT INTO test_runs(run_id,project_id,started_at,status,snapshots) VALUES('stale',1,?,'RUNNING',?)",
+            (old, snapshots),
+        )
+        db.execute(
+            "INSERT INTO test_runs(run_id,project_id,started_at,status,snapshots) VALUES('active',1,?,'RUNNING',?)",
+            (fresh, snapshots),
+        )
     assert storage.recover_stale_runs() == ['stale']
     states = {r['run_id']: r['status'] for r in storage.rows('SELECT run_id,status FROM test_runs')}
     assert states == {'stale': 'ERROR', 'active': 'RUNNING'}
@@ -64,6 +70,7 @@ def test_stale_running_run_is_closed_and_no_longer_blocks_deletion(workspace):
 
 def fake_pytest(output, results=0):
     """Popen stand-in: writes output to the log and finishes one result file per poll."""
+
     def start(command, stdout, **kwargs):
         out = Path(command[command.index('--result-dir') + 1])
         stdout.write(output.encode('utf-8'))
@@ -72,12 +79,16 @@ def fake_pytest(output, results=0):
 
         def poll():
             if state['written'] < results:
-                (out / f"test_case_{state['written']}.json").write_text(json.dumps(
-                    {'setup_status': 'ready', 'outcome': 'PASS', 'http': [], 'observations': []}), encoding='utf-8')
+                (out / f'test_case_{state["written"]}.json').write_text(
+                    json.dumps({'setup_status': 'ready', 'outcome': 'PASS', 'http': [], 'observations': []}),
+                    encoding='utf-8',
+                )
                 state['written'] += 1
                 return None
             return 0
+
         return MagicMock(returncode=0 if results else 1, poll=poll, pid=0)
+
     return start
 
 
@@ -85,7 +96,9 @@ def test_progress_is_reported_per_finished_test_and_raw_log_removed(workspace, m
     monkeypatch.setattr(runner.subprocess, 'Popen', fake_pytest('3 passed', results=3))
     monkeypatch.setattr(runner.time, 'sleep', lambda s: None)
     seen = []
-    run_id = runner.run_suite(['TC-LOGIN-001', 'TC-LOGIN-002', 'TC-LOGIN-003'], progress=lambda d, t: seen.append((d, t)))
+    run_id = runner.run_suite(
+        ['TC-LOGIN-001', 'TC-LOGIN-002', 'TC-LOGIN-003'], progress=lambda d, t: seen.append((d, t))
+    )
     try:
         assert seen[0] == (0, 3) and seen[-1] == (3, 3) and seen == sorted(seen)
         outcomes = [r['outcome'] for r in storage.rows('SELECT outcome FROM test_results WHERE run_id=?', (run_id,))]
@@ -98,6 +111,7 @@ def test_progress_is_reported_per_finished_test_and_raw_log_removed(workspace, m
 
 def test_every_test_needs_db_approval_and_old_ai_demo_tests_run_fixed_code(workspace, monkeypatch):
     from qa_system.projects import save_case, approve_case
+
     case = dict(CASES['TC-DB-001'], baseline_id='TC-DB-001', engine='demo', source='ai', description='초기 AI 테스트')
     case_id = save_case(1, CASES['TC-DB-001']['requirement_id'], case, reviewed=False)
     with pytest.raises(ValueError, match='검토하고 승인'):
@@ -108,14 +122,20 @@ def test_every_test_needs_db_approval_and_old_ai_demo_tests_run_fixed_code(works
     run_id = runner.run_suite([case_id])
     try:
         code = (ROOT / 'artifacts' / run_id / 'test_selected.py').read_text(encoding='utf-8')
-        assert code == "from qa_system.contracts import execute_case\n\ndef test_case_0(qa_env):\n    execute_case(qa_env, 'TC-DB-001')\n"
+        assert (
+            code
+            == "from qa_system.contracts import execute_case\n\ndef test_case_0(qa_env):\n    execute_case(qa_env, 'TC-DB-001')\n"
+        )
     finally:
         shutil.rmtree(ROOT / 'artifacts' / run_id, ignore_errors=True)
 
 
 def test_missing_browser_is_reported_with_install_command(workspace, monkeypatch):
-    monkeypatch.setattr(runner.subprocess, 'Popen',
-                        fake_pytest("BrowserType.launch: Executable doesn't exist at C:\\ms-playwright\\chrome.exe"))
+    monkeypatch.setattr(
+        runner.subprocess,
+        'Popen',
+        fake_pytest("BrowserType.launch: Executable doesn't exist at C:\\ms-playwright\\chrome.exe"),
+    )
     run_id = runner.run_suite(['TC-LOGIN-001'])
     try:
         result = storage.rows('SELECT outcome,details FROM test_results WHERE run_id=?', (run_id,))[0]

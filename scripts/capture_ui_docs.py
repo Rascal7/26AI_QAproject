@@ -8,6 +8,7 @@ Usage:  .venv\\Scripts\\python.exe -m scripts.capture_ui_docs
 Needs port 5000 (login demo) and 8505 free. Makes about 4 OpenAI calls. data/qa.db is never touched.
 Set QA_BROWSER_CHANNEL=msedge when Playwright's Chromium is not installed.
 """
+
 import os
 import socket
 import subprocess
@@ -23,6 +24,7 @@ WORK = Path(tempfile.mkdtemp(prefix='ui-docs-'))
 os.environ['QA_DB_PATH'] = str(WORK / 'qa.db')
 
 from dotenv import load_dotenv  # noqa: E402
+
 load_dotenv(ROOT / '.env')
 
 from werkzeug.serving import make_server  # noqa: E402
@@ -48,10 +50,16 @@ def prepare():
     demo = storage.baseline_project_id()
     project = get_project(demo)
     # Requirement text states the exact messages, as a real specification would.
-    save_project(demo, project['name'], project['overview'] or '이메일과 비밀번호로 로그인하고, 계정 상태에 따라 접근을 제어한다.',
-                 project['exceptions'] or '빈 이메일은 "이메일을 입력하세요.", 빈 비밀번호는 "비밀번호를 입력하세요."를 입력창 아래에 '
-                 '표시하고 요청을 보내지 않는다. 틀린 비밀번호는 "이메일 또는 비밀번호가 올바르지 않습니다.", 비활성·잠긴 계정은 '
-                 '"현재 로그인할 수 없는 계정입니다."를 표시한다.', tags=['로그인', 'DB', '회귀 테스트'])
+    save_project(
+        demo,
+        project['name'],
+        project['overview'] or '이메일과 비밀번호로 로그인하고, 계정 상태에 따라 접근을 제어한다.',
+        project['exceptions']
+        or '빈 이메일은 "이메일을 입력하세요.", 빈 비밀번호는 "비밀번호를 입력하세요."를 입력창 아래에 '
+        '표시하고 요청을 보내지 않는다. 틀린 비밀번호는 "이메일 또는 비밀번호가 올바르지 않습니다.", 비활성·잠긴 계정은 '
+        '"현재 로그인할 수 없는 계정입니다."를 표시한다.',
+        tags=['로그인', 'DB', '회귀 테스트'],
+    )
     print('baseline run', run_suite(), flush=True)
     installed = install()
     for project_id, case_ids in installed.items():
@@ -75,6 +83,7 @@ def wait_for(url, seconds=60):
 
 def capture(demo):
     from playwright.sync_api import expect, sync_playwright
+
     OUT.mkdir(parents=True, exist_ok=True)
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(channel=os.getenv('QA_BROWSER_CHANNEL') or None)
@@ -123,10 +132,27 @@ def main():
     app = None
     try:
         demo = prepare()
-        app = subprocess.Popen([sys.executable, '-m', 'streamlit', 'run', str(ROOT / 'streamlit_app.py'),
-                                '--server.address', '127.0.0.1', '--server.port', str(APP_PORT),
-                                '--server.headless', 'true', '--browser.gatherUsageStats', 'false'],
-                               cwd=ROOT, env=os.environ.copy(), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        app = subprocess.Popen(
+            [
+                sys.executable,
+                '-m',
+                'streamlit',
+                'run',
+                str(ROOT / 'streamlit_app.py'),
+                '--server.address',
+                '127.0.0.1',
+                '--server.port',
+                str(APP_PORT),
+                '--server.headless',
+                'true',
+                '--browser.gatherUsageStats',
+                'false',
+            ],
+            cwd=ROOT,
+            env=os.environ.copy(),
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
         wait_for(f'http://127.0.0.1:{APP_PORT}/_stcore/health')
         capture(demo)
         print('saved to', OUT)

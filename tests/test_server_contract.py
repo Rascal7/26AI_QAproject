@@ -46,7 +46,9 @@ def test_home_revalidates_current_state(server_client, change):
         if change == 'disabled':
             db.execute("UPDATE users SET status='disabled'")
         elif change == 'locked':
-            db.execute('UPDATE users SET locked_until=?', ((datetime.now(timezone.utc) + timedelta(hours=1)).isoformat(),))
+            db.execute(
+                'UPDATE users SET locked_until=?', ((datetime.now(timezone.utc) + timedelta(hours=1)).isoformat(),)
+            )
         else:
             db.execute('DELETE FROM users')
     assert client.get('/home').status_code == 302
@@ -57,7 +59,9 @@ def test_home_revalidates_current_state(server_client, change):
 def test_expired_lock_and_failed_relogin_clear_session(server_client):
     client, path = server_client
     with connect(path) as db:
-        db.execute('UPDATE users SET locked_until=?', ((datetime.now(timezone.utc) - timedelta(seconds=1)).isoformat(),))
+        db.execute(
+            'UPDATE users SET locked_until=?', ((datetime.now(timezone.utc) - timedelta(seconds=1)).isoformat(),)
+        )
     assert client.post('/api/login', json={'email': EMAIL, 'password': PASSWORD}).status_code == 200
     assert client.post('/api/login', json={'email': EMAIL, 'password': 'incorrect'}).status_code == 401
     with client.session_transaction() as session:

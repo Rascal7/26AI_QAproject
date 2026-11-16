@@ -23,7 +23,7 @@ def connect(path):
 def initialize(path):
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     with connect(path) as db:
-        db.execute('''CREATE TABLE IF NOT EXISTS users (
+        db.execute("""CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY,
             email TEXT NOT NULL UNIQUE,
             password_hash TEXT NOT NULL,
@@ -31,4 +31,4 @@ def initialize(path):
             status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'disabled')),
             locked_until TEXT,
             created_at TEXT NOT NULL
-        )''')
+        )""")

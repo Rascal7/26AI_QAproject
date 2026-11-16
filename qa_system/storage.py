@@ -21,7 +21,7 @@ def initialize(path=None):
     path = path or QA_DB
     path.parent.mkdir(parents=True, exist_ok=True)
     with connect(path) as db:
-        db.executescript('''
+        db.executescript("""
         CREATE TABLE IF NOT EXISTS projects(id INTEGER PRIMARY KEY, name TEXT NOT NULL, target_url TEXT NOT NULL);
         CREATE TABLE IF NOT EXISTS requirements(id TEXT PRIMARY KEY, project_id INTEGER REFERENCES projects(id), spec TEXT, version TEXT);
         CREATE TABLE IF NOT EXISTS db_scenarios(scenario_id TEXT PRIMARY KEY, version TEXT, definition TEXT);
@@ -36,23 +36,34 @@ def initialize(path=None):
           title TEXT, facts TEXT, hypothesis TEXT);
         CREATE TABLE IF NOT EXISTS reports(run_id TEXT PRIMARY KEY REFERENCES test_runs(run_id), markdown TEXT, ai_analysis TEXT);
         CREATE TABLE IF NOT EXISTS app_meta(key TEXT PRIMARY KEY, value TEXT);
-        ''')
+        """)
         # Additive migration preserves every existing execution and its foreign keys.
-        additions = {'projects': {'overview': "TEXT NOT NULL DEFAULT ''", 'exceptions': "TEXT NOT NULL DEFAULT ''",
-                                 'mode': "TEXT NOT NULL DEFAULT 'web'", 'tags': "TEXT NOT NULL DEFAULT '[]'"},
-                     'requirements': {'title': "TEXT NOT NULL DEFAULT ''", 'exceptions': "TEXT NOT NULL DEFAULT ''"},
-                     'test_cases': {'project_id': 'INTEGER REFERENCES projects(id)'},
-                     'bug_reports': {'ai_analysis': 'TEXT'}}
+        additions = {
+            'projects': {
+                'overview': "TEXT NOT NULL DEFAULT ''",
+                'exceptions': "TEXT NOT NULL DEFAULT ''",
+                'mode': "TEXT NOT NULL DEFAULT 'web'",
+                'tags': "TEXT NOT NULL DEFAULT '[]'",
+            },
+            'requirements': {'title': "TEXT NOT NULL DEFAULT ''", 'exceptions': "TEXT NOT NULL DEFAULT ''"},
+            'test_cases': {'project_id': 'INTEGER REFERENCES projects(id)'},
+            'bug_reports': {'ai_analysis': 'TEXT'},
+        }
         for table, columns in additions.items():
             present = {r['name'] for r in db.execute(f'PRAGMA table_info({table})')}
             for name, definition in columns.items():
                 if name not in present:
                     db.execute(f'ALTER TABLE {table} ADD COLUMN {name} {definition}')
         if not db.execute("SELECT 1 FROM app_meta WHERE key='baseline_seeded'").fetchone():
-            db.execute('INSERT OR IGNORE INTO projects(id,name,target_url,mode) VALUES(1,?,?,?)', ('로그인 데모', TARGET, 'demo'))
+            db.execute(
+                'INSERT OR IGNORE INTO projects(id,name,target_url,mode) VALUES(1,?,?,?)',
+                ('로그인 데모', TARGET, 'demo'),
+            )
             db.execute("UPDATE projects SET mode='demo' WHERE id=1")
             _insert_baseline(db, 1)
-            db.execute('UPDATE test_cases SET project_id=(SELECT project_id FROM requirements WHERE requirements.id=test_cases.requirement_id) WHERE project_id IS NULL')
+            db.execute(
+                'UPDATE test_cases SET project_id=(SELECT project_id FROM requirements WHERE requirements.id=test_cases.requirement_id) WHERE project_id IS NULL'
+            )
             db.execute("INSERT INTO app_meta VALUES('baseline_seeded','1')")
     _initialized.add(Path(path).resolve())
 
@@ -64,11 +75,17 @@ def _insert_baseline(db, project_id):
     for key, scenario in SCENARIOS.items():
         db.execute('INSERT OR IGNORE INTO db_scenarios VALUES(?,?,?)', (key, VERSION, encode(scenario)))
     for key, case in CASES.items():
-        db.execute('INSERT OR IGNORE INTO requirements(id,project_id,spec,version) VALUES(?,?,?,?)',
-                   (case['requirement_id'], project_id, encode(case), VERSION))
-        db.execute("UPDATE requirements SET title=? WHERE id=? AND title=''", (case['description'], case['requirement_id']))
-        db.execute('INSERT OR IGNORE INTO test_cases(id,requirement_id,scenario_id,source,definition,reviewed,project_id) VALUES(?,?,?,?,?,1,?)',
-                   (key, case['requirement_id'], case['scenario_id'], 'human', encode(case), project_id))
+        db.execute(
+            'INSERT OR IGNORE INTO requirements(id,project_id,spec,version) VALUES(?,?,?,?)',
+            (case['requirement_id'], project_id, encode(case), VERSION),
+        )
+        db.execute(
+            "UPDATE requirements SET title=? WHERE id=? AND title=''", (case['description'], case['requirement_id'])
+        )
+        db.execute(
+            'INSERT OR IGNORE INTO test_cases(id,requirement_id,scenario_id,source,definition,reviewed,project_id) VALUES(?,?,?,?,?,1,?)',
+            (key, case['requirement_id'], case['scenario_id'], 'human', encode(case), project_id),
+        )
 
 
 def ensure_initialized():
@@ -89,8 +106,9 @@ def restore_demo():
     if existing is not None:
         return existing
     with connect(QA_DB) as db:
-        project_id = db.execute('INSERT INTO projects(name,target_url,mode) VALUES(?,?,?)',
-                                ('로그인 데모', TARGET, 'demo')).lastrowid
+        project_id = db.execute(
+            'INSERT INTO projects(name,target_url,mode) VALUES(?,?,?)', ('로그인 데모', TARGET, 'demo')
+        ).lastrowid
         _insert_baseline(db, project_id)
     return project_id
 
@@ -115,8 +133,10 @@ def recover_stale_runs(grace_seconds=120):
             stale.append(run['run_id'])
     if stale:
         with connect(QA_DB) as db:
-            db.executemany("UPDATE test_runs SET status='ERROR',finished_at=? WHERE run_id=? AND status='RUNNING'",
-                           [(now(), run_id) for run_id in stale])
+            db.executemany(
+                "UPDATE test_runs SET status='ERROR',finished_at=? WHERE run_id=? AND status='RUNNING'",
+                [(now(), run_id) for run_id in stale],
+            )
     return stale
 
 

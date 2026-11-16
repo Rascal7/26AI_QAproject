@@ -1,4 +1,5 @@
 """Only this capability object may mutate a registered disposable test database."""
+
 import sqlite3
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
@@ -25,9 +26,20 @@ class ScenarioDB:
         self._check()
         with connect(self.path) as db:
             rows = db.execute('SELECT * FROM users').fetchall()
-            return {'count': len(rows), 'users': [dict(id=r['id'], email=r['email'],
-                display_name=r['display_name'], status=r['status'], locked_until=r['locked_until'],
-                hash_format_valid=hash_valid(r['password_hash'])) for r in rows]}
+            return {
+                'count': len(rows),
+                'users': [
+                    dict(
+                        id=r['id'],
+                        email=r['email'],
+                        display_name=r['display_name'],
+                        status=r['status'],
+                        locked_until=r['locked_until'],
+                        hash_format_valid=hash_valid(r['password_hash']),
+                    )
+                    for r in rows
+                ],
+            }
 
     def prepare(self, scenario):
         self._check()
@@ -65,8 +77,10 @@ class ScenarioDB:
             original = tuple(db.execute('SELECT * FROM users WHERE email=?', (EMAIL,)).fetchone())
             rejected = False
             try:
-                db.execute('INSERT INTO users(email,password_hash,display_name,created_at) VALUES(?,?,?,?)',
-                           (EMAIL, 'unused', '다른 사용자', datetime.now(timezone.utc).isoformat()))
+                db.execute(
+                    'INSERT INTO users(email,password_hash,display_name,created_at) VALUES(?,?,?,?)',
+                    (EMAIL, 'unused', '다른 사용자', datetime.now(timezone.utc).isoformat()),
+                )
             except sqlite3.IntegrityError:
                 rejected = True
                 db.rollback()

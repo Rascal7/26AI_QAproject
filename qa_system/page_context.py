@@ -3,6 +3,7 @@
 The browser runs in a separate process with the same restricted environment as test execution
 (no API keys). Only element attributes and visible text are collected, never input values.
 """
+
 import argparse
 import json
 import os
@@ -17,7 +18,7 @@ MAX_ELEMENTS = 80
 TIMEOUT = 45
 
 # Collects interactive and landmark elements with the most stable selector that matches exactly one element.
-EXTRACT_JS = r'''
+EXTRACT_JS = r"""
 () => {
   const q = v => String(v).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
   const text = el => (el.innerText || el.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 80);
@@ -79,7 +80,7 @@ EXTRACT_JS = r'''
   }
   return {title: document.title, lang: document.documentElement.lang || '', elements};
 }
-'''.replace('MAX', str(MAX_ELEMENTS))
+""".replace('MAX', str(MAX_ELEMENTS))
 
 
 class PageContextError(Exception):
@@ -102,6 +103,7 @@ def _open(playwright, url, channel):
             route.abort()
         else:
             route.continue_()
+
     page.route('**/*', restrict)
     response = page.goto(url, wait_until='domcontentloaded', timeout=20000)
     try:
@@ -113,6 +115,7 @@ def _open(playwright, url, channel):
 
 def _capture(url, channel=None):
     from playwright.sync_api import sync_playwright
+
     with sync_playwright() as playwright:
         browser, page, response = _open(playwright, url, channel)
         try:
@@ -128,6 +131,7 @@ def _capture(url, channel=None):
 
 def _check(url, selectors, channel=None):
     from playwright.sync_api import sync_playwright
+
     with sync_playwright() as playwright:
         browser, page, _ = _open(playwright, url, channel)
         try:
@@ -144,12 +148,22 @@ def _check(url, selectors, channel=None):
 
 def _run(mode, url, payload=None):
     from qa_system.runner import child_environment, diagnose
+
     command = [sys.executable, '-m', 'qa_system.page_context', mode, url]
     if os.getenv('QA_BROWSER_CHANNEL'):
         command += ['--channel', os.environ['QA_BROWSER_CHANNEL']]
     try:
-        done = subprocess.run(command, cwd=ROOT, env=child_environment(), input=json.dumps(payload or []),
-                              capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=TIMEOUT)
+        done = subprocess.run(
+            command,
+            cwd=ROOT,
+            env=child_environment(),
+            input=json.dumps(payload or []),
+            capture_output=True,
+            text=True,
+            encoding='utf-8',
+            errors='replace',
+            timeout=TIMEOUT,
+        )
     except subprocess.TimeoutExpired:
         raise PageContextError('페이지를 읽는 데 시간이 너무 오래 걸립니다. 주소와 네트워크를 확인하세요.')
     if done.returncode != 0:
@@ -157,9 +171,15 @@ def _run(mode, url, payload=None):
         hint = diagnose(output)
         network = re.search(r'net::ERR_[A-Z_]+', output)
         if not hint and network:
-            hint = (f'페이지에 접속할 수 없습니다 ({network[0]}). 주소와 대상 서버가 켜져 있는지 확인하세요. '
-                    '로그인 데모는 start_demo.cmd로 켭니다.')
-        raise PageContextError(hint or '페이지 구조를 읽지 못했습니다: ' + redact(output.strip().splitlines()[-1] if output.strip() else '알 수 없는 오류')[:300])
+            hint = (
+                f'페이지에 접속할 수 없습니다 ({network[0]}). 주소와 대상 서버가 켜져 있는지 확인하세요. '
+                '로그인 데모는 start_demo.cmd로 켭니다.'
+            )
+        raise PageContextError(
+            hint
+            or '페이지 구조를 읽지 못했습니다: '
+            + redact(output.strip().splitlines()[-1] if output.strip() else '알 수 없는 오류')[:300]
+        )
     return json.loads(done.stdout)
 
 
@@ -182,11 +202,14 @@ def summarize_check(steps, counts):
     """Counts for the review screen and later AI-quality measurement."""
     selectors = step_selectors(steps)
     status = [counts.get(s) for s in selectors]
-    return {'selectors': selectors, 'total': len(selectors),
-            'unique': sum(c == 1 for c in status),
-            'multiple': [s for s, c in zip(selectors, status) if isinstance(c, int) and c > 1],
-            'missing': [s for s, c in zip(selectors, status) if c == 0],
-            'invalid': [s for s, c in zip(selectors, status) if c == 'invalid']}
+    return {
+        'selectors': selectors,
+        'total': len(selectors),
+        'unique': sum(c == 1 for c in status),
+        'multiple': [s for s, c in zip(selectors, status) if isinstance(c, int) and c > 1],
+        'missing': [s for s, c in zip(selectors, status) if c == 0],
+        'invalid': [s for s, c in zip(selectors, status) if c == 'invalid'],
+    }
 
 
 def main():
