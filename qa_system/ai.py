@@ -1,4 +1,3 @@
-import ast
 import json
 import os
 from pydantic import BaseModel
@@ -34,20 +33,6 @@ def canonical_code(baseline_id):
     return ('from qa_system.contracts import execute_case\n\n'
             'def test_generated(qa_env):\n'
             f'    execute_case(qa_env, {baseline_id!r})\n')
-
-
-def validate_code(code, baseline_id):
-    # An exact AST allowlist, not a general Python sandbox. Only the reviewed capability call executes.
-    if len(code) > 10000:
-        raise ValueError('생성 코드가 너무 깁니다.')
-    try:
-        actual = ast.dump(ast.parse(code), include_attributes=False)
-        expected = ast.dump(ast.parse(canonical_code(baseline_id)), include_attributes=False)
-    except SyntaxError as exc:
-        raise ValueError('Python 문법 오류') from exc
-    if actual != expected:
-        raise ValueError('허용된 execute_case 호출 외 코드는 실행할 수 없습니다. 생성 코드를 검토하세요.')
-    return code
 
 
 class BrowserStep(BaseModel):

@@ -4,10 +4,11 @@ import json
 import os
 import subprocess
 import sys
+import time
 import uuid
 from demo_web.app import VARIANTS
 from demo_web.db import ROOT, connect
-from qa_system.ai import canonical_code, validate_code
+from qa_system.ai import canonical_code
 from qa_system.catalog import CASES, SCENARIOS, validate_case
 from qa_system.evidence import redact
 from qa_system.storage import QA_DB, initialize, get_case, now, encode, rows, baseline_project_id, restore_demo, run_timeout
@@ -36,7 +37,11 @@ def diagnose(output):
     return None
 
 
-def run_suite(case_ids=None, variant='normal', reviewed_codes=None, project_id=None):
+def run_suite(case_ids=None, variant='normal', project_id=None, progress=None):
+    """Run reviewed tests of one project in a separate pytest process.
+
+    progress(done, total) is called whenever another test finishes, so a UI can show headway.
+    """
     initialize()
     if project_id is None:
         project_id = baseline_project_id()
@@ -62,9 +67,9 @@ def run_suite(case_ids=None, variant='normal', reviewed_codes=None, project_id=N
         if 'fault_variant' in case and (project['mode'] != 'demo' or
                 case.get('engine') == 'web' or fault not in VARIANTS[1:]):
             raise ValueError('허용되지 않은 결함 재현 버전입니다.')
+        if not owned[case['id']]['reviewed']:
+            raise ValueError(f"'{case.get('description', case['id'])}' 테스트 내용을 검토하고 승인하세요.")
         if case.get('engine') == 'web':
-            if not owned[case['id']]['reviewed']:
-                raise ValueError('테스트 내용을 검토하고 승인하세요.')
             validate_steps(case['steps'], project['target_url'])
             sources.append('from qa_system.web_tests import execute_web_case\n'
                            f'def test_case_{i}(web_env):\n    execute_web_case(web_env, {case!r}, {project["target_url"]!r})\n')
@@ -73,13 +78,8 @@ def run_suite(case_ids=None, variant='normal', reviewed_codes=None, project_id=N
         checked = dict(case, requirement_id=CASES.get(baseline,{}).get('requirement_id'))
         if project['mode'] != 'demo' or validate_case(checked):
             raise ValueError('테스트 계약 또는 프로젝트 유형이 일치하지 않습니다.')
-        if case.get('source') == 'ai':
-            code = (reviewed_codes or {}).get(case['id'])
-            if not code:
-                raise ValueError(f"{case['id']}: Python 코드 검토·승인 후 실행하세요.")
-            code = validate_code(code, baseline)
-        else:
-            code = canonical_code(baseline)
+        # Demo tests, including ones saved by the first AI version, always run the reviewed fixed call.
+        code = canonical_code(baseline)
         decorator = f'@pytest.mark.parametrize("qa_env", [{fault!r}], indirect=True)\n' if fault else ''
         generated = code.replace('def test_generated(', decorator + f'def test_case_{i}(')
         sources.append(('import pytest\n' if fault else '') + generated)
@@ -109,27 +109,45 @@ def run_suite(case_ids=None, variant='normal', reviewed_codes=None, project_id=N
         # Optional installed browser (e.g. msedge) when Playwright's Chromium is not downloaded.
         command += ['--browser-channel', os.environ['QA_BROWSER_CHANNEL']]
     infrastructure_error = None
+    raw_log = out / 'pytest.raw.log'  # unredacted; removed as soon as the redacted copy is written
     try:
-        process = subprocess.Popen(command, cwd=ROOT, env=child_environment(), stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE, text=True, encoding='utf-8', errors='replace',
-            start_new_session=os.name != 'nt')
-        try:
-            stdout, stderr = process.communicate(timeout=run_timeout(len(selected)))
-        except subprocess.TimeoutExpired:
-            infrastructure_error = '실행 제한 시간을 초과했습니다.'
-            if os.name == 'nt':
-                subprocess.run(['taskkill', '/PID', str(process.pid), '/T', '/F'], capture_output=True, timeout=15)
-            else:
-                import signal
-                os.killpg(process.pid, signal.SIGKILL)
-            process.kill()
-            stdout, stderr = process.communicate(timeout=10)
-        (out / 'pytest.log').write_text(redact(stdout + stderr), encoding='utf-8')
-        infrastructure_error = infrastructure_error or diagnose(stdout + stderr)
+        with open(raw_log, 'w+b') as log:
+            process = subprocess.Popen(command, cwd=ROOT, env=child_environment(), stdout=log,
+                                       stderr=subprocess.STDOUT, start_new_session=os.name != 'nt')
+            deadline = time.monotonic() + run_timeout(len(selected))
+            reported = 0
+            if progress:
+                progress(0, len(definitions))
+            while process.poll() is None:
+                if progress:
+                    # conftest writes test_case_<i>.json when each test finishes
+                    done = sum((out / f'test_case_{i}.json').exists() for i in range(len(definitions)))
+                    if done != reported:
+                        progress(done, len(definitions))
+                        reported = done
+                if time.monotonic() > deadline:
+                    infrastructure_error = '실행 제한 시간을 초과했습니다.'
+                    if os.name == 'nt':
+                        subprocess.run(['taskkill', '/PID', str(process.pid), '/T', '/F'], capture_output=True, timeout=15)
+                    else:
+                        import signal
+                        os.killpg(process.pid, signal.SIGKILL)
+                    process.kill()
+                    process.wait(timeout=10)
+                    break
+                time.sleep(0.5)
+            log.seek(0)
+            output = log.read().decode('utf-8', errors='replace')
+        (out / 'pytest.log').write_text(redact(output), encoding='utf-8')
+        if progress:
+            progress(len(definitions), len(definitions))
+        infrastructure_error = infrastructure_error or diagnose(output)
         if not infrastructure_error and process.returncode not in (0, 1):
             infrastructure_error = f'pytest 실행 오류 (exit {process.returncode}); pytest.log 확인'
     except OSError as exc:
         infrastructure_error = f'실행기를 시작하지 못했습니다: {type(exc).__name__}'
+    finally:
+        raw_log.unlink(missing_ok=True)
     any_error = bool(infrastructure_error)
     with connect(QA_DB) as db:
         for i, case in enumerate(definitions):

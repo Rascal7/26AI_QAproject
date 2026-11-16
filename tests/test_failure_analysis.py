@@ -111,10 +111,15 @@ def test_failed_run_is_analysed_automatically_after_execution(failed_run, monkey
     app = AppTest.from_string('from qa_system.project_ui import execution_page\nfrom qa_system.projects import get_project\n'
                               f'execution_page(get_project({pid}))\n', default_timeout=15).run()
     assert app.checkbox(key=f'auto_analyze_{pid}').value is True
-    with patch('qa_system.project_ui.run_suite', return_value='run1'), \
+    def fake_run(selected, variant, project_id, progress):
+        for done in range(len(selected) + 1):
+            progress(done, len(selected))
+        return 'run1'
+    with patch('qa_system.project_ui.run_suite', side_effect=fake_run) as run, \
          patch('qa_system.failure_analysis.request_parsed', return_value=failure_analysis.FailureAnalysis(**ANSWER)) as call:
         next(b for b in app.button if b.label == '▶ 테스트 실행').click().run()
     assert not app.exception
+    assert run.call_args.kwargs['project_id'] == pid
     assert call.call_count == 2
     assert all(b['ai_analysis'] for b in failure_analysis.failures('run1'))
 

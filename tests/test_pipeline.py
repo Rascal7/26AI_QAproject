@@ -1,21 +1,17 @@
 import json
 import zipfile
 import pytest
-from qa_system.ai import canonical_code, validate_code
+from qa_system.ai import canonical_code
 from qa_system.catalog import CASES, validate_case
 from qa_system.evidence import sanitize_trace
 from qa_system.runner import child_environment
 from tests.db_scenarios import ScenarioDB
 
 
-def test_generated_code_cannot_change_contract_or_execute_arbitrary_python():
-    valid = canonical_code('TC-DB-001')
-    assert validate_code(valid, 'TC-DB-001') == valid
-    for code in [valid + '\nimport os\n', valid.replace('TC-DB-001', 'TC-LOGIN-001'),
-                 valid.replace("'TC-DB-001'", "__import__('os').getcwd()"),
-                 'def test_generated(qa_env):\n    pass\n']:
-        with pytest.raises(ValueError):
-            validate_code(code, 'TC-DB-001')
+def test_demo_tests_run_only_fixed_code_and_human_contracts():
+    assert canonical_code('TC-DB-001').endswith("execute_case(qa_env, 'TC-DB-001')\n")
+    with pytest.raises(ValueError):
+        canonical_code("TC-DB-001'); __import__('os').system('x'); ('")
     altered = dict(CASES['TC-DB-001'], expected_status=200)
     assert validate_case(altered)
     assert validate_case(dict(CASES['TC-DB-001'], scenario_id='DB-999'))

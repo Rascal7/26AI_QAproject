@@ -374,11 +374,8 @@ def tests_page(project):
                 else:
                     st.caption('데모 기준 테스트 · '+case.get('baseline_id',case['id']))
                     if case.get('source') == 'ai':
-                        code = canonical_code(case.get('baseline_id',case['id']))
-                        st.code(code, language='python')
-                        if st.button('기존 AI 코드 검토·승인',key='legacy_code_'+case['id']):
-                            st.session_state.setdefault('reviewed_codes',{})[case['id']] = code
-                            st.success('실행 코드를 승인했습니다.')
+                        st.caption('초기 버전 AI 테스트 · 아래 고정 실행 코드로만 실행됩니다.')
+                        st.code(canonical_code(case.get('baseline_id',case['id'])), language='python')
                 if not case['reviewed'] and st.button('검토 완료 · 승인',key='approve_'+case['id']):
                     approve_case(pid,case['id']); st.rerun()
         if current:
@@ -489,8 +486,10 @@ def execution_page(project):
     left,right=st.columns([2.2,1],gap='large')
     with left,st.container(border=True):
         scope=st.selectbox('요구사항별 실행',[None,*reqs],format_func=lambda r:'전체 요구사항' if r is None else reqs[r])
-        available=[c for c in current if (scope is None or c['requirement_id']==scope) and c['reviewed']
-                   and (c.get('engine')=='web' or c.get('source')!='ai' or c['id'] in st.session_state.get('reviewed_codes',{}))]
+        available=[c for c in current if (scope is None or c['requirement_id']==scope) and c['reviewed']]
+        pending=sum(1 for c in current if (scope is None or c['requirement_id']==scope) and not c['reviewed'])
+        if pending:
+            st.caption(f'검토·승인하지 않은 테스트 {pending}개는 목록에서 제외했습니다. 테스트 추가 화면에서 승인하세요.')
         mapping={c['id']:c for c in available}
         selected=st.multiselect('실행할 테스트',list(mapping),default=list(mapping),format_func=lambda k:mapping[k]['description'],key=f'run_selection_{pid}_{scope}')
         if any(mapping[k].get('fault_variant') for k in selected):
@@ -512,7 +511,10 @@ def execution_page(project):
         if st.button('▶ 테스트 실행',type='primary',width='stretch',disabled=not selected):
             try:
                 with st.status('테스트 실행 중',expanded=True) as status:
-                    run_id=run_suite(selected,variant,st.session_state.get('reviewed_codes',{}),project_id=pid)
+                    bar=st.progress(0.0,text='브라우저를 준비하고 있습니다…')
+                    def report_progress(done,total):
+                        bar.progress(done/total if total else 1.0,text=f'{done} / {total}개 완료')
+                    run_id=run_suite(selected,variant,project_id=pid,progress=report_progress)
                     if auto_analyze and failure_analysis.failures(run_id):
                         status.update(label='실패 항목을 AI로 분석하고 있습니다…')
                         _,errors=failure_analysis.analyze_run(run_id)
