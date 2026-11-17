@@ -618,7 +618,7 @@ def workspace_history():
         st.download_button(
             '⤓ CSV 리포트 내보내기',
             runs_csv(runs),
-            file_name=f'testpilot-runs-{datetime.now(timezone(timedelta(hours=9))):%Y%m%d}.csv',
+            file_name=f'webqa-runs-{datetime.now(timezone(timedelta(hours=9))):%Y%m%d}.csv',
             mime='text/csv',
             key='history_csv',
             width='content',

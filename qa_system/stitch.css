@@ -1,4 +1,4 @@
-/* The TestPilot layout below follows the user's five-screen Stitch export. */
+/* The WebQA layout below follows the user's five-screen Stitch export. */
 :root{--qa-blue:#2563eb;--qa-ink:#0f172a;--qa-muted:#64748b;--qa-line:#e2e8f0;--qa-canvas:#f8fafc}
 .stApp{background:var(--qa-canvas);color:var(--qa-ink);font-family:Inter,Pretendard,"Malgun Gothic",sans-serif}
 .block-container{max-width:1370px;padding:2.8rem 2.5rem 3rem}

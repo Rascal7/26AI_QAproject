@@ -25,7 +25,7 @@ from qa_system.project_ui import (
 load_dotenv(ROOT / '.env')
 storage.initialize()
 storage.recover_stale_runs()
-st.set_page_config(page_title='TestPilot · QA 워크스페이스', page_icon='◈', layout='wide')
+st.set_page_config(page_title='WebQA · QA 워크스페이스', page_icon='◈', layout='wide')
 st.markdown(
     '<style>' + (ROOT / 'qa_system/stitch.css').read_text(encoding='utf-8') + '</style>', unsafe_allow_html=True
 )
@@ -41,7 +41,7 @@ def search_projects():
 
 
 with st.container(key='pilot_topbar', horizontal=True, vertical_alignment='center', gap='small'):
-    st.markdown('<div class="pilot-brand"><b>✓</b> TestPilot</div>', unsafe_allow_html=True)
+    st.markdown('<div class="pilot-brand"><b>✓</b> WebQA</div>', unsafe_allow_html=True)
     for target, label in [('홈', '대시보드'), ('프로젝트', '프로젝트 목록'), ('실행 기록', '실행 기록')]:
         st.button(
             label,

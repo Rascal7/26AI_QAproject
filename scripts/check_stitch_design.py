@@ -40,4 +40,4 @@ with sync_playwright() as playwright:
     assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
     page.screenshot(path=str(out / 'mobile.png'))
     browser.close()
-print('TestPilot: dashboard, collection, requirements, test dialog, global history, report and mobile OK')
+print('WebQA: dashboard, collection, requirements, test dialog, global history, report and mobile OK')
