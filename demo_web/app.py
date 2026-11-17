@@ -89,6 +89,12 @@ def create_app(db_path=None, *, testing=False, variant='normal'):
             app.logger.warning('request_id=%s category=AUTH_DATA_ERROR', secrets.token_hex(8))
             return reject(503, 'AUTH_DATA_ERROR', ERROR_MESSAGE)
 
+    @app.post('/logout')
+    def logout():
+        # POST only: opening a link must never end a session (SameSite=Lax also blocks cross-site posts).
+        session.clear()
+        return redirect('/login')
+
     @app.get('/home')
     def home():
         if not session.get('user_id'):

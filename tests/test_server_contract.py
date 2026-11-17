@@ -71,3 +71,16 @@ def test_expired_lock_and_failed_relogin_clear_session(server_client):
 def test_fault_variants_are_not_public():
     with pytest.raises(ValueError):
         create_app(variant='skip_disabled')
+
+
+def test_logout_clears_session_and_only_accepts_post(server_client):
+    client, _ = server_client
+    assert client.post('/api/login', json={'email': EMAIL, 'password': PASSWORD}).status_code == 200
+    assert client.get('/logout').status_code == 405  # opening a link never logs out
+    with client.session_transaction() as session:
+        assert session.get('user_id')
+    response = client.post('/logout')
+    assert response.status_code == 302 and response.headers['Location'].endswith('/login')
+    with client.session_transaction() as session:
+        assert not session
+    assert client.get('/home').status_code == 302
