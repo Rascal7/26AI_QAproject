@@ -116,7 +116,7 @@ GitHub Actions(`.github/workflows/tests.yml`)가 main에 푸시하거나 PR을 �
 
 - 코드 스타일은 `pyproject.toml`의 ruff 설정을 따릅니다. 커밋 전에 `.\.venv\Scripts\python.exe -m ruff format .`과 `.\.venv\Scripts\python.exe -m ruff check .`을 실행합니다.
 - 문서 스크린샷(`docs/images/`)은 `.\.venv\Scripts\python.exe -m scripts.capture_ui_docs`로 다시 찍습니다(5000·8505 포트 사용, OpenAI 약 4회 호출).
-- 프로젝트 UI 점검은 `scripts/check_project_ui.py`가 8503 포트 서버와 테스트용 QA DB로 합니다. `QA_DB_PATH` 환경변수로 QA DB 위치를 바꿀 수 있습니다.
+- 화면 흐름 점검은 QA 앱을 켠 상태에서 `.\.venv\Scripts\python.exe scripts\check_stitch_design.py`로 합니다(대시보드 → 프로젝트 목록 → 요구사항 → 테스트 추가 창 → 실행 기록 → 보고서, 모바일 가로 넘침 확인). 다른 주소는 `QA_PREVIEW_URL`로 지정합니다. `QA_DB_PATH` 환경변수로 QA DB 위치를 바꿀 수 있습니다.
 - 구현 참고: [OpenAI Structured Outputs 공식 문서](https://developers.openai.com/api/docs/guides/structured-outputs). 로컬 실행에 GitHub 계정은 필요하지 않습니다.
 
 ## 문제 해결
