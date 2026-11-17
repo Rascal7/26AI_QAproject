@@ -3,7 +3,7 @@ import json
 import streamlit as st
 from dotenv import load_dotenv
 from demo_web.db import ROOT
-from qa_system import storage
+from qa_system import sharing, storage
 from qa_system.projects import get_project
 from qa_system.project_ui import (
     dashboard,
@@ -29,6 +29,29 @@ st.set_page_config(page_title='WebQA · QA 워크스페이스', page_icon='◈',
 st.markdown(
     '<style>' + (ROOT / 'qa_system/stitch.css').read_text(encoding='utf-8') + '</style>', unsafe_allow_html=True
 )
+
+
+def access_gate():
+    """In shared mode (public link), ask for the access code before showing anything."""
+    _, middle, _ = st.columns([1, 1.2, 1])
+    with middle, st.container(border=True, key='access_gate'):
+        st.markdown('<div class="pilot-brand"><b>✓</b> WebQA</div>', unsafe_allow_html=True)
+        if not sharing.access_code():
+            st.error('접속 코드가 설정되지 않아 공유 링크를 열 수 없습니다. start_share.cmd로 다시 시작하세요.')
+            st.stop()
+        st.caption('발표·시연용으로 공유된 화면입니다. 안내받은 접속 코드를 입력하세요.')
+        with st.form('access_form'):
+            entered = st.text_input('접속 코드', type='password')
+            if st.form_submit_button('입장', type='primary', width='stretch'):
+                if sharing.code_matches(entered):
+                    st.session_state.access_granted = True
+                    st.rerun()
+                st.error('접속 코드가 맞지 않습니다.')
+    st.stop()
+
+
+if sharing.shared() and not st.session_state.get('access_granted'):
+    access_gate()
 st.session_state.setdefault('project_id', None)
 st.session_state.setdefault('project_view', '요구사항')
 st.session_state.setdefault('workspace_view', '홈')

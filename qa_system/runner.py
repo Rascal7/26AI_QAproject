@@ -10,6 +10,7 @@ from demo_web.app import VARIANTS
 from demo_web.db import ROOT, connect
 from qa_system.ai import canonical_code
 from qa_system.catalog import CASES, SCENARIOS, validate_case
+from qa_system import sharing
 from qa_system.evidence import redact
 from qa_system.storage import (
     QA_DB,
@@ -77,6 +78,8 @@ def run_suite(case_ids=None, variant='normal', project_id=None, progress=None):
     from qa_system.web_tests import validate_steps
 
     project = get_project(project_id)
+    if project['mode'] != 'demo':
+        sharing.check_target(project['target_url'])
     if variant not in VARIANTS:
         raise ValueError('허용되지 않은 대상 버전')
     selected = list(dict.fromkeys(CASES if case_ids is None else case_ids))

@@ -2,13 +2,14 @@ import json
 import uuid
 from urllib.parse import urlsplit
 from demo_web.db import connect
-from qa_system import storage
+from qa_system import sharing, storage
 
 
 def validate_url(value):
     parsed = urlsplit(value.strip())
     if parsed.scheme not in ('http', 'https') or not parsed.hostname or parsed.username or parsed.password:
         raise ValueError('http:// 또는 https://로 시작하는 웹 주소를 입력하세요. 인증정보는 URL에 넣을 수 없습니다.')
+    sharing.check_target(value.strip())
     return value.strip()
 
 

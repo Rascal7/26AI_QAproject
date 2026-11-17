@@ -227,7 +227,13 @@ def _check(url, selectors, channel=None, paths=()):
 
 
 def _run(mode, url, payload=None):
+    from qa_system import sharing
     from qa_system.runner import child_environment, diagnose
+
+    try:
+        sharing.check_target(url)
+    except ValueError as error:
+        raise PageContextError(str(error))
 
     command = [sys.executable, '-m', 'qa_system.page_context', mode, url]
     if os.getenv('QA_BROWSER_CHANNEL'):
