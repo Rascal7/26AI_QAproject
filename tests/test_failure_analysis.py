@@ -1,9 +1,10 @@
 import json
 import sqlite3
+import threading
 from unittest.mock import patch
 import pytest
 from streamlit.testing.v1 import AppTest
-from qa_system import failure_analysis, storage
+from qa_system import background, failure_analysis, storage
 from qa_system.projects import create_project, save_requirement, save_case
 
 STEPS = [
@@ -150,23 +151,38 @@ def test_failed_run_is_analysed_automatically_after_execution(failed_run, monkey
         default_timeout=15,
     ).run()
     assert app.checkbox(key=f'auto_analyze_{pid}').value is True
+    monkeypatch.setattr(background, '_jobs', {})
+    gate = threading.Event()
 
     def fake_run(selected, variant, project_id, progress):
-        for done in range(len(selected) + 1):
-            progress(done, len(selected))
+        progress(0, len(selected))
+        gate.wait(10)  # hold the run open so the page can be checked while it is in progress
+        progress(len(selected), len(selected))
         return 'run1'
 
     with (
-        patch('qa_system.project_ui.run_suite', side_effect=fake_run) as run,
+        patch('qa_system.background.run_suite', side_effect=fake_run) as run,
         patch(
             'qa_system.failure_analysis.request_parsed', return_value=failure_analysis.FailureAnalysis(**ANSWER)
         ) as call,
     ):
         next(b for b in app.button if b.label == '▶ 테스트 실행').click().run()
+        assert not app.exception
+        # The page returned while the run is still going, and offers no second run.
+        assert any('다른 화면으로 이동해도 실행은 계속됩니다' in c.value for c in app.caption)
+        app.run()
+        assert next(b for b in app.button if b.label == '▶ 테스트 실행').disabled
+        job_id = app.session_state[f'run_job_{pid}']
+        gate.set()
+        assert background.wait(job_id, timeout=10)['phase'] == 'finished'
+        app.run()
     assert not app.exception
     assert run.call_args.kwargs['project_id'] == pid
     assert call.call_count == 2
     assert all(b['ai_analysis'] for b in failure_analysis.failures('run1'))
+    assert app.session_state[f'selected_run_{pid}'] == 'run1'
+    assert any(s.value == '실행 완료' for s in app.success)
+    assert not next(b for b in app.button if b.label == '▶ 테스트 실행').disabled
 
 
 def test_auto_analysis_is_off_without_api_key(failed_run, monkeypatch):

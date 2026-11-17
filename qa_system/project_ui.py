@@ -26,7 +26,7 @@ from qa_system.page_context import (
     step_selectors,
     summarize_check,
 )
-from qa_system.runner import run_suite
+from qa_system import background
 from qa_system.ui import display_results, run_picker, local_time, VARIANTS, expected_text
 from qa_system.workspace import project_list, run_list, all_tags, run_date
 
@@ -811,27 +811,46 @@ def execution_page(project):
         st.subheader('실행')
         st.metric('선택한 테스트', len(selected))
         st.caption(project['target_url'])
-        if st.button('▶ 테스트 실행', type='primary', width='stretch', disabled=not selected):
+        running = background.active_job(pid)
+        if st.button('▶ 테스트 실행', type='primary', width='stretch', disabled=not selected or bool(running)):
             try:
-                with st.status('테스트 실행 중', expanded=True) as status:
-                    bar = st.progress(0.0, text='브라우저를 준비하고 있습니다…')
-
-                    def report_progress(done, total):
-                        bar.progress(done / total if total else 1.0, text=f'{done} / {total}개 완료')
-
-                    run_id = run_suite(selected, variant, project_id=pid, progress=report_progress)
-                    if auto_analyze and failure_analysis.failures(run_id):
-                        status.update(label='실패 항목을 AI로 분석하고 있습니다…')
-                        _, errors = failure_analysis.analyze_run(run_id)
-                        if errors:
-                            st.warning('일부 실패는 AI 분석을 하지 못했습니다: ' + ', '.join(errors))
-                    status.update(label='실행 완료', state='complete', expanded=False)
-                st.session_state[f'selected_run_{pid}'] = run_id
-                st.session_state[f'last_project_run_{pid}'] = run_id
-            except Exception as error:
+                st.session_state[f'run_job_{pid}'] = background.start(pid, selected, variant, analyze=auto_analyze)
+            except ValueError as error:
                 st.error(str(error))
+        run_progress(pid)
         if st.session_state.get(f'last_project_run_{pid}'):
             st.button('실행 기록 보기 →', on_click=open_project, args=(pid, '실행 기록'), width='stretch')
+
+
+@st.fragment(run_every=1)
+def run_progress(pid):
+    """Redraws only this panel every second while a background run is going."""
+    job = background.get(st.session_state.get(f'run_job_{pid}'))
+    if not job:
+        return
+    if job['phase'] in background.ACTIVE:
+        label = {
+            'starting': '브라우저를 준비하고 있습니다…',
+            'running': f'{job["done"]} / {job["total"]}개 완료',
+            'analyzing': '실패 항목을 AI로 분석하고 있습니다…',
+        }[job['phase']]
+        st.progress(job['done'] / job['total'] if job['total'] else 0.0, text=label)
+        st.caption('다른 화면으로 이동해도 실행은 계속됩니다.')
+        return
+    if st.session_state.get(f'run_job_seen_{pid}') == job['id']:
+        if job['phase'] == 'failed':
+            st.error(job['error'])
+        else:
+            st.success('실행 완료')
+            if job['warnings']:
+                st.warning('일부 실패는 AI 분석을 하지 못했습니다: ' + ', '.join(job['warnings']))
+        return
+    # First redraw after the run ended: remember the run and refresh the whole page once.
+    st.session_state[f'run_job_seen_{pid}'] = job['id']
+    if job['run_id']:
+        st.session_state[f'selected_run_{pid}'] = job['run_id']
+        st.session_state[f'last_project_run_{pid}'] = job['run_id']
+    st.rerun()
 
 
 def failure_panel(run_id, report):
