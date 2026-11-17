@@ -12,3 +12,6 @@ generated/
 docs/design/stitch-*.json
 docs/design/*.zip
 docs/github-readme.md
+
+# Presentation deck and script are submitted separately, not kept in the repository
+presentation/
