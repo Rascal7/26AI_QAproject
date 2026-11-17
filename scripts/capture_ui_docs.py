@@ -10,6 +10,7 @@ Set QA_BROWSER_CHANNEL=msedge when Playwright's Chromium is not installed.
 """
 
 import os
+import re
 import socket
 import subprocess
 import sys
@@ -107,7 +108,7 @@ def capture(demo):
         expect(dialog.get_by_role('heading', name='AI 테스트 생성')).to_be_visible(timeout=30000)
         dialog.get_by_label('어떤 테스트를 할까요?').fill(AI_REQUEST)
         dialog.get_by_label('어떤 테스트를 할까요?').press('Control+Enter')
-        dialog.get_by_role('button', name='✦ 테스트 생성').click()
+        dialog.get_by_role('button', name='✦ AI 테스트 생성').click()
         check = dialog.get_by_text('시작 페이지에서 정확히').first
         expect(check).to_be_visible(timeout=120000)
         check.scroll_into_view_if_needed()  # show the generated steps together with the selector check
@@ -116,7 +117,7 @@ def capture(demo):
         page.keyboard.press('Escape')
         expect(dialog).to_be_hidden(timeout=15000)
 
-        nav.get_by_role('button', name='실행 기록', exact=True).click()
+        nav.get_by_role('button', name=re.compile('^실행 기록')).click()
         page.get_by_role('tab', name='실패 분석').click()
         expect(page.get_by_text('AI 분류').first).to_be_visible(timeout=30000)
         page.wait_for_timeout(1500)

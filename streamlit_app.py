@@ -1,6 +1,5 @@
 import os
 import json
-from html import escape
 import streamlit as st
 from dotenv import load_dotenv
 from demo_web.db import ROOT
@@ -8,17 +7,20 @@ from qa_system import storage
 from qa_system.projects import get_project
 from qa_system.project_ui import (
     dashboard,
-    open_project,
-    requirements_page,
-    tests_page,
+    delete_project_dialog,
     execution_page,
     history_page,
+    new_project_dialog,
+    open_project,
+    open_workspace,
+    project_collection,
+    project_header,
+    project_summary,
+    requirements_page,
     save_project,
+    tests_page,
+    workspace_history,
 )
-from qa_system.project_ui import open_workspace, workspace_history, new_project_dialog, run_totals, open_history
-from qa_system.projects import requirements, cases
-from qa_system.workspace import run_list
-from qa_system.project_ui import delete_project_dialog
 
 load_dotenv(ROOT / '.env')
 storage.initialize()
@@ -88,51 +90,30 @@ if pid is not None:
 st.sidebar.divider()
 st.sidebar.caption('AI 연결')
 st.sidebar.write('● 키 설정됨' if os.getenv('OPENAI_API_KEY') else '○ 키 미설정')
-st.sidebar.caption('프로젝트별 웹 QA')
+st.sidebar.link_button(
+    '문서 & 사용 가이드',
+    'https://github.com/Rascal7/26AI_QAproject#readme',
+    icon=':material/help:',
+    width='stretch',
+)
 if pid is None:
     if st.session_state.workspace_view == '실행 기록':
         workspace_history()
     else:
-        dashboard(collection=st.session_state.workspace_view == '프로젝트')
+        if st.session_state.workspace_view == '프로젝트':
+            project_collection()
+        else:
+            dashboard()
 else:
     project = get_project(pid)
     view = st.session_state.project_view
-    st.caption('프로젝트 / ' + project['name'])
-    a, b = st.columns([5, 1], vertical_alignment='center')
-    a.title(project['name'])
-    b.link_button('웹페이지 ↗', project['target_url'], width='stretch')
-    st.markdown(
-        '<div class="project-url">' + escape(project['name']) + ' · ' + escape(project['target_url']) + '</div>',
-        unsafe_allow_html=True,
-    )
-    with st.container(key='project_nav', horizontal=True):
-        for target, title in [
-            ('요구사항', '요구사항 관리'),
-            ('테스트', '테스트 추가'),
-            ('실행', '테스트 실행'),
-            ('실행 기록', '실행 기록'),
-            ('프로젝트 설정', '설정'),
-        ]:
-            st.button(
-                title,
-                key='project_tab_' + target,
-                type='primary' if target == view else 'tertiary',
-                on_click=open_project,
-                args=(pid, target),
-            )
+    project_header(project)
     if view == '요구사항':
         main, summary = st.columns([2.2, 1], gap='medium')
         with main:
             requirements_page(project)
-        with summary, st.container(border=True):
-            st.subheader('QA 테스트 요약 및 지표')
-            executions = [r for r in run_list() if r['project_id'] == pid]
-            a, b = st.columns(2)
-            a.metric('총 요구사항', len(requirements(pid)))
-            b.metric('총 테스트 케이스', len(cases(pid)))
-            st.metric('최근 성공률', run_totals(executions[:1])['rate'])
-            if executions:
-                st.button('최근 실행 리포트', on_click=open_history, args=(pid, executions[0]['run_id']))
+        with summary:
+            project_summary(project)
     elif view == '테스트':
         tests_page(project)
     elif view == '실행':

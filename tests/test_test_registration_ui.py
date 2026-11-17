@@ -34,8 +34,9 @@ def test_registration_refreshes_list_immediately(tmp_path, monkeypatch, kind):
         app.multiselect[0].select(app.multiselect[0].options[0]).run()
         label = '선택한 테스트 추가'
     elif kind == 'ai':
+        assert app.button(key=f'adder_save_{pid}_{rid}').disabled  # nothing chosen yet
         app.checkbox(key=f'ai_approved_{pid}_{rid}_0_0').check().run()
-        label = '프로젝트에 추가'
+        label = '＋ 테스트 목록에 추가하기'
     else:
         label = '테스트 추가'
     next(b for b in app.button if b.label == label).click().run()
@@ -48,4 +49,7 @@ def test_registration_refreshes_list_immediately(tmp_path, monkeypatch, kind):
     assert len(cases(pid, rid)) == 1
     if kind == 'ai':
         app.button(key='show_test_modal').click().run()
-        assert next(b for b in app.button if b.label == '등록 완료').disabled
+        # The added draft is marked as registered and cannot be added twice.
+        assert app.checkbox(key=f'ai_approved_{pid}_{rid}_0_0').disabled
+        assert app.button(key=f'adder_save_{pid}_{rid}').disabled
+        assert any('등록 완료' in m.value for m in app.markdown)

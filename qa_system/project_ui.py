@@ -1,6 +1,7 @@
 import html
 import json
 import os
+from collections import Counter
 from datetime import datetime, timedelta, timezone
 import streamlit as st
 from demo_web.db import ROOT
@@ -145,28 +146,113 @@ def new_requirement_dialog(project_id):
                 st.error(str(exc))
 
 
-def dashboard(collection=False):
+ICONS = json.loads((ROOT / 'qa_system/testpilot_metric_icons.json').read_text(encoding='utf-8'))
+PROJECT_PAGE_SIZE = 6
+PROJECT_SORTS = ['최근 실행순', '이름순', '통과율 낮은순']
+RUN_STATES = ['전체', '통과', '실패', '오류', '실행 중']
+
+
+def run_seconds(run):
+    if not run or not run.get('finished_at') or not run.get('started_at'):
+        return None
+    return (datetime.fromisoformat(run['finished_at']) - datetime.fromisoformat(run['started_at'])).total_seconds()
+
+
+def format_duration(seconds):
+    if seconds is None:
+        return '—'
+    seconds = round(seconds)
+    return f'{seconds // 60}분 {seconds % 60:02d}초' if seconds >= 60 else f'{seconds}초'
+
+
+def short_id(case_id):
+    """TC-LOGIN-001 stays as is; long generated ids such as CASE-1a2b3c4d5e6f become CASE-…4d5e6f."""
+    return case_id if len(case_id) <= 14 else f'{case_id[:5]}…{case_id[-6:]}'
+
+
+def safe_link(url):
+    """Only http(s) addresses become links; anything else is shown as text."""
+    return html.escape(url) if url.startswith(('http://', 'https://')) else ''
+
+
+def metric_tiles(tiles, columns=3):
+    """Telemetry tiles: (label, value, icon, detail, bar percent or None, bar color, tone)."""
+    cells = []
+    for label, value, icon, detail, pct, color, tone in tiles:
+        bar = (
+            f'<div class="pilot-track"><i style="width:{pct}%;background:{color}"></i></div>' if pct is not None else ''
+        )
+        cells.append(
+            f'<article class="{tone}"><header>{label}<span>{ICONS[icon]}</span></header>'
+            f'<strong>{value}</strong><small>{detail}</small>{bar}</article>'
+        )
+    st.markdown(f'<div class="pilot-metrics cols-{columns}">' + ''.join(cells) + '</div>', unsafe_allow_html=True)
+
+
+def section_header(title, badge, more_label=None, more_key=None, target=None):
+    left, right = st.columns([5, 1.6], vertical_alignment='center')
+    left.markdown(f'<div class="pilot-section"><strong>{title}</strong><em>{badge}</em></div>', unsafe_allow_html=True)
+    if more_label:
+        right.button(more_label, key=more_key, on_click=open_workspace, args=(target,))
+
+
+def quick_run(project_id):
+    """Start every approved test of the project in the background and show its run page."""
+    approved = [c['id'] for c in cases(project_id) if c['reviewed']]
+    open_project(project_id, '실행')
+    if not approved:
+        st.session_state[f'run_notice_{project_id}'] = '실행할 승인된 테스트가 없습니다. 테스트를 추가하고 승인하세요.'
+        return
+    try:
+        st.session_state[f'run_job_{project_id}'] = background.start(
+            project_id, approved, analyze=bool(os.getenv('OPENAI_API_KEY'))
+        )
+    except ValueError as error:
+        st.session_state[f'run_notice_{project_id}'] = str(error)
+
+
+def open_add_test(project_id, requirement_id=None):
+    """Open the add-test dialog for a requirement (the selected one, else the first)."""
+    reqs = requirements(project_id)
+    if not reqs:
+        open_project(project_id, '요구사항')
+        return
+    ids = [r['id'] for r in reqs]
+    rid = requirement_id or st.session_state.get(f'req_filter_{project_id}')
+    rid = rid if rid in ids else ids[0]
+    open_project(project_id, '테스트', rid)
+    st.session_state.case_modal = (project_id, rid)
+
+
+def card_state(run):
+    if not run:
+        return '미실행', 'idle'
+    if run['status'] == 'RUNNING':
+        return '실행 중', 'running'
+    if run['status'] == 'ERROR' or run['errors']:
+        return '오류', 'error'
+    if run['failed']:
+        return f'실패 {run["failed"]}건', 'fail'
+    return ('정상', 'pass') if run['passed'] else ('결과 없음', 'idle')
+
+
+def dashboard():
     all_projects = project_list()
     executions = run_list()
     head, button = st.columns([5, 1.3], vertical_alignment='center')
     with head:
-        st.caption('QA AUTOMATION WORKSPACE' if collection else 'WORKSPACE TELEMETRY')
-        st.title('프로젝트 목록' if collection else 'QA 워크스페이스')
-        st.write(
-            '대상 웹페이지와 테스트 상태를 확인하세요.'
-            if collection
-            else '프로젝트를 생성하고 요구사항 기반 테스트를 실행하세요.'
-        )
+        st.markdown('<div class="pilot-eyebrow">WORKSPACE TELEMETRY</div>', unsafe_allow_html=True)
+        st.title('QA 워크스페이스')
+        st.write('프로젝트를 생성하고 요구사항 기반 테스트를 실행하세요.')
     with button:
-        if st.button('＋ 새 프로젝트', type='primary', width='stretch'):
+        if st.button('＋ 새 프로젝트', type='primary', width='stretch', key='home_new'):
             new_project_dialog()
-    if not collection:
-        today = datetime.now(timezone(timedelta(hours=9))).date()
-        totals = run_totals(executions)
-        daily = run_totals([r for r in executions if run_date(r['started_at']) == today])
-        icons = json.loads((ROOT / 'qa_system/testpilot_metric_icons.json').read_text(encoding='utf-8'))
-        tested = sum(bool(p['last_run']) for p in all_projects)
-        tiles = [
+    today = datetime.now(timezone(timedelta(hours=9))).date()
+    totals = run_totals(executions)
+    daily = run_totals([r for r in executions if run_date(r['started_at']) == today])
+    tested = sum(bool(p['last_run']) for p in all_projects)
+    metric_tiles(
+        [
             (
                 '활성 프로젝트 수',
                 len(all_projects),
@@ -174,6 +260,7 @@ def dashboard(collection=False):
                 f'{tested}개 프로젝트 실행 이력',
                 100 * tested / max(1, len(all_projects)),
                 '#0051d5',
+                '',
             ),
             (
                 '오늘 실행된 테스트',
@@ -182,6 +269,7 @@ def dashboard(collection=False):
                 f'통과 {daily["passed"]}건 · 한국 시간 기준',
                 daily['pct'],
                 '#009668',
+                '',
             ),
             (
                 '전체 성공률',
@@ -190,85 +278,653 @@ def dashboard(collection=False):
                 f'통과 {totals["passed"]} / 전체 {totals["total"]}',
                 totals['pct'],
                 '#009668',
+                '',
+            ),
+        ]
+    )
+    section_header('최근 프로젝트', '최대 4개 표시', '전체 프로젝트 더보기 →', 'more_projects', '프로젝트')
+    visible = all_projects[:4]
+    if not visible:
+        st.info('표시할 프로젝트가 없습니다. 새 프로젝트를 만들어 시작하세요.')
+    latest = {}
+    for run in executions:
+        latest.setdefault(run['project_id'], run)
+    for col, project in zip(st.columns(4), visible):
+        with col, st.container(border=True, key=f'project_card_{project["id"]}'):
+            last = latest.get(project['id'])
+            label, cls = card_state(last)
+            stamp = local_time(last['started_at']) if last else ''
+            result = run_totals([last] if last else [])
+            failing = bool(last and (last['failed'] or last['errors']))
+            st.markdown(
+                f'<div class="pilot-card-top"><span class="pilot-state state-{cls}">● {label}</span><time>{stamp}</time></div>'
+                f'<div class="project-heading"><strong>{html.escape(project["name"])}</strong></div>'
+                f'<div class="project-url">{ICONS["link"]}{html.escape(project["target_url"])}</div>'
+                + tag_chips(json.loads(project['tags']))
+                + f'<div class="pilot-pass {"fail" if failing else ""}"><span>통과율 <b>{result["rate"]}</b></span>'
+                f'<span>{result["passed"]} / {result["total"]} 통과</span></div>'
+                f'<div class="pilot-track"><i style="width:{result["pct"]}%;background:{"#ba1a1a" if failing else "#009668"}"></i></div>',
+                unsafe_allow_html=True,
+            )
+            actions = st.columns(2)
+            actions[0].button(
+                '상세 보기', key=f'open_{project["id"]}', width='stretch', on_click=open_project, args=(project['id'],)
+            )
+            actions[1].button(
+                '▷ 바로 실행',
+                key=f'launch_{project["id"]}',
+                type='primary',
+                width='stretch',
+                on_click=quick_run,
+                args=(project['id'],),
+                disabled=not project['case_count'],
+            )
+    st.write('')
+    section_header('최근 실행 기록', '최대 5개 표시', '전체 실행 기록 더보기 →', 'more_runs', '실행 기록')
+    render_runs(executions[:5])
+
+
+def project_collection():
+    all_projects = project_list()
+    executions = run_list()
+    latest = {}
+    for run in executions:
+        latest.setdefault(run['project_id'], run)
+    head, stat, button = st.columns([4.2, 1.5, 1.3], vertical_alignment='center')
+    with head:
+        st.markdown(
+            '<div class="pilot-eyebrow">QA AUTOMATION WORKSPACE <i>•</i> <b>단일 페이지 검증</b></div>',
+            unsafe_allow_html=True,
+        )
+        st.title('프로젝트 목록')
+        st.write('각 프로젝트는 웹페이지 하나의 요구사항·테스트·실행 기록을 독립적으로 관리합니다.')
+    stat.markdown(
+        f'<div class="pilot-stat"><div><small>검사 중인 대상 URL</small><b>{len({p["target_url"] for p in all_projects})}개 웹페이지</b></div>'
+        f'<span>{ICONS["link"]}</span></div>',
+        unsafe_allow_html=True,
+    )
+    with button:
+        if st.button('＋ 새 프로젝트 생성', type='primary', width='stretch', key='collection_new'):
+            new_project_dialog()
+    tag_counts = Counter(t for p in all_projects for t in json.loads(p['tags']))
+    with st.container(border=True, key='project_toolbar'):
+        search_col, sort_col = st.columns([3, 1.1], vertical_alignment='center')
+        search = search_col.text_input(
+            '프로젝트 검색',
+            placeholder='프로젝트명 또는 대상 URL 검색 (예: example.com)',
+            key='project_search',
+            label_visibility='collapsed',
+        )
+        sort = sort_col.selectbox(
+            '정렬', PROJECT_SORTS, key='project_sort', label_visibility='collapsed', format_func=lambda s: '정렬: ' + s
+        )
+        tags = (
+            st.pills(
+                '태그 필터',
+                sorted(tag_counts),
+                selection_mode='multi',
+                format_func=lambda t: f'#{t}  {tag_counts[t]}',
+                key='project_tags',
+                help='선택한 태그 중 하나라도 포함한 프로젝트를 표시합니다.',
+            )
+            or []
+        )
+    visible = project_list(search, tags)
+
+    def pass_rate(project):
+        totals = run_totals([latest[project['id']]]) if project['id'] in latest else {'total': 0}
+        return totals['pct'] if totals['total'] else 101  # never-run projects last
+
+    if sort == '이름순':
+        visible.sort(key=lambda p: p['name'].casefold())
+    elif sort == '통과율 낮은순':
+        visible.sort(key=pass_rate)
+    page_items, footer = pager(visible, 'projects', (search, tuple(tags), sort), PROJECT_PAGE_SIZE, '프로젝트')
+    if not visible:
+        st.info('조건에 맞는 프로젝트가 없습니다.')
+    for offset in range(0, len(page_items), 3):
+        for col, project in zip(st.columns(3), page_items[offset : offset + 3]):
+            with col, st.container(border=True, key=f'project_tile_{project["id"]}'):
+                project_card(project, latest.get(project['id']))
+    footer()
+
+
+def project_card(project, last):
+    pid = project['id']
+    label, cls = card_state(last)
+    label = '정상 운영' if cls == 'pass' else label
+    totals = run_totals([last]) if last else {'total': 0, 'pct': 0, 'passed': 0}
+    problems = (last['failed'] + last['errors']) if last else 0
+    rate = (
+        f'{totals["pct"]:g}% PASS' + (f' ({problems} 실패)' if problems else '')
+        if totals['total']
+        else '실행 기록 없음'
+    )
+    overview = (project['overview'] or '').strip().split('\n')[0] or '전체 요구사항을 아직 작성하지 않았습니다.'
+    link = safe_link(project['target_url'])
+    st.markdown(
+        f'<div class="pc-head"><span class="pc-icon">{ICONS["window"]}</span><div class="pc-title">'
+        f'<strong>{html.escape(project["name"])}</strong><p>{html.escape(overview)}</p></div>'
+        f'<span class="pilot-state state-{cls}">● {label}</span></div>'
+        f'<div class="pc-url"><span>{ICONS["link"]}</span><code>{html.escape(project["target_url"])}</code>'
+        + (
+            f'<a href="{link}" target="_blank" rel="noopener noreferrer" title="웹페이지 열기">{ICONS["external"]}</a>'
+            if link
+            else ''
+        )
+        + '</div>'
+        + tag_chips(json.loads(project['tags']))
+        + f'<div class="pc-metrics"><header><span>QA 메트릭 상태</span><b class="tone-{cls}">{rate}</b></header>'
+        f'<div class="pilot-track"><i style="width:{totals["pct"]}%;background:{"#ba1a1a" if problems else "#009668"}"></i></div>'
+        f'<dl><div><dt>요구사항</dt><dd>{project["req_count"]}개</dd></div>'
+        f'<div><dt>등록 테스트</dt><dd>{project["case_count"]}개</dd></div>'
+        f'<div><dt>최근 소요</dt><dd>{format_duration(run_seconds(last))}</dd></div></dl></div>',
+        unsafe_allow_html=True,
+    )
+    run_col, manage_col = st.columns(2)
+    run_col.button(
+        '▷ 즉시 실행',
+        key=f'launch_{pid}',
+        width='stretch',
+        on_click=quick_run,
+        args=(pid,),
+        disabled=not project['case_count'],
+    )
+    manage_col.button('프로젝트 관리 →', key=f'open_{pid}', width='stretch', on_click=open_project, args=(pid,))
+
+
+def set_page(key, page):
+    st.session_state[key + '_page'] = page
+
+
+def page_numbers(page, pages):
+    first = max(1, min(page - 2, pages - 4))
+    return range(first, min(pages, first + 4) + 1)
+
+
+def pager(items, key, filters, size, unit, size_options=None):
+    """Slice items for the current page; the returned footer draws the summary and page buttons."""
+    if st.session_state.get(key + '_filters') != repr(filters):
+        st.session_state[key + '_filters'] = repr(filters)
+        st.session_state[key + '_page'] = 1
+    pages = max(1, -(-len(items) // size))
+    page = min(int(st.session_state.get(key + '_page', 1)), pages)
+    st.session_state[key + '_page'] = page
+    start = (page - 1) * size
+
+    def footer():
+        if not items:
+            return
+        with st.container(key=f'{key}_pager', horizontal=True, vertical_alignment='center'):
+            st.markdown(
+                f'<div class="pilot-pager-text">전체 <b>{len(items)}</b>개 {unit} 중 '
+                f'<b>{start + 1} - {min(start + size, len(items))}</b> 표시</div>',
+                unsafe_allow_html=True,
+            )
+            if size_options:
+                st.selectbox(
+                    '페이지당 표시',
+                    size_options,
+                    key=key + '_size',
+                    format_func=lambda n: f'{n}개씩 보기',
+                    label_visibility='collapsed',
+                )
+            if pages > 1:
+                st.button('‹', key=f'{key}_prev', disabled=page == 1, on_click=set_page, args=(key, page - 1))
+                for number in page_numbers(page, pages):
+                    st.button(
+                        str(number),
+                        key=f'{key}_p{number}',
+                        type='primary' if number == page else 'tertiary',
+                        on_click=set_page,
+                        args=(key, number),
+                    )
+                st.button('›', key=f'{key}_next', disabled=page == pages, on_click=set_page, args=(key, page + 1))
+
+    return items[start : start + size], footer
+
+
+def reset_history_filters():
+    for key in ('history_search', 'history_tags', 'history_period', 'history_status'):
+        st.session_state.pop(key, None)
+
+
+def runs_csv(runs):
+    import csv
+    import io
+
+    buffer = io.StringIO()
+    writer = csv.writer(buffer)
+    writer.writerow(
+        ['실행 ID', '프로젝트', '대상 URL', '상태', 'PASS', 'FAIL', 'ERROR', '소요 시간(초)', '시작(한국 시간)']
+    )
+    for run in runs:
+        seconds = run_seconds(run)
+        started = datetime.fromisoformat(run['started_at'])
+        started = (started if started.tzinfo else started.replace(tzinfo=timezone.utc)).astimezone(
+            timezone(timedelta(hours=9))
+        )
+        writer.writerow(
+            [
+                run['run_id'],
+                run['name'],
+                run['target_url'],
+                run_state(run),
+                run['passed'],
+                run['failed'],
+                run['errors'],
+                '' if seconds is None else round(seconds, 1),
+                started.strftime('%Y-%m-%d %H:%M:%S'),
+            ]
+        )
+    return '﻿' + buffer.getvalue()  # BOM so Excel opens Korean text correctly
+
+
+def workspace_history():
+    with st.container(border=True, key='history_header'):
+        head, actions = st.columns([3, 1.5], vertical_alignment='bottom')
+        head.markdown(
+            '<div class="pilot-crumb">워크스페이스 <i>›</i> <b>실행 파이프라인 기록</b></div>', unsafe_allow_html=True
+        )
+        head.title('전체 실행 기록')
+        head.write('모든 프로젝트의 자동화 QA 테스트 실행 내역과 상세 리포트입니다. 날짜는 한국 시간 기준입니다.')
+    metrics_area = st.container()
+    with st.container(border=True, key='history_filters'):
+        search_col, tag_col, date_col = st.columns([2.2, 1.6, 1.6], vertical_alignment='center')
+        search = search_col.text_input(
+            '프로젝트 또는 실행 ID',
+            placeholder='프로젝트 또는 실행 ID 검색',
+            key='history_search',
+            label_visibility='collapsed',
+        )
+        tags = tag_col.multiselect(
+            '태그',
+            all_tags(),
+            key='history_tags',
+            placeholder='모든 태그',
+            label_visibility='collapsed',
+            help='선택한 태그 중 하나라도 포함한 프로젝트의 기록을 표시합니다.',
+        )
+        period = date_col.date_input(
+            '기간',
+            value=[],
+            key='history_period',
+            format='YYYY.MM.DD',
+            label_visibility='collapsed',
+            help='시작일과 종료일을 고르세요. 비워 두면 전체 기간입니다.',
+        )
+        state_col, reset_col = st.columns([4, 1], vertical_alignment='center')
+        status = (
+            state_col.segmented_control(
+                '실행 상태', RUN_STATES, default='전체', key='history_status', label_visibility='collapsed'
+            )
+            or '전체'
+        )
+        reset_col.button('↺ 필터 초기화', key='history_reset', on_click=reset_history_filters, width='stretch')
+    start = period[0] if len(period) >= 1 else None
+    end = period[1] if len(period) == 2 else start
+    runs = [
+        r
+        for r in run_list(tags, start, end)
+        if search.casefold() in (r['name'] + ' ' + r['run_id']).casefold()
+        and (status == '전체' or status == run_state(r))
+    ]
+    durations = [s for s in (run_seconds(r) for r in runs) if s is not None]
+    totals = run_totals(runs)
+    failed, errors = sum(r['failed'] for r in runs), sum(r['errors'] for r in runs)
+    with metrics_area:
+        metric_tiles(
+            [
+                (
+                    '기간 내 총 실행',
+                    f'{len(runs)}회',
+                    'play',
+                    f'{len({r["project_id"] for r in runs})}개 프로젝트',
+                    None,
+                    '',
+                    '',
+                ),
+                (
+                    '전체 통과율',
+                    totals['rate'],
+                    'verified',
+                    f'통과 {totals["passed"]} / 전체 {totals["total"]}',
+                    totals['pct'],
+                    '#009668',
+                    '',
+                ),
+                (
+                    '평균 소요시간',
+                    format_duration(sum(durations) / len(durations)) if durations else '—',
+                    'timer',
+                    '완료된 실행 기준',
+                    None,
+                    '',
+                    '',
+                ),
+                (
+                    '감지된 결함',
+                    f'{failed}건',
+                    'bug',
+                    f'실행 오류 {errors}건은 별도 집계',
+                    None,
+                    '',
+                    'alert' if failed else '',
+                ),
+            ],
+            columns=4,
+        )
+    with actions, st.container(horizontal=True, horizontal_alignment='right', key='history_actions'):
+        st.download_button(
+            '⤓ CSV 리포트 내보내기',
+            runs_csv(runs),
+            file_name=f'testpilot-runs-{datetime.now(timezone(timedelta(hours=9))):%Y%m%d}.csv',
+            mime='text/csv',
+            key='history_csv',
+            width='content',
+            disabled=not runs,
+        )
+        st.button(
+            '▷ 새 실행 시작',
+            key='history_new_run',
+            type='primary',
+            width='content',
+            on_click=open_workspace,
+            args=('프로젝트',),
+            help='프로젝트를 골라 바로 실행합니다.',
+        )
+    size = st.session_state.get('workspace_runs_size', 10)
+    page_items, footer = pager(
+        runs, 'workspace_runs', (tuple(tags), start, end, search, status, size), size, '결과', [10, 20, 50]
+    )
+    render_runs(page_items)
+    footer()
+
+
+def render_runs(recent):
+    if not recent:
+        st.info('표시할 실행 기록이 없습니다.')
+        return
+    with st.container(key='run_table'):
+        widths = [1, 1.1, 2.6, 2, 1, 1.5, 1.2]
+        for col, label in zip(
+            st.columns(widths),
+            ['상태', '실행 ID', '프로젝트 / 대상 URL', '실행 통계', '소요 시간', '실행 일시', '결과 리포트'],
+        ):
+            col.markdown('<div class="qa-table-label">' + label + '</div>', unsafe_allow_html=True)
+        for run in recent:
+            state = run_state(run)
+            cls = state_class(state)
+            with st.container(key=f'run_row_{cls}_{run["run_id"]}'):
+                s, i, a, stat, d, b, c = st.columns(widths, vertical_alignment='center')
+                s.markdown(f'<span class="pilot-state state-{cls}">● {state}</span>', unsafe_allow_html=True)
+                i.markdown(f'<span class="qa-run-id">#{run["run_id"][:8]}</span>', unsafe_allow_html=True)
+                a.markdown(
+                    '<div class="qa-run-name">'
+                    + html.escape(run['name'])
+                    + '</div><div class="pilot-url">'
+                    + html.escape(run['target_url'])
+                    + '</div>'
+                    + tag_chips(json.loads(run['tags'])),
+                    unsafe_allow_html=True,
+                )
+                result = run_totals([run])
+                problems = run['failed'] + run['errors']
+                if run['status'] == 'RUNNING':
+                    text = '진행 중'
+                elif problems:
+                    text = f'{run["passed"]} 통과 · {run["failed"]} 실패' + (
+                        f' · {run["errors"]} 오류' if run['errors'] else ''
+                    )
+                else:
+                    text = f'{run["passed"]} / {result["total"]} 통과 ({result["rate"]})'
+                stat.markdown(
+                    f'<div class="run-stat tone-{cls}">{text}</div><div class="pilot-track"><i style="width:{result["pct"]}%;'
+                    f'background:{"#ba1a1a" if problems else "#009668"}"></i></div>',
+                    unsafe_allow_html=True,
+                )
+                d.markdown(
+                    f'<div class="qa-run-date">{format_duration(run_seconds(run))}</div>', unsafe_allow_html=True
+                )
+                b.markdown(
+                    '<div class="qa-run-date">'
+                    + str(run_date(run['started_at']).year)
+                    + '년 '
+                    + local_time(run['started_at'])
+                    + '</div>',
+                    unsafe_allow_html=True,
+                )
+                c.button(
+                    '오류 확인' if problems else '결과 리포트',
+                    key='recent_' + run['run_id'],
+                    on_click=open_history,
+                    args=(run['project_id'], run['run_id']),
+                )
+
+
+def project_header(project):
+    pid = project['id']
+    all_cases = cases(pid)
+    runs = [r for r in run_list() if r['project_id'] == pid]
+    name = html.escape(project['name'])
+    link = safe_link(project['target_url'])
+    head, actions = st.columns([3, 2.2], vertical_alignment='bottom')
+    head.markdown(
+        f'<div class="pilot-crumb">프로젝트 목록 <i>›</i> <b>{name}</b></div>'
+        f'<div class="pilot-title"><h1>{name}</h1>{tag_chips(json.loads(project["tags"]))}</div>'
+        + (
+            f'<a class="pilot-link" href="{link}" target="_blank" rel="noopener noreferrer">{ICONS["external"]}{link}</a>'
+            if link
+            else f'<span class="pilot-link">{html.escape(project["target_url"])}</span>'
+        ),
+        unsafe_allow_html=True,
+    )
+    with actions, st.container(horizontal=True, horizontal_alignment='right', key='project_actions'):
+        st.button('＋ 테스트 추가', key='header_add_test', on_click=open_add_test, args=(pid,))
+        st.button(
+            '▷ 전체 테스트 실행',
+            key='header_run_all',
+            type='primary',
+            on_click=quick_run,
+            args=(pid,),
+            disabled=not any(c['reviewed'] for c in all_cases),
+        )
+        st.button(
+            '최신 실행 리포트 보기',
+            key='header_latest',
+            on_click=open_history,
+            args=(pid, runs[0]['run_id']) if runs else (pid, None),
+            disabled=not runs,
+        )
+    view = st.session_state.project_view
+    with st.container(key='project_nav', horizontal=True):
+        for target, title in [
+            ('요구사항', f'요구사항 & 테스트 관리 · {len(all_cases)}'),
+            ('테스트', '테스트 추가'),
+            ('실행', '테스트 실행'),
+            ('실행 기록', f'실행 기록 · {len(runs)}건'),
+            ('프로젝트 설정', '프로젝트 설정'),
+        ]:
+            st.button(
+                title,
+                key='project_tab_' + target,
+                type='primary' if target == view else 'tertiary',
+                on_click=open_project,
+                args=(pid, target),
+            )
+
+
+def project_summary(project):
+    pid = project['id']
+    reqs, all_cases = requirements(pid), cases(pid)
+    runs = [r for r in run_list() if r['project_id'] == pid]
+    last = runs[0] if runs else None
+    approved = sum(c['reviewed'] for c in all_cases)
+    ai_made = sum(c.get('source') == 'ai' for c in all_cases)
+    linked = len({c['requirement_id'] for c in all_cases})
+    totals = run_totals(runs[:1])
+    with st.container(border=True, key='project_summary'):
+        st.subheader('QA 테스트 요약 및 지표')
+        tiles = [
+            ('총 요구사항', f'{len(reqs)}<small>건</small>', f'테스트 연결 {linked}건'),
+            (
+                '총 테스트 케이스',
+                f'{len(all_cases)}<small>개</small>',
+                f'AI {ai_made} · 기본 {len(all_cases) - ai_made}',
+            ),
+            (
+                '실행 가능 비율',
+                f'{100 * approved / len(all_cases):.0f}%' if all_cases else '—',
+                f'승인 {approved} / 전체 {len(all_cases)}',
+            ),
+            (
+                '최근 성공률',
+                totals['rate'],
+                f'PASS {last["passed"]} / FAIL {last["failed"]}' if last else '실행 기록 없음',
             ),
         ]
         st.markdown(
-            '<div class="pilot-metrics">'
+            '<div class="ps-grid">'
             + ''.join(
-                f'<article><header>{label}<span>{icons[icon]}</span></header><strong>{value}</strong><small>{detail}</small><div class="pilot-track"><i style="width:{pct}%;background:{color}"></i></div></article>'
-                for label, value, icon, detail, pct, color in tiles
+                f'<div><span>{label}</span><b>{value}</b><small>{detail}</small></div>'
+                for label, value, detail in tiles
             )
             + '</div>',
             unsafe_allow_html=True,
         )
-    if collection:
-        with st.container(border=True):
-            search_col, filter_col = st.columns([2, 1])
-            search = search_col.text_input('프로젝트 검색', placeholder='이름 또는 URL', key='project_search')
-            tags = filter_col.multiselect(
-                '태그', all_tags(), help='선택한 태그 중 하나라도 포함한 프로젝트를 표시합니다.'
+        if last:
+            total = max(1, last['passed'] + last['failed'] + last['errors'])
+            segments = [
+                ('pass', last['passed'], '통과'),
+                ('fail', last['failed'], '실패'),
+                ('error', last['errors'], '오류'),
+            ]
+            st.markdown(
+                f'<div class="ps-dist"><header><span>최근 실행 결과 분포</span><b>{last["passed"]} / {total} 통과</b></header>'
+                '<div class="ps-bar">'
+                + ''.join(f'<i class="{c}" style="width:{100 * n / total}%"></i>' for c, n, _ in segments if n)
+                + '</div><div class="ps-legend">'
+                + ''.join(f'<span class="{c}">● {label} {n}</span>' for c, n, label in segments if n)
+                + '</div></div>'
+                f'<div class="ps-run"><header><span>최근 실행</span><time>{local_time(last["started_at"])}</time></header>'
+                f'<b>#{last["run_id"][:8]}</b><div><span class="pass">✓ {last["passed"]} 성공</span>'
+                f'<span class="fail">✕ {last["failed"] + last["errors"]} 실패</span>'
+                f'<span>⏱ {format_duration(run_seconds(last))}</span></div></div>',
+                unsafe_allow_html=True,
             )
-        visible = project_list(search, tags)
-        st.caption(f'{len(visible)}개 프로젝트 · 최근 실행순 · 미실행 프로젝트는 뒤에 표시')
-        visible = paginate(visible, 'projects', (search, tuple(tags)))
-    else:
-        left, right = st.columns([5, 1])
-        left.subheader('최근 프로젝트')
-        right.button('더보기 →', key='more_projects', on_click=open_workspace, args=('프로젝트',))
-        visible = project_list()[:4]
-    if not visible:
-        st.info('표시할 프로젝트가 없습니다.')
-    latest_by_project = {}
-    for run in executions:
-        latest_by_project.setdefault(run['project_id'], run)
-    columns = 3 if collection else 4
-    for offset in range(0, len(visible), columns):
-        for col, project in zip(st.columns(columns), visible[offset : offset + columns]):
-            with col, st.container(border=True, key=f'project_card_{project["id"]}'):
-                last = latest_by_project.get(project['id'])
-                label = run_state(last) if last else '미실행'
-                stamp = local_time(last['started_at']) if last else ''
-                st.markdown(
-                    f'<div class="pilot-card-top"><span class="pilot-state state-{state_class(label)}">● {label}</span><time>{stamp}</time></div><div class="project-heading"><h3>'
-                    + html.escape(project['name'])
-                    + '</h3></div><div class="project-url">'
-                    + html.escape(project['target_url'])
-                    + '</div>'
-                    + tag_chips(json.loads(project['tags'])),
-                    unsafe_allow_html=True,
+            st.button(
+                '실행 결과·스크린샷 보기',
+                key='summary_history',
+                width='stretch',
+                on_click=open_history,
+                args=(pid, last['run_id']),
+            )
+        else:
+            st.caption('아직 실행 기록이 없습니다. 상단의 전체 테스트 실행으로 시작하세요.')
+
+
+def requirements_page(project):
+    pid = project['id']
+    with st.container(border=True, key='policy_card'):
+        st.subheader('페이지 기본 규칙 및 예외 처리 정책')
+        st.caption('모든 요구사항과 테스트에 공통으로 적용되는 기준입니다. AI 테스트 생성에도 함께 전달됩니다.')
+        rule, exception = st.columns(2)
+        for col, cls, label, value in [
+            (rule, 'rule', '기본 요구사항 정책', project['overview']),
+            (exception, 'exception', '예외사항 & 에러 핸들링', project['exceptions']),
+        ]:
+            col.markdown(
+                f'<div class="pilot-policy {cls}"><b>● {label}</b><p>'
+                + html.escape(value or '작성된 내용이 없습니다.')
+                + '</p></div>',
+                unsafe_allow_html=True,
+            )
+        with st.expander('전체 기준 수정'):
+            with st.form(f'overview_{pid}'):
+                left, right = st.columns(2)
+                overview = left.text_area(
+                    '전체 요구사항', project['overview'], placeholder='프로젝트 전체의 기대 동작', height=130
                 )
-                st.markdown(
-                    f'<div class="card-stats"><b>{project["req_count"]}</b> 요구사항 <span>·</span> <b>{project["case_count"]}</b> 테스트</div>',
-                    unsafe_allow_html=True,
+                exceptions = right.text_area(
+                    '전체 예외사항', project['exceptions'], placeholder='모든 테스트에서 확인할 예외', height=130
                 )
-                result = run_totals([last] if last else [])
-                st.markdown(
-                    f'<div class="pilot-pass"><span>통과율 <b>{result["rate"]}</b></span><span>{result["passed"]} / {result["total"]} 통과</span></div><div class="pilot-track"><i style="width:{result["pct"]}%"></i></div>',
-                    unsafe_allow_html=True,
-                )
-                actions = st.columns(2)
-                actions[0].button(
-                    '상세 보기',
-                    key=f'open_{project["id"]}',
-                    width='stretch',
-                    on_click=open_project,
-                    args=(project['id'],),
-                )
-                actions[1].button(
-                    '실행 설정',
-                    key=f'launch_{project["id"]}',
-                    type='primary',
-                    width='stretch',
-                    on_click=open_project,
-                    args=(project['id'], '실행'),
-                )
-    if collection:
+                if st.form_submit_button('전체 기준 저장', type='primary'):
+                    save_project(pid, project['name'], overview, exceptions)
+                    st.success('저장했습니다.')
+    reqs = requirements(pid)
+    title, add = st.columns([4, 1.4], vertical_alignment='center')
+    title.markdown(
+        f'<div class="pilot-section"><strong>개별 요구사항별 테스트 그룹</strong><em>총 {len(reqs)}개 그룹</em></div>',
+        unsafe_allow_html=True,
+    )
+    if add.button('＋ 새 요구사항 추가', key='new_requirement', type='primary', width='stretch'):
+        new_requirement_dialog(pid)
+    if not reqs:
+        st.info('요구사항을 추가하세요. 요구사항마다 테스트를 연결할 수 있습니다.')
         return
-    st.write('')
-    left, right = st.columns([5, 1])
-    left.subheader('최근 실행 기록')
-    right.button('더보기 →', key='more_runs', on_click=open_workspace, args=('실행 기록',))
-    render_runs(executions[:5])
+    grouped = {}
+    for case in cases(pid):
+        grouped.setdefault(case['requirement_id'], []).append(case)
+    latest_results = storage.rows(
+        'SELECT r.case_id,r.outcome FROM test_results r JOIN test_runs h ON h.run_id=r.run_id WHERE h.project_id=? ORDER BY h.started_at, r.id',
+        (pid,),
+    )
+    outcomes = {r['case_id']: r['outcome'] for r in latest_results}
+    for number, req in enumerate(reqs, 1):
+        group = grouped.get(req['id'], [])
+        results = [outcomes.get(c['id']) for c in group]
+        problems = sum(r in ('FAIL', 'ERROR') for r in results)
+        if not group:
+            verdict = ''
+        elif problems:
+            verdict = f'<span class="rg-badge fail">{problems}건 실패 발생</span>'
+        elif all(r == 'PASS' for r in results):
+            verdict = '<span class="rg-badge pass">전체 성공 (100%)</span>'
+        else:
+            verdict = '<span class="rg-badge idle">미실행 포함</span>'
+        with st.container(border=True, key=f'req_group_{number}'):
+            st.markdown(
+                f'<div class="rg-head"><span class="rg-num">{number:02d}</span><div><div class="rg-title">{html.escape(req["title"] or req["id"])}'
+                f'<span class="rg-badge">등록 테스트 {len(group)}개</span>{verdict}</div>'
+                f'<div class="rg-desc">{html.escape(requirement_text(req).split(chr(10))[0])}</div></div></div>',
+                unsafe_allow_html=True,
+            )
+            if group:
+                rows = ''.join(
+                    f'<tr class="{"fail" if outcomes.get(c["id"]) in ("FAIL", "ERROR") else ""}"><td><code>{html.escape(short_id(c["id"]))}</code></td>'
+                    f'<td><b>{html.escape(c["description"])}</b><small>{html.escape(expected_text(c))}</small></td>'
+                    f'<td>{"AI 생성" if c.get("source") == "ai" else ("결함 재현" if c.get("fault_variant") else "기본")}</td>'
+                    f'<td>{"승인됨" if c["reviewed"] else "검토 필요"}</td>'
+                    f'<td><span class="qa-status {str(outcomes.get(c["id"], "")).lower()}">{outcomes.get(c["id"], "미실행")}</span></td></tr>'
+                    for c in group
+                )
+                st.markdown(
+                    '<table class="rg-table"><thead><tr><th>ID</th><th>테스트 케이스 · 기대 동작</th><th>종류</th>'
+                    f'<th>검토</th><th>최근 결과</th></tr></thead><tbody>{rows}</tbody></table>',
+                    unsafe_allow_html=True,
+                )
+            left, right = st.columns([3, 1.4], vertical_alignment='center')
+            left.button(
+                '＋ 이 요구사항에 테스트 추가', key='add_to_' + req['id'], on_click=open_add_test, args=(pid, req['id'])
+            )
+            right.button(
+                f'테스트 {len(group)}개 관리 →',
+                key='to_tests_' + req['id'],
+                width='stretch',
+                on_click=open_project,
+                args=(pid, '테스트', req['id']),
+            )
+            with st.expander('요구사항 내용 수정'):
+                with st.form('req_edit_' + req['id']):
+                    title = st.text_input('이름', req['title'])
+                    spec = st.text_area('기대 동작', requirement_text(req))
+                    exc = st.text_area('예외사항', req['exceptions'])
+                    if st.form_submit_button('저장'):
+                        try:
+                            save_requirement(pid, title, spec, exc, req['id'])
+                            st.rerun()
+                        except ValueError as error:
+                            st.error(str(error))
 
 
 def run_totals(runs):
@@ -292,197 +948,9 @@ def state_class(label):
     return {'실행 중': 'running', '오류': 'error', '실패': 'fail', '통과': 'pass'}.get(label, 'idle')
 
 
-def paginate(items, key, filters):
-    signature = repr(filters)
-    if st.session_state.get(key + '_filters') != signature:
-        st.session_state[key + '_filters'] = signature
-        st.session_state[key + '_page'] = 1
-    pages = max(1, (len(items) + 19) // 20)
-    if st.session_state.get(key + '_page', 1) > pages:
-        st.session_state[key + '_page'] = 1
-    if pages == 1:
-        return items
-    page = st.selectbox('페이지', list(range(1, pages + 1)), key=key + '_page', format_func=lambda p: f'{p} / {pages}')
-    return items[(page - 1) * 20 : page * 20]
-
-
-def workspace_history():
-    st.caption('워크스페이스  /  실행 파이프라인 기록')
-    st.title('전체 실행 기록')
-    st.caption('전체 프로젝트의 실행 기록 · 현재 프로젝트 태그 기준 · 날짜는 한국 시간')
-    metrics_area = st.container()
-    search_col, tag_col, state_col = st.columns([2, 1.5, 1])
-    search = search_col.text_input('프로젝트 또는 실행 ID', placeholder='실행 기록 검색')
-    tags = tag_col.multiselect('태그', all_tags(), help='선택한 태그 중 하나라도 포함한 프로젝트의 기록을 표시합니다.')
-    status = state_col.selectbox('실행 상태', ['전체', '통과', '실패', '오류', '실행 중'])
-    start = end = None
-    if st.checkbox('날짜로 필터'):
-        left, right = st.columns(2)
-        start = left.date_input('시작일')
-        end = right.date_input('종료일')
-        if start > end:
-            st.error('종료일은 시작일 이후여야 합니다.')
-            return
-    runs = [
-        r
-        for r in run_list(tags, start, end)
-        if search.casefold() in (r['name'] + ' ' + r['run_id']).casefold()
-        and (status == '전체' or status == run_state(r))
-    ]
-    durations = [
-        (datetime.fromisoformat(r['finished_at']) - datetime.fromisoformat(r['started_at'])).total_seconds()
-        for r in runs
-        if r['finished_at']
-    ]
-    metrics = metrics_area.columns(4)
-    for col, (label, value) in zip(
-        metrics,
-        [
-            ('기간 내 총 실행', len(runs)),
-            ('전체 통과율', run_totals(runs)['rate']),
-            ('평균 소요 시간', f'{sum(durations) / len(durations):.1f}초' if durations else '—'),
-            ('실패 테스트', sum(r['failed'] for r in runs)),
-        ],
-    ):
-        col.metric(label, value, border=True)
-    st.caption(f'{len(runs)}개 실행 · 최신순')
-    render_runs(paginate(runs, 'workspace_runs', (tuple(tags), start, end, search, status)))
-
-
-def render_runs(recent):
-    if not recent:
-        st.info('표시할 실행 기록이 없습니다.')
-        return
-    with st.container(key='run_table'):
-        widths = [1, 1.2, 2.5, 1.6, 2.1, 1.1]
-        for col, label in zip(
-            st.columns(widths), ['상태', '실행 ID', '프로젝트 / 대상 URL', '실행 일시', '결과 지표', '리포트']
-        ):
-            col.markdown('<div class="qa-table-label">' + label + '</div>', unsafe_allow_html=True)
-        for run in recent:
-            with st.container(key='run_row_' + run['run_id']):
-                s, i, a, b, r, c = st.columns(widths, vertical_alignment='center')
-                state = run_state(run)
-                s.markdown(
-                    f'<span class="pilot-state state-{state_class(state)}">● {state}</span>', unsafe_allow_html=True
-                )
-                i.caption('#' + run['run_id'][:8])
-                a.markdown(
-                    '<div class="qa-run-name">'
-                    + html.escape(run['name'])
-                    + '</div><div class="pilot-url">'
-                    + html.escape(run['target_url'])
-                    + '</div>'
-                    + tag_chips(json.loads(run['tags'])),
-                    unsafe_allow_html=True,
-                )
-                b.markdown(
-                    '<div class="qa-run-date">'
-                    + str(run_date(run['started_at']).year)
-                    + '년 '
-                    + local_time(run['started_at'])
-                    + '</div>',
-                    unsafe_allow_html=True,
-                )
-                r.markdown(
-                    status_badges({'PASS': run['passed'], 'FAIL': run['failed'], 'ERROR': run['errors']}),
-                    unsafe_allow_html=True,
-                )
-                c.button(
-                    '기록 보기',
-                    key='recent_' + run['run_id'],
-                    on_click=open_history,
-                    args=(run['project_id'], run['run_id']),
-                )
-
-
 def open_history(project_id, run_id):
     open_project(project_id, '실행 기록')
     st.session_state[f'selected_run_{project_id}'] = run_id
-
-
-def requirements_page(project):
-    pid = project['id']
-    st.subheader('페이지 기본 규칙 및 예외 처리')
-    rule, exception = st.columns(2)
-    for col, label, value in [
-        (rule, '기본 요구사항', project['overview']),
-        (exception, '예외 처리', project['exceptions']),
-    ]:
-        col.markdown(
-            '<div class="pilot-policy"><b>'
-            + label
-            + '</b><p>'
-            + html.escape(value or '작성된 내용이 없습니다.')
-            + '</p></div>',
-            unsafe_allow_html=True,
-        )
-    with st.expander('전체 기준 수정'):
-        with st.form(f'overview_{pid}'):
-            left, right = st.columns(2)
-            overview = left.text_area(
-                '전체 요구사항', project['overview'], placeholder='프로젝트 전체의 기대 동작', height=130
-            )
-            exceptions = right.text_area(
-                '전체 예외사항', project['exceptions'], placeholder='모든 테스트에서 확인할 예외', height=130
-            )
-            if st.form_submit_button('전체 기준 저장', type='primary'):
-                save_project(pid, project['name'], overview, exceptions)
-                st.success('저장했습니다.')
-    a, b = st.columns([4, 1])
-    a.subheader('개별 요구사항별 테스트 그룹')
-    if b.button('＋ 추가', width='stretch'):
-        new_requirement_dialog(pid)
-    reqs = requirements(pid)
-    if not reqs:
-        st.info('요구사항을 추가하세요. 요구사항마다 테스트를 연결할 수 있습니다.')
-        return
-    grouped = {}
-    for case in cases(pid):
-        grouped.setdefault(case['requirement_id'], []).append(case)
-    latest_results = storage.rows(
-        'SELECT r.case_id,r.outcome FROM test_results r JOIN test_runs h ON h.run_id=r.run_id WHERE h.project_id=? ORDER BY h.started_at, r.id',
-        (pid,),
-    )
-    outcomes = {r['case_id']: r['outcome'] for r in latest_results}
-    for req in reqs:
-        with st.container(border=True):
-            a, b = st.columns([5, 1.2], vertical_alignment='center')
-            a.subheader(req['title'] or req['id'])
-            a.caption(requirement_text(req).split('\n')[0])
-            group = grouped.get(req['id'], [])
-            b.button(
-                f'테스트 {len(group)}개 →',
-                key='to_tests_' + req['id'],
-                width='stretch',
-                on_click=open_project,
-                args=(pid, '테스트', req['id']),
-            )
-            if group:
-                with st.expander('테스트 케이스 · 실행 결과', expanded=req['id'] == reqs[0]['id']):
-                    st.dataframe(
-                        [
-                            {
-                                '테스트 ID': c['id'],
-                                '검사 항목': c['description'],
-                                '최근 결과': outcomes.get(c['id'], '미실행'),
-                            }
-                            for c in group
-                        ],
-                        hide_index=True,
-                        width='stretch',
-                    )
-            with st.expander('내용 수정'):
-                with st.form('req_edit_' + req['id']):
-                    title = st.text_input('이름', req['title'])
-                    spec = st.text_area('기대 동작', requirement_text(req))
-                    exc = st.text_area('예외사항', req['exceptions'])
-                    if st.form_submit_button('저장'):
-                        try:
-                            save_requirement(pid, title, spec, exc, req['id'])
-                            st.rerun()
-                        except ValueError as error:
-                            st.error(str(error))
 
 
 def step_editor(steps, key):
@@ -648,10 +1116,12 @@ def case_adder(project, req):
                 close_case_adder()
                 st.rerun()
         else:
-            kind = st.selectbox(
+            kind = st.radio(
                 '기본 테스트',
                 list(templates),
-                format_func=lambda k: templates[k]['description'] + ' · ' + templates[k]['summary'],
+                format_func=lambda k: templates[k]['description'],
+                captions=[templates[k]['summary'] for k in templates],
+                key=f'template_kind_{pid}_{rid}',
             )
             template = templates[kind]
             title = st.text_input('테스트 이름', template['description'], key=f'title_{pid}_{rid}_{kind}')
@@ -678,17 +1148,25 @@ def case_adder(project, req):
             height=120,
             key=f'prompt_{pid}_{rid}',
         )
-        use_page = st.checkbox(
-            '페이지 구조를 읽어 AI에 전달',
+        toggle_col, generate_col = st.columns([1.5, 1], vertical_alignment='center')
+        use_page = toggle_col.toggle(
+            '페이지 구조 자동 읽기',
             value=True,
             key=f'use_page_{pid}_{rid}',
             help='등록한 URL과, 그 페이지의 링크·요구사항에 적힌 같은 사이트 경로(예: /home)를 브라우저로 조회해 '
             '입력창·버튼·링크·안내 영역의 선택자를 AI에 전달합니다. 입력·제출은 하지 않고 입력값도 읽지 않으며, '
             '로그아웃·삭제처럼 상태를 바꿀 수 있는 링크는 열지 않습니다.',
         )
-        st.caption('전체 기준과 선택한 요구사항을 함께 전달합니다. 생성 후 검토하세요.')
         draft_key = f'drafts_{pid}_{rid}'
-        if st.button('✦ 테스트 생성', type='primary', disabled=not prompt.strip()):
+        generate = generate_col.button(
+            '✦ AI 테스트 생성',
+            type='primary',
+            disabled=not prompt.strip(),
+            width='stretch',
+            key=f'generate_{pid}_{rid}',
+        )
+        st.caption('전체 기준과 선택한 요구사항을 함께 전달합니다. 생성 후 검토하세요.')
+        if generate:
             context, context_error = None, None
             if use_page:
                 try:
@@ -733,35 +1211,71 @@ def case_adder(project, req):
                     + (f'와 이동 후 페이지 {pages}' if pages else '')
                     + '를 바탕으로 생성했습니다.'
                 )
-        for index, draft in enumerate(st.session_state.get(draft_key, [])):
-            revision = st.session_state.get(draft_key + '_revision', 0)
-            with st.container(border=True):
-                st.subheader(draft['description'])
-                st.write(draft['expected'])
+        drafts = st.session_state.get(draft_key, [])
+        revision = st.session_state.get(draft_key + '_revision', 0)
+        chosen = []
+        if drafts:
+            st.markdown('<div class="ai-preview-label">AI 생성 프리뷰 결과</div>', unsafe_allow_html=True)
+        for index, draft in enumerate(drafts):
+            saved = bool(draft.get('_saved_case_id'))
+            with st.container(border=True, key=f'ai_draft_{index}'):
+                st.markdown(
+                    f'<div class="ai-draft-head"><code>AI-{index + 1:02d}</code><strong>{html.escape(draft["description"])}</strong>'
+                    f'<span class="{"saved" if saved else "ready"}">● {"등록 완료" if saved else "생성 완료 · 검토 필요"}</span></div>'
+                    f'<div class="ai-draft-expected">{html.escape(draft["expected"])}</div>'
+                    '<div class="ai-steps"><b>실행 절차 단계 (Generated Steps)</b><ol>'
+                    + ''.join(
+                        f'<li>{ACTION_LABELS.get(s["action"], s["action"])}'
+                        + (f' <code>{html.escape(s.get("selector", ""))}</code>' if s.get('selector') else '')
+                        + (f' <span>{html.escape(s.get("value", ""))}</span>' if s.get('value') else '')
+                        + '</li>'
+                        for s in draft['steps']
+                    )
+                    + '</ol></div>',
+                    unsafe_allow_html=True,
+                )
                 if draft.get('review_notes'):
                     st.warning(draft['review_notes'])
-                steps = step_editor(draft['steps'], f'ai_steps_{pid}_{rid}_{revision}_{index}')
+                with st.expander('단계와 선택자 수정'):
+                    steps = step_editor(draft['steps'], f'ai_steps_{pid}_{rid}_{revision}_{index}')
                 selector_check_view(
                     project, draft, steps, f'{pid}_{rid}_{revision}_{index}', (context_info or {}).get('paths', ())
                 )
                 approved = st.checkbox(
-                    '실행 단계와 선택자를 확인했습니다', key=f'ai_approved_{pid}_{rid}_{revision}_{index}'
+                    '목록 추가 대상 포함 · 실행 단계와 선택자를 확인했습니다',
+                    key=f'ai_approved_{pid}_{rid}_{revision}_{index}',
+                    disabled=saved,
                 )
-                saved = bool(draft.get('_saved_case_id'))
+                if approved and not saved:
+                    chosen.append((draft, steps))
+        if drafts:
+            with st.container(key='adder_footer', horizontal=True, vertical_alignment='center'):
+                st.markdown(
+                    f'<div class="adder-count">선택된 AI 테스트 <b>{len(chosen)}</b>개'
+                    '<small>추가하면 이 요구사항의 테스트 목록에 승인된 상태로 등록됩니다.</small></div>',
+                    unsafe_allow_html=True,
+                )
+                if st.button('취소', key=f'adder_cancel_{pid}_{rid}'):
+                    close_case_adder()
+                    st.rerun()
                 if st.button(
-                    '등록 완료' if saved else '프로젝트에 추가',
-                    key=f'ai_save_{pid}_{rid}_{revision}_{index}',
-                    disabled=saved or not approved,
+                    '＋ 테스트 목록에 추가하기', key=f'adder_save_{pid}_{rid}', type='primary', disabled=not chosen
                 ):
-                    try:
-                        draft['_saved_case_id'] = save_case(pid, rid, dict(draft, steps=steps), reviewed=True)
+                    added, problems = 0, []
+                    for draft, steps in chosen:
+                        try:
+                            draft['_saved_case_id'] = save_case(pid, rid, dict(draft, steps=steps), reviewed=True)
+                            added += 1
+                        except ValueError as error:
+                            problems.append(f'{draft["description"]}: {error}')
+                    if problems:
+                        st.error(' / '.join(problems))
+                    else:
                         st.session_state[f'tests_added_{pid}'] = (
-                            'AI 테스트를 추가했습니다. 등록된 테스트에서 확인하세요.'
+                            f'AI 테스트 {added}개를 추가했습니다. 등록된 테스트에서 확인하세요.'
                         )
                         close_case_adder()
                         st.rerun()
-                    except ValueError as error:
-                        st.error(str(error))
 
 
 def execution_page(project):
@@ -811,6 +1325,9 @@ def execution_page(project):
         st.subheader('실행')
         st.metric('선택한 테스트', len(selected))
         st.caption(project['target_url'])
+        notice = st.session_state.pop(f'run_notice_{pid}', None)
+        if notice:
+            st.warning(notice)
         running = background.active_job(pid)
         if st.button('▶ 테스트 실행', type='primary', width='stretch', disabled=not selected or bool(running)):
             try:

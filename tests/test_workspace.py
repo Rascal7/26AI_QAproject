@@ -54,22 +54,33 @@ def test_home_limits_and_more_navigation(populated):
     app = AppTest.from_string(
         """
 import streamlit as st
-from qa_system.project_ui import dashboard, workspace_history
+from qa_system.project_ui import dashboard, project_collection, workspace_history
 if st.session_state.get('workspace_view')=='실행 기록':
     workspace_history()
+elif st.session_state.get('workspace_view')=='프로젝트':
+    project_collection()
 else:
-    dashboard(collection=st.session_state.get('workspace_view')=='프로젝트')
+    dashboard()
 """,
         default_timeout=15,
     ).run()
+
+    def opened():
+        return [b.key for b in app.button if (b.key or '').startswith('open_')]
+
     assert not app.exception
-    assert len([b for b in app.button if (b.key or '').startswith('open_')]) == 4
+    assert len(opened()) == 4
     assert len([b for b in app.button if (b.key or '').startswith('recent_')]) == 5
     app.button(key='more_projects').click().run()
     assert not app.exception
-    assert len([b for b in app.button if (b.key or '').startswith('open_')]) == 7
-    app.multiselect[0].select('DB').run()
-    assert len([b for b in app.button if (b.key or '').startswith('open_')]) == 1
+    # 7 projects (6 + the login demo), 6 per page as in the design
+    assert len(opened()) == 6
+    app.button(key='projects_next').click().run()
+    assert len(opened()) == 1
+    app.selectbox(key='project_sort').set_value('이름순').run()
+    assert opened() == [f'open_{pid}' for pid in populated]  # back on page 1, "Project 0".."Project 5"
+    app.pills(key='project_tags').set_value(['DB']).run()
+    assert opened() == [f'open_{populated[0]}']
     app.session_state.workspace_view = '홈'
     app.run()
     app.button(key='more_runs').click().run()

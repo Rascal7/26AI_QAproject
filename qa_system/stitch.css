@@ -108,3 +108,91 @@ h1{font-size:26px!important;line-height:1.25!important}
 @media(min-width:1000px){[data-testid="stSidebar"]{width:256px!important;max-width:256px!important}}
 @media(max-width:1000px){.st-key-pilot_topbar .st-key-top_search{display:none}.block-container{padding-left:16px;padding-right:16px}}
 @media(max-width:700px){.block-container{padding-top:76px}.st-key-pilot_topbar{padding:0 8px 0 43px!important;gap:2px!important;overflow-x:auto}.pilot-brand{font-size:13px;margin-right:1px}.pilot-brand b{display:none}.st-key-pilot_topbar .stButton button{padding:3px 5px;min-height:28px}.st-key-pilot_topbar .stButton p{font-size:11px}.st-key-top_new{display:none}[data-testid="stExpandSidebarButton"]{position:fixed;top:13px;left:7px;z-index:1004}.st-key-run_table{background:#fff}.st-key-project_nav{flex-wrap:wrap!important}}
+
+/* 2026-11-17: closer to the five Stitch screens (user zip) — sections, project list cards, run table, project header and summary, AI preview. */
+.pilot-eyebrow,.pilot-crumb{font-size:11px;letter-spacing:.06em;color:#64748b;text-transform:uppercase;margin-bottom:2px}
+.pilot-eyebrow i,.pilot-crumb i{font-style:normal;color:#94a3b8;margin:0 6px}.pilot-eyebrow b,.pilot-crumb b{color:#0051d5;font-weight:600;text-transform:none;letter-spacing:0}
+.pilot-crumb{text-transform:none;letter-spacing:0;font-size:12px}
+.pilot-section{display:flex;align-items:center;gap:8px}.pilot-section strong{font-size:19px;font-weight:650;letter-spacing:-.02em;color:#0b1c30}
+.pilot-section em{font-style:normal;font-size:11px;font-weight:600;background:#eff4ff;color:#3f465c;border-radius:4px;padding:2px 7px;white-space:nowrap}
+[class*="st-key-more_"] button p{font-size:12px;color:#0051d5}
+.pilot-metrics.cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.pilot-metrics article.alert strong{color:#ba1a1a}.pilot-metrics article.alert header span{background:#ffdad6;color:#ba1a1a}
+.pilot-metrics strong small,.ps-grid b small{font-size:13px;font-weight:500;color:#64748b;margin-left:3px}
+.project-url svg,.pc-url svg,.pilot-link svg{width:13px;height:13px;vertical-align:-2px;margin-right:4px;flex:none}
+.pilot-pass.fail span:first-child,.pilot-pass.fail b{color:#ba1a1a}
+.pilot-stat{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#eff4ff;border:1px solid #e5eeff;border-radius:8px;padding:10px 14px}
+.pilot-stat small{display:block;font-size:11px;color:#64748b}.pilot-stat b{font-size:15px;color:#0b1c30}.pilot-stat span{color:#0051d5}
+.st-key-project_toolbar,.st-key-history_filters,.st-key-history_header{background:#fff;border-radius:8px}
+.st-key-project_toolbar [data-testid="stPills"] button,.st-key-history_filters [data-testid="stButtonGroup"] button{border-radius:4px;font-size:12px}
+/* project list cards */
+.pc-head{display:flex;align-items:flex-start;gap:10px;min-height:52px}
+.pc-icon{display:grid;place-items:center;flex:none;width:32px;height:32px;border-radius:6px;background:#eff4ff;color:#0051d5}
+.pc-title{flex:1;min-width:0}.pc-title strong{display:block;font-size:15px;font-weight:650;color:#0b1c30;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+[class*="st-key-project_tile_"]{background:#fff;border:1px solid #e9eef6!important;border-radius:8px!important;padding:16px!important}
+[class*="st-key-project_tile_"]:hover{border-color:#b6c9ee!important}[class*="st-key-project_tile_"] [data-testid="stVerticalBlock"]{gap:6px}
+[class*="st-key-project_tile_"] button{border-radius:4px;font-size:12px;min-height:32px}[class*="st-key-project_tile_"] button p{font-size:12px}
+.pc-title p{margin:2px 0 0;font-size:11px;color:#64748b;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.pc-url{display:flex;align-items:center;gap:4px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 10px;margin:10px 0 8px;color:#64748b}
+.pc-url code{flex:1;min-width:0;background:none;color:#45464d;font:11px/1.4 "JetBrains Mono",Consolas,monospace;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;padding:0}
+.pc-url a{display:inline-flex;color:#64748b;padding:2px;border-radius:4px}.pc-url a:hover{background:#e5eeff;color:#0051d5}
+.pc-metrics{background:#f8fafc;border:1px solid #e9eef6;border-radius:6px;padding:10px 12px;margin-top:10px}
+.pc-metrics header{position:static;height:auto;background:none;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#45464d}
+.pc-metrics header b{font-size:11px;font-weight:650;font-variant-numeric:tabular-nums;color:#64748b}
+.tone-pass{color:#059669!important}.tone-fail,.tone-error{color:#ba1a1a!important}.tone-running{color:#0051d5!important}
+.pc-metrics dl{display:grid;grid-template-columns:repeat(3,1fr);margin:8px 0 0;text-align:center}
+.pc-metrics dt{font-size:10px;color:#64748b}.pc-metrics dd{margin:2px 0 0;font-size:14px;font-weight:650;color:#0b1c30;font-variant-numeric:tabular-nums}
+/* run table */
+.st-key-run_table [class*="st-key-run_row_fail_"],.st-key-run_table [class*="st-key-run_row_error_"]{background:#fff8f8}
+.st-key-run_table [class*="st-key-run_row_fail_"] [class*="st-key-recent_"] button,.st-key-run_table [class*="st-key-run_row_error_"] [class*="st-key-recent_"] button{background:#fff1f2;color:#ba1a1a;border-color:#fecdd3}
+.qa-run-id{font:12px "JetBrains Mono",Consolas,monospace;color:#0051d5}
+.run-stat{font-size:12px;font-weight:600;line-height:1.6;font-variant-numeric:tabular-nums;color:#45464d}
+.st-key-run_table .pilot-track{height:4px;margin:3px 0 0;max-width:150px}
+/* pagers */
+[class*="_pager"]{justify-content:flex-end;margin-top:10px}[class*="_pager"] .pilot-pager-text{margin-right:auto;font-size:12px;color:#64748b}
+[class*="_pager"] .pilot-pager-text b{color:#0b1c30}[class*="_pager"] button{min-height:30px;min-width:32px;padding:2px 8px}
+[class*="_pager"] [data-testid="stSelectbox"]{width:140px}
+/* project header and tabs */
+.pilot-title{display:flex;align-items:center;flex-wrap:wrap;gap:10px}.pilot-title h1{margin:0!important;padding:4px 0!important}
+.pilot-link{display:inline-flex;align-items:center;font:12px "JetBrains Mono",Consolas,monospace;color:#0051d5;text-decoration:none;margin-top:4px;overflow-wrap:anywhere}
+.st-key-project_actions{gap:8px!important;flex-wrap:wrap!important}.st-key-project_actions button{min-height:34px;border-radius:4px}
+.st-key-project_nav{gap:4px!important;margin:6px 0 14px;padding:0 4px!important}
+.st-key-project_nav button{border-radius:0!important;border:0!important;border-bottom:2px solid transparent!important;background:transparent!important;color:#64748b!important;min-height:38px}
+.st-key-project_nav button[kind=primary]{border-bottom-color:#0f172a!important;color:#0b1c30!important;font-weight:650}
+/* requirements */
+.pilot-policy.rule b{color:#0051d5}.pilot-policy.exception{background:#fff8f8;border-color:#ffe4e6}.pilot-policy.exception b{color:#ba1a1a}
+.rg-head{display:flex;gap:12px;align-items:flex-start}.rg-num{display:grid;place-items:center;flex:none;width:30px;height:30px;border-radius:5px;background:#0051d5;color:#fff;font:600 12px "JetBrains Mono",Consolas,monospace}
+.rg-title{font-size:15px;font-weight:650;color:#0b1c30;display:flex;flex-wrap:wrap;align-items:center;gap:6px}.rg-desc{margin-top:3px;font-size:12px;color:#64748b}
+.rg-badge{font-size:11px;font-weight:600;border-radius:4px;padding:1px 7px;background:#eff4ff;color:#3f465c}
+.rg-badge.pass{background:#ecfdf5;color:#059669}.rg-badge.fail{background:#fff1f2;color:#ba1a1a}.rg-badge.idle{background:#f1f5f9;color:#64748b}
+.rg-table{width:100%;border-collapse:collapse;margin:12px 0 4px;font-size:12px}
+.rg-table th{background:#f8fafc;color:#64748b;font-weight:500;text-align:left;padding:7px 8px;border-bottom:1px solid #e2e8f0}
+.rg-table td{padding:8px;border-bottom:1px solid #eef2f7;vertical-align:top}.rg-table tr.fail td{background:#fff8f8}
+.rg-table td b{display:block;font-weight:600;color:#0b1c30}.rg-table td small{color:#64748b}.rg-table code{font-size:11px;color:#45464d;background:none}
+[class*="st-key-add_to_"] button{border:1px dashed #c6c6cd;background:#f8fafc;color:#0051d5;font-size:12px}
+/* project summary */
+.ps-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 12px}
+.ps-grid div{background:#f8fafc;border:1px solid #e9eef6;border-radius:6px;padding:10px}
+.ps-grid span{display:block;font-size:11px;color:#64748b}.ps-grid b{display:block;font-size:22px;font-weight:650;margin:2px 0;color:#0b1c30}.ps-grid div>small{font-size:10px;color:#64748b}
+.ps-dist header,.ps-run header{position:static;height:auto;background:none;display:flex;justify-content:space-between;font-size:11px;color:#45464d}
+.ps-dist header b{font:600 11px "JetBrains Mono",Consolas,monospace}
+.ps-bar{display:flex;height:7px;border-radius:4px;overflow:hidden;background:#e3eafa;margin:6px 0}.ps-bar i{display:block;height:100%}
+.ps-bar .pass{background:#059669}.ps-bar .fail{background:#e11d48}.ps-bar .error{background:#d97706}
+.ps-legend{display:flex;gap:10px;font-size:10px}.ps-legend .pass{color:#059669}.ps-legend .fail{color:#e11d48}.ps-legend .error{color:#d97706}
+.ps-run{background:#f8fafc;border:1px solid #e9eef6;border-radius:6px;padding:10px;margin:12px 0 8px}
+.ps-run>b{display:block;font:600 13px "JetBrains Mono",Consolas,monospace;margin:4px 0}
+.ps-run div{display:flex;gap:10px;font-size:11px;color:#45464d}.ps-run .pass{color:#059669}.ps-run .fail{color:#e11d48}
+/* AI test dialog */
+.ai-preview-label{font-size:12px;color:#45464d;margin:10px 0 4px}
+.ai-draft-head{display:flex;align-items:flex-start;gap:8px}.ai-draft-head strong{flex:1;font-size:15px;font-weight:650;color:#0b1c30;line-height:1.4}
+.ai-draft-head code{font:600 11px "JetBrains Mono",Consolas,monospace;background:#eff4ff;color:#0051d5;border-radius:4px;padding:2px 5px}
+.ai-draft-head span{font-size:11px;border-radius:9999px;padding:2px 8px;white-space:nowrap}.ai-draft-head .ready{background:#e5eeff;color:#0051d5}.ai-draft-head .saved{background:#ecfdf5;color:#059669}
+.ai-draft-expected{font-size:12px;color:#45464d;margin:6px 0}
+.ai-steps{background:#f8fafc;border:1px solid #e9eef6;border-radius:6px;padding:8px 10px;font-size:12px}
+.ai-steps b{font-size:11px;color:#45464d}.ai-steps ol{margin:4px 0 0;padding-left:20px}.ai-steps li{margin:2px 0}
+.ai-steps code{font-size:11px;color:#0051d5;background:none}.ai-steps span{color:#45464d}
+.st-key-adder_footer{background:#eff4ff;border:1px solid #dbe5f6;border-radius:8px;padding:10px 12px!important;margin-top:10px;gap:8px!important}
+.adder-count{margin-right:auto;font-size:14px;color:#0b1c30}.adder-count b{color:#0051d5;font-size:16px}.adder-count small{display:block;font-size:11px;color:#64748b}
+@media(max-width:900px){.pilot-metrics.cols-4{grid-template-columns:repeat(2,minmax(0,1fr))}.ps-grid b{font-size:18px}}
+@media(max-width:640px){.pilot-metrics.cols-4{grid-template-columns:1fr}.rg-table th:nth-child(3),.rg-table td:nth-child(3),.rg-table th:nth-child(4),.rg-table td:nth-child(4){display:none}.st-key-run_table .pilot-track{max-width:none}}
+.project-heading strong{font-size:15px;font-weight:650;color:#0b1c30;line-height:1.35;overflow-wrap:anywhere}

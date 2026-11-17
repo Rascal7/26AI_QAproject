@@ -195,7 +195,7 @@ def test_dialog_checks_generated_selectors_on_the_page(tmp_path, monkeypatch):
         patch('qa_system.project_ui.generate_project_cases', return_value=[dict(DRAFT)]) as generate,
         patch('qa_system.project_ui.check_selectors', return_value=checked) as check,
     ):
-        next(b for b in app.button if b.label == '✦ 테스트 생성').click().run()
+        next(b for b in app.button if b.label == '✦ AI 테스트 생성').click().run()
     assert not app.exception
     assert generate.call_args.args[3] is context
     hints = read.call_args.args[1]
@@ -211,7 +211,7 @@ def test_dialog_falls_back_when_page_cannot_be_read(tmp_path, monkeypatch):
         patch('qa_system.project_ui.capture', side_effect=PageContextError('페이지에 접속할 수 없습니다')),
         patch('qa_system.project_ui.generate_project_cases', return_value=[dict(DRAFT)]) as generate,
     ):
-        next(b for b in app.button if b.label == '✦ 테스트 생성').click().run()
+        next(b for b in app.button if b.label == '✦ AI 테스트 생성').click().run()
     assert not app.exception
     assert generate.call_args.args[3] is None
     assert any('페이지 구조 없이 생성했습니다' in w.value for w in app.warning)
