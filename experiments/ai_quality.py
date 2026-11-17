@@ -20,13 +20,15 @@ import json
 import os
 import platform
 import tempfile
+import uuid
 import threading
 import time
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-WORK = Path(tempfile.mkdtemp(prefix='ai-quality-'))
+# Folder name only; it is created when the script runs, so importing this module leaves nothing behind.
+WORK = Path(tempfile.gettempdir()) / f'ai-quality-{uuid.uuid4().hex[:8]}'
 os.environ['QA_DB_PATH'] = str(WORK / 'qa.db')
 
 from dotenv import load_dotenv  # noqa: E402
@@ -44,12 +46,20 @@ os.environ['QA_TEST_WRONG_PASSWORD'] = WRONG_PASSWORD
 
 from qa_system import failure_analysis, storage  # noqa: E402
 from qa_system.ai import generate_project_cases  # noqa: E402
-from qa_system.page_context import PageContextError, capture, check_selectors, step_selectors, summarize_check  # noqa: E402
+from qa_system.page_context import (  # noqa: E402
+    PageContextError,
+    capture,
+    check_selectors,
+    readable_paths,
+    step_selectors,
+    summarize_check,
+)
 from qa_system.projects import create_project, get_project, requirements, save_case, save_requirement  # noqa: E402
 from qa_system.runner import run_suite  # noqa: E402
 
-CONDITIONS = ('without', 'with')
-CONDITION_LABELS = {'without': '페이지 구조 없음', 'with': '페이지 구조 전달'}
+CONDITIONS = ('without', 'with', 'with_pages')
+CONDITION_LABELS = {'without': '구조 없음', 'with': '시작 페이지 구조', 'with_pages': '시작+이동 후 페이지 구조'}
+LEGACY_CONDITIONS = ['without', 'with']  # results saved before the multi-page condition existed
 SECRETS_NOTE = ' 비밀번호 입력에는 ${QA_TEST_PASSWORD}, 틀린 비밀번호나 다른 비밀번호가 필요하면 ${QA_TEST_WRONG_PASSWORD}를 사용한다.'
 
 TARGETS = {
@@ -161,30 +171,60 @@ def serve(app):
     return server, f'http://127.0.0.1:{server.server_port}'
 
 
-def generate(target, scenarios, reps, records, contexts):
-    """Generate under both conditions, then check selectors and save each test unchanged."""
+TRANSIENT_ERRORS = {'APIConnectionError', 'APITimeoutError', 'RateLimitError', 'InternalServerError'}
+
+
+def generate_with_retry(project, requirement, prompt, context, attempts=3):
+    """Retry temporary API failures so a short outage does not erase whole scenarios from the comparison.
+
+    Returns (drafts, seconds of the successful call, attempts used). Other errors are raised at once.
+    """
+    for attempt in range(1, attempts + 1):
+        started = time.perf_counter()
+        try:
+            drafts = generate_project_cases(project, requirement, prompt, context)
+            return drafts, round(time.perf_counter() - started, 2), attempt
+        except Exception as error:
+            if type(error).__name__ not in TRANSIENT_ERRORS or attempt == attempts:
+                raise
+            print(f'  retry after {type(error).__name__} ({attempt}/{attempts})', flush=True)
+            time.sleep(15 * attempt)
+
+
+def generate(target, scenarios, reps, records, contexts, conditions):
+    """Generate under each condition, then check selectors and save each test unchanged.
+
+    Selectors of every condition are checked on the same pages (start page + other pages read for the
+    scenario), so the measurement does not depend on what the AI was shown.
+    """
     pid = create_project(target['name'], target['url'], target['overview'], target['exceptions'])
     started = time.perf_counter()
-    contexts[target['key']] = capture(target['url'])
+    contexts[target['key']] = capture(target['url'], follow=False)
     contexts[target['key'] + '_seconds'] = round(time.perf_counter() - started, 2)
     for scenario_id, title, spec, prompt in scenarios:
         rid = save_requirement(pid, title, spec)
         requirement = next(r for r in requirements(pid) if r['id'] == rid)
-        for condition in CONDITIONS:
+        # Same hints as the app: project text, requirement text and the request.
+        full = capture(target['url'], [target['overview'], target['exceptions'], spec, prompt])
+        contexts[f'{target["key"]}/{scenario_id}'] = full
+        paths = readable_paths(full)
+        shown = {'without': None, 'with': contexts[target['key']], 'with_pages': full}
+        for condition in conditions:
             for rep in range(reps):
                 base = dict(target=target['key'], scenario=scenario_id, condition=condition, rep=rep)
-                started = time.perf_counter()
                 try:
-                    drafts = generate_project_cases(
-                        get_project(pid), requirement, prompt, contexts[target['key']] if condition == 'with' else None
+                    drafts, seconds, attempts = generate_with_retry(
+                        get_project(pid), requirement, prompt, shown[condition]
                     )
                 except Exception as error:
                     records.append(dict(base, index=0, generation_error=type(error).__name__))
                     print('  generation error', base, type(error).__name__, flush=True)
                     continue
-                seconds = round(time.perf_counter() - started, 2)
+                base['attempts'] = attempts
                 try:
-                    counts = check_selectors(target['url'], [s for d in drafts for s in step_selectors(d['steps'])])
+                    counts = check_selectors(
+                        target['url'], [s for d in drafts for s in step_selectors(d['steps'])], paths
+                    )
                 except PageContextError as error:
                     counts, check_error = None, str(error)
                 else:
@@ -214,9 +254,9 @@ def generate(target, scenarios, reps, records, contexts):
     return pid
 
 
-def execute(pid, target_key, records, runs):
+def execute(pid, target_key, records, runs, conditions):
     """Run every saved test of a target unchanged, one run per condition."""
-    for condition in CONDITIONS:
+    for condition in conditions:
         chosen = [r for r in records if r['target'] == target_key and r['condition'] == condition and r.get('case_id')]
         if not chosen:
             continue
@@ -277,10 +317,13 @@ def summarize(rows):
         format_ok=sum(bool(r.get('format_ok')) for r in generated),
         selectors=total,
         selectors_unique=sum(c['unique'] for c in checks),
+        selectors_elsewhere=sum(len(c.get('elsewhere', {})) for c in checks),
         selectors_missing=sum(len(c['missing']) for c in checks),
         selectors_multiple=sum(len(c['multiple']) for c in checks),
         selectors_invalid=sum(len(c['invalid']) for c in checks),
-        tests_all_selectors_unique=sum(bool(c['total']) and c['unique'] == c['total'] for c in checks),
+        tests_all_selectors_unique=sum(
+            bool(c['total']) and c['unique'] + len(c.get('elsewhere', {})) == c['total'] for c in checks
+        ),
         passed=sum(r.get('outcome') == 'PASS' for r in generated),
         failed=sum(r.get('outcome') == 'FAIL' for r in generated),
         errors=sum(r.get('outcome') == 'ERROR' for r in generated),
@@ -290,49 +333,73 @@ def summarize(rows):
     )
 
 
+def other_pages_note(contexts, target):
+    """Which other pages the multi-page condition could read for this target."""
+    seen = {}
+    for key, context in contexts.items():
+        if key.startswith(target + '/'):
+            for page in context.get('other_pages', []):
+                if page.get('elements') is not None:
+                    seen[page['path']] = page['path']
+                elif page.get('redirected_to'):
+                    seen.setdefault(page['path'], f'{page["path"]}(접근 제한 → {page["redirected_to"]})')
+    return f' · 이동 후 페이지: {", ".join(seen.values())}' if seen else ''
+
+
 def report(meta, records, contexts):
+    conditions = meta.get('conditions', LEGACY_CONDITIONS)
     lines = [
         '# AI 테스트 생성 품질 측정 — 페이지 구조 전달 효과',
         '',
         f'- 실행: {meta["started"]} (한국 시간) · 모델: `{meta["model"]}` · 반복: {meta["reps"]}회 · 브라우저: {meta["browser"]}',
         f'- 대상: {", ".join(TARGETS[t]["name"] for t in meta["targets"])} · 시나리오: 대상별 {meta["scenarios_per_target"]}개',
-        '- 조건: 같은 요구사항·요청 문장을 **페이지 구조 없음** / **페이지 구조 전달** 두 조건으로 AI에 보냄. 요청 문장에는 선택자를 넣지 않음.',
-        '- 판정: 생성된 테스트를 **수정하지 않고** 저장(형식 검사) → 시작 페이지에서 선택자 확인 → QA 실행기로 실제 실행.',
+        '- 조건: 같은 요구사항·요청 문장을 '
+        + ' / '.join(f'**{CONDITION_LABELS[c]}**' for c in conditions)
+        + ' 조건으로 AI에 보냄. 요청 문장에는 선택자를 넣지 않음.',
+        '- 판정: 생성된 테스트를 **수정하지 않고** 저장(형식 검사) → 읽은 페이지에서 선택자 확인 → QA 실행기로 실제 실행.',
         '',
         '## 전체 결과',
         '',
-        '| 지표 | ' + ' | '.join(CONDITION_LABELS[c] for c in CONDITIONS) + ' |',
-        '|---|' + '---|' * len(CONDITIONS),
+        '| 지표 | ' + ' | '.join(CONDITION_LABELS[c] for c in conditions) + ' |',
+        '|---|' + '---|' * len(conditions),
     ]
-    overall = {c: summarize([r for r in records if r['condition'] == c]) for c in CONDITIONS}
+    overall = {c: summarize([r for r in records if r['condition'] == c]) for c in conditions}
     rows = [
         ('생성된 테스트', lambda s: str(s['generated'])),
         ('형식 검사 통과', lambda s: ratio(s['format_ok'], s['generated'])),
         ('시작 페이지에서 정확히 1개와 일치한 선택자', lambda s: ratio(s['selectors_unique'], s['selectors'])),
-        ('시작 페이지에 없는 선택자', lambda s: ratio(s['selectors_missing'], s['selectors'])),
+        (
+            '이동 후 페이지에서 정확히 1개와 일치한 선택자',
+            lambda s: ratio(s.get('selectors_elsewhere', 0), s['selectors']),
+        ),
+        ('읽은 페이지 어디에도 없는 선택자', lambda s: ratio(s['selectors_missing'], s['selectors'])),
         ('여러 요소와 일치한 선택자', lambda s: ratio(s['selectors_multiple'], s['selectors'])),
         ('선택자 문법 오류', lambda s: ratio(s['selectors_invalid'], s['selectors'])),
-        ('모든 선택자가 정확히 일치한 테스트', lambda s: ratio(s['tests_all_selectors_unique'], s['generated'])),
+        (
+            '모든 선택자가 읽은 페이지에서 정확히 일치한 테스트',
+            lambda s: ratio(s['tests_all_selectors_unique'], s['generated']),
+        ),
         ('**수정 없이 실행해 PASS**', lambda s: ratio(s['passed'], s['generated'])),
         ('FAIL (기대와 다른 동작·잘못된 단계)', lambda s: ratio(s['failed'], s['generated'])),
         ('ERROR (실행 불가)', lambda s: ratio(s['errors'], s['generated'])),
         ('평균 생성 시간(초)', lambda s: str(s['mean_generation_seconds'])),
         ('AI 호출 실패', lambda s: str(s['generation_errors'])),
     ]
-    lines += [f'| {label} | ' + ' | '.join(fn(overall[c]) for c in CONDITIONS) + ' |' for label, fn in rows]
+    lines += [f'| {label} | ' + ' | '.join(fn(overall[c]) for c in conditions) + ' |' for label, fn in rows]
     for target in meta['targets']:
         lines += [
             '',
             f'## {TARGETS[target]["name"]}',
             '',
-            f'페이지 구조: 요소 {len(contexts[target]["elements"])}개, 읽기 {meta.get("capture_seconds", {}).get(target, "—")}초',
+            f'페이지 구조: 요소 {len(contexts[target]["elements"])}개, 읽기 {meta.get("capture_seconds", {}).get(target, "—")}초'
+            + other_pages_note(contexts, target),
             '',
             '| 시나리오 | '
-            + ' | '.join(f'{CONDITION_LABELS[c]} PASS' for c in CONDITIONS)
+            + ' | '.join(f'{CONDITION_LABELS[c]} PASS' for c in conditions)
             + ' | '
-            + ' | '.join(f'{CONDITION_LABELS[c]} 선택자 일치' for c in CONDITIONS)
+            + ' | '.join(f'{CONDITION_LABELS[c]} 선택자 일치' for c in conditions)
             + ' |',
-            '|---|' + '---|' * (2 * len(CONDITIONS)),
+            '|---|' + '---|' * (2 * len(conditions)),
         ]
         for scenario_id, title, _, _ in TARGETS[target]['scenarios'][: meta['scenarios_per_target']]:
             cells = {
@@ -343,13 +410,16 @@ def report(meta, records, contexts):
                         if r['target'] == target and r['scenario'] == scenario_id and r['condition'] == c
                     ]
                 )
-                for c in CONDITIONS
+                for c in conditions
             }
             lines.append(
                 f'| {title} | '
-                + ' | '.join(ratio(cells[c]['passed'], cells[c]['generated']) for c in CONDITIONS)
+                + ' | '.join(ratio(cells[c]['passed'], cells[c]['generated']) for c in conditions)
                 + ' | '
-                + ' | '.join(ratio(cells[c]['selectors_unique'], cells[c]['selectors']) for c in CONDITIONS)
+                + ' | '.join(
+                    ratio(cells[c]['selectors_unique'] + cells[c]['selectors_elsewhere'], cells[c]['selectors'])
+                    for c in conditions
+                )
                 + ' |'
             )
     triaged = [r for r in records if r.get('outcome') == 'FAIL']
@@ -360,13 +430,13 @@ def report(meta, records, contexts):
             '',
             '대상 페이지는 정상이므로 모든 FAIL의 정답은 **테스트 정의 문제**입니다. 제품 결함으로 분류하면 오판입니다.',
             '',
-            '| 분류 | ' + ' | '.join(CONDITION_LABELS[c] for c in CONDITIONS) + ' | 합계 |',
-            '|---|' + '---|' * (len(CONDITIONS) + 1),
+            '| 분류 | ' + ' | '.join(CONDITION_LABELS[c] for c in conditions) + ' | 합계 |',
+            '|---|' + '---|' * (len(conditions) + 1),
         ]
         for cause, label in [*failure_analysis.CAUSE_LABELS.items(), (None, '분석 실패')]:
             counts = [
                 sum((r.get('triage') or {}).get('likely_cause') == cause for r in triaged if r['condition'] == c)
-                for c in CONDITIONS
+                for c in conditions
             ]
             lines.append(f'| {label} | ' + ' | '.join(map(str, counts)) + f' | {sum(counts)} |')
         correct = sum((r.get('triage') or {}).get('likely_cause') == 'test_definition' for r in triaged)
@@ -392,7 +462,9 @@ def report(meta, records, contexts):
         '## 해석 시 주의',
         '',
         '- 대상 페이지는 정상 동작하도록 만든 페이지입니다. 여기서 FAIL은 제품 결함이 아니라 **AI가 만든 테스트가 틀렸다**는 뜻입니다(잘못된 선택자, 단계 누락, 기대 문구 오류 등).',
-        '- 선택자 일치는 **시작 페이지** 기준입니다. 페이지 이동 뒤에 나타나는 요소(예: 로그인 후 제목)는 정상이어도 "없음"으로 집계됩니다. 두 조건에 같은 기준을 적용합니다.',
+        '- 선택자 일치는 시작 페이지와 조회로 읽을 수 있었던 이동 후 페이지 **중 어딘가에서** 정확히 1개와 일치하는지입니다. '
+        '그 단계가 실행되는 페이지에 있는지는 알 수 없어(예: 시작 페이지의 h2를 이동 후 확인에 쓰는 경우) PASS/FAIL로 판단합니다. '
+        '로그인이 필요한 페이지처럼 조회로 읽지 못한 페이지의 요소는 정상이어도 "없음"으로 집계됩니다. 모든 조건에 같은 페이지 집합을 적용합니다.',
         '- 회원가입 페이지는 이 실험용으로 만든 페이지로, `data-testid`가 없고 id·name이 관례와 다릅니다. 선택자를 짐작하기 어려운 실제 사이트를 흉내 냅니다.',
         '- 요청마다 AI가 테스트를 여러 개 돌려줄 수 있어 생성 수가 요청 수보다 많을 수 있습니다.',
         '- 기획서의 "유효 TC 비율"(요구사항에 맞는 의미 있는 테스트인지)은 사람이 판단해야 합니다. 같은 폴더의 CSV `수동 판정` 열에 유효/중복/오류를 기록하세요.',
@@ -407,6 +479,7 @@ def main():
     parser.add_argument('--limit', type=int, default=None, help='대상별 시나리오 수 제한(시범 실행용)')
     parser.add_argument('--targets', nargs='+', choices=list(TARGETS), default=list(TARGETS))
     parser.add_argument('--out', default=str(ROOT / 'experiments/results'))
+    parser.add_argument('--conditions', nargs='+', choices=CONDITIONS, default=list(CONDITIONS))
     parser.add_argument('--no-triage', action='store_true', help='FAIL의 AI 원인 분석을 건너뜁니다.')
     parser.add_argument('--triage-from', help='이미 끝난 실험 결과(.json)에 원인 분석만 추가합니다. --db 필요.')
     parser.add_argument('--db', help='--triage-from 실험이 사용한 임시 QA DB 경로')
@@ -424,6 +497,7 @@ def main():
         triage(data['records'], data['meta']['runs'], force=args.retriage)
         write_outputs(Path(args.triage_from).with_suffix(''), data['meta'], data['records'], data['page_contexts'])
         return
+    WORK.mkdir(parents=True, exist_ok=True)
     storage.initialize()
     started = datetime.now(timezone(timedelta(hours=9)))
     seed(WORK / 'demo.db')
@@ -435,12 +509,12 @@ def main():
             target = dict(TARGETS[key], key=key, url=servers[key][1] + TARGETS[key]['path'])
             scenarios = target['scenarios'][: args.limit]
             print(
-                f'[{key}] generating: {len(scenarios)} scenarios x {len(CONDITIONS)} conditions x {args.reps} reps',
+                f'[{key}] generating: {len(scenarios)} scenarios x {len(args.conditions)} conditions x {args.reps} reps',
                 flush=True,
             )
-            pid = generate(target, scenarios, args.reps, records, contexts)
+            pid = generate(target, scenarios, args.reps, records, contexts, args.conditions)
             print(f'[{key}] executing generated tests', flush=True)
-            execute(pid, key, records, runs)
+            execute(pid, key, records, runs, args.conditions)
         if not args.no_triage:
             print('triaging failures', flush=True)
             triage(records, runs)
@@ -451,6 +525,7 @@ def main():
         started=started.strftime('%Y-%m-%d %H:%M'),
         model=os.getenv('OPENAI_MODEL', 'gpt-4.1-mini'),
         reps=args.reps,
+        conditions=args.conditions,
         targets=args.targets,
         scenarios_per_target=args.limit or 5,
         browser=os.getenv('QA_BROWSER_CHANNEL') or 'Playwright Chromium',
@@ -465,7 +540,9 @@ def main():
 
 
 def write_outputs(stem, meta, records, contexts):
-    summary = {c: summarize([r for r in records if r['condition'] == c]) for c in CONDITIONS}
+    summary = {
+        c: summarize([r for r in records if r['condition'] == c]) for c in meta.get('conditions', LEGACY_CONDITIONS)
+    }
     stem.with_suffix('.json').write_text(
         json.dumps(
             dict(meta=meta, summary=summary, records=records, page_contexts=contexts), ensure_ascii=False, indent=2

@@ -14,13 +14,15 @@ import socket
 import subprocess
 import sys
 import tempfile
+import uuid
 import threading
 import time
 import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-WORK = Path(tempfile.mkdtemp(prefix='ui-docs-'))
+# Folder name only; it is created when the script runs, so importing this module leaves nothing behind.
+WORK = Path(tempfile.gettempdir()) / f'ui-docs-{uuid.uuid4().hex[:8]}'
 os.environ['QA_DB_PATH'] = str(WORK / 'qa.db')
 
 from dotenv import load_dotenv  # noqa: E402
@@ -126,6 +128,7 @@ def main():
     for port in (5000, APP_PORT):
         if not port_free(port):
             raise SystemExit(f'포트 {port}가 사용 중입니다. 실행 중인 데모나 QA 앱을 종료한 뒤 다시 실행하세요.')
+    WORK.mkdir(parents=True, exist_ok=True)
     seed(WORK / 'demo.db')
     demo_server = make_server('127.0.0.1', 5000, create_app(WORK / 'demo.db'))
     threading.Thread(target=demo_server.serve_forever, daemon=True).start()

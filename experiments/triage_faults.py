@@ -13,12 +13,14 @@ import argparse
 import json
 import os
 import tempfile
+import uuid
 from collections import Counter
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-WORK = Path(tempfile.mkdtemp(prefix='triage-faults-'))
+# Folder name only; it is created when the script runs, so importing this module leaves nothing behind.
+WORK = Path(tempfile.gettempdir()) / f'triage-faults-{uuid.uuid4().hex[:8]}'
 os.environ['QA_DB_PATH'] = str(WORK / 'qa.db')
 
 from dotenv import load_dotenv  # noqa: E402
@@ -38,6 +40,7 @@ def main():
     args = parser.parse_args()
     if not os.getenv('OPENAI_API_KEY'):
         raise SystemExit('.env에 OPENAI_API_KEY가 필요합니다.')
+    WORK.mkdir(parents=True, exist_ok=True)
     started = datetime.now(timezone(timedelta(hours=9)))
     projects = install()
     rows = []
