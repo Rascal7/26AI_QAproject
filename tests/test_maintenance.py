@@ -145,3 +145,60 @@ def test_missing_browser_is_reported_with_install_command(workspace, monkeypatch
         assert '실행 완료율: 0/1' in report and '유효 테스트 비율' not in report
     finally:
         shutil.rmtree(ROOT / 'artifacts' / run_id, ignore_errors=True)
+
+
+def test_concurrent_first_start_after_upgrade_migrates_once(tmp_path, monkeypatch):
+    """Two browser tabs opening an upgraded app at once must not both try to add the same column."""
+    import threading
+    import time
+    from contextlib import contextmanager
+
+    real_connect = storage.connect
+
+    class SlowSchemaReads:
+        # Widens the gap between "is the column there?" and "add it", where a second request can slip in.
+        def __init__(self, db):
+            self.db = db
+
+        def __getattr__(self, name):
+            return getattr(self.db, name)
+
+        def execute(self, sql, *args):
+            cursor = self.db.execute(sql, *args)
+            if sql.startswith('PRAGMA table_info'):
+                rows = cursor.fetchall()
+                time.sleep(0.05)
+                return rows
+            return cursor
+
+    @contextmanager
+    def slow_connect(path):
+        with real_connect(path) as db:
+            yield SlowSchemaReads(db)
+
+    monkeypatch.setattr(storage, 'connect', slow_connect)
+    path = tmp_path / 'old.db'
+    with sqlite3.connect(path) as db:
+        db.execute('CREATE TABLE projects(id INTEGER PRIMARY KEY, name TEXT NOT NULL, target_url TEXT NOT NULL)')
+        db.execute(
+            'CREATE TABLE bug_reports(id INTEGER PRIMARY KEY, result_id INTEGER, title TEXT, facts TEXT, hypothesis TEXT)'
+        )
+    start, errors = threading.Barrier(8), []
+
+    def first_request():
+        start.wait()
+        try:
+            storage.initialize(path)
+        except Exception as error:
+            errors.append(repr(error))
+
+    threads = [threading.Thread(target=first_request) for _ in range(8)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join(30)
+    assert errors == []
+    with sqlite3.connect(path) as db:
+        columns = [r[1] for r in db.execute('PRAGMA table_info(bug_reports)')]
+        assert columns.count('ai_analysis') == 1
+        assert db.execute("SELECT COUNT(*) FROM app_meta WHERE key='baseline_seeded'").fetchone()[0] == 1

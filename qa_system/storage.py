@@ -37,6 +37,9 @@ def initialize(path=None):
         CREATE TABLE IF NOT EXISTS reports(run_id TEXT PRIMARY KEY REFERENCES test_runs(run_id), markdown TEXT, ai_analysis TEXT);
         CREATE TABLE IF NOT EXISTS app_meta(key TEXT PRIMARY KEY, value TEXT);
         """)
+        # Take the write lock before reading the schema: two first requests after an upgrade (two tabs, a reload)
+        # would otherwise both see a column missing and both try to add it. The second waits, then sees it.
+        db.execute('BEGIN IMMEDIATE')
         # Additive migration preserves every existing execution and its foreign keys.
         additions = {
             'projects': {
@@ -64,7 +67,7 @@ def initialize(path=None):
             db.execute(
                 'UPDATE test_cases SET project_id=(SELECT project_id FROM requirements WHERE requirements.id=test_cases.requirement_id) WHERE project_id IS NULL'
             )
-            db.execute("INSERT INTO app_meta VALUES('baseline_seeded','1')")
+            db.execute("INSERT OR IGNORE INTO app_meta VALUES('baseline_seeded','1')")
     _initialized.add(Path(path).resolve())
 
 
