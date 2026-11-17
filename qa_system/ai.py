@@ -68,8 +68,11 @@ def generate_project_cases(project, requirement, prompt, page_context=None):
         selector_rule = (
             'page_context는 실제 시작 페이지에서 읽은 요소 목록입니다. 시작 페이지의 요소는 elements의 selector 값을 '
             '그대로 복사해 사용하고, unique가 false인 selector는 피하세요. initially_empty 요소는 처음에는 비어 있다가 '
-            '오류·안내 문구가 표시되는 영역입니다. 목록에 없는 요소(다른 페이지로 이동한 뒤 나타나는 요소 등)를 써야 하면 '
-            '어떤 단계의 선택자를 추정했는지 review_notes에 적으세요. '
+            '오류·안내 문구가 표시되는 영역입니다. '
+            'page_context.other_pages는 같은 사이트의 다른 페이지를 읽은 결과입니다. 페이지 이동·제출 뒤의 확인 단계에서는 '
+            '그 path에 해당하는 페이지의 elements selector를 사용하세요. 시작 페이지의 태그 구성(h1/h2 등)이 다른 페이지에도 '
+            '같다고 가정하지 마세요. redirected_to가 있는 페이지는 로그인 등 조건 때문에 직접 볼 수 없었던 페이지입니다. '
+            '어느 목록에도 없는 요소를 써야 하면 어떤 단계의 선택자를 추정했는지 review_notes에 적으세요. '
         )
     else:
         selector_rule = (

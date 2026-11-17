@@ -2,13 +2,13 @@ import json
 import threading
 from unittest.mock import patch
 import pytest
-from flask import Flask
+from flask import Flask, redirect, request
 from streamlit.testing.v1 import AppTest
 from werkzeug.serving import make_server
 from demo_web.app import create_app
 from demo_web.seed import seed
 from qa_system import storage
-from qa_system.page_context import PageContextError, capture, check_selectors, summarize_check
+from qa_system.page_context import PageContextError, capture, check_selectors, readable_paths, summarize_check
 from qa_system.projects import create_project, save_requirement, requirements, get_project
 
 
@@ -39,7 +39,46 @@ def test_capture_reads_login_structure_and_checks_selectors(tmp_path, serve):
     assert by_selector['[data-testid="password-input"]']['type'] == 'password'
     assert by_selector['[data-testid="email-error"]']['initially_empty'] is True
     counts = check_selectors(url, ['[data-testid="email-input"]', 'label', '#missing', 'button[['])
-    assert counts == {'[data-testid="email-input"]': 1, 'label': 2, '#missing': 0, 'button[[': 'invalid'}
+    assert counts['start'] == {'[data-testid="email-input"]': 1, 'label': 2, '#missing': 0, 'button[[': 'invalid'}
+    assert counts['pages'] == {}
+
+
+def test_capture_reads_other_same_site_pages_without_side_effects(serve):
+    app = Flask(__name__)
+    visited = []
+    app.before_request(lambda: visited.append(request.path))
+    pages = {
+        '/': '<h2>가입</h2><a href="/about">소개</a><a href="/logout">로그아웃</a>'
+        '<a href="/account/delete">탈퇴</a><a href="https://example.org/">외부</a>',
+        '/about': '<h1 id="about-title">소개</h1>',
+        '/welcome': '<h1>가입을 환영합니다</h1>',
+        '/logout': 'bye',
+        '/account/delete': 'gone',
+    }
+    for path, body in pages.items():
+        app.add_url_rule(path, path, lambda body=body: body)
+    app.add_url_rule('/private', 'private', lambda: redirect('/'))
+    base = serve(app)
+    hints = ['가입하면 /welcome 으로 이동한다.', '로그인한 사용자만 /private 를 본다.']
+    context = capture(base + '/', hints)
+    other = {p['path']: p for p in context['other_pages']}
+    assert set(other) == {'/welcome', '/private', '/about'}
+    assert other['/welcome']['elements'][0]['selector'] == 'h1'
+    assert other['/private']['redirected_to'] == '/' and 'elements' not in other['/private']
+    assert '/logout' not in visited and '/account/delete' not in visited
+    assert readable_paths(context) == ['/welcome', '/about']
+    assert 'other_pages' not in capture(base + '/', hints, follow=False)
+
+    checked = check_selectors(base + '/', ['h2', 'h1', '#about-title'], readable_paths(context))
+    assert checked['start'] == {'h2': 1, 'h1': 0, '#about-title': 0}
+    assert checked['pages'] == {
+        '/welcome': {'h2': 0, 'h1': 1, '#about-title': 0},
+        '/about': {'h2': 0, 'h1': 1, '#about-title': 1},
+    }
+    steps = [{'action': 'assert_visible', 'selector': s, 'value': ''} for s in ('h2', 'h1', '#about-title')]
+    summary = summarize_check(steps, checked)
+    assert summary['unique'] == 1 and summary['elsewhere'] == {'h1': '/welcome', '#about-title': '/about'}
+    assert summary['missing'] == summary['multiple'] == summary['invalid'] == []
 
 
 def test_capture_never_reads_field_values(serve):
@@ -67,14 +106,19 @@ def test_summary_separates_missing_multiple_and_invalid():
         {'action': 'click', 'selector': 'button', 'value': ''},
         {'action': 'assert_text', 'selector': '#after-login', 'value': '환영'},
         {'action': 'assert_visible', 'selector': 'a[[', 'value': ''},
+        {'action': 'assert_text', 'selector': '#nowhere', 'value': ''},
     ]
-    summary = summarize_check(steps, {'#email': 1, 'button': 3, '#after-login': 0, 'a[[': 'invalid'})
-    assert summary == {
-        'selectors': ['#email', 'button', '#after-login', 'a[['],
-        'total': 4,
+    checked = {
+        'start': {'#email': 1, 'button': 3, '#after-login': 0, 'a[[': 'invalid', '#nowhere': 0},
+        'pages': {'/home': {'#email': 0, 'button': 0, '#after-login': 1, 'a[[': 'invalid', '#nowhere': 0}},
+    }
+    assert summarize_check(steps, checked) == {
+        'selectors': ['#email', 'button', '#after-login', 'a[[', '#nowhere'],
+        'total': 5,
         'unique': 1,
+        'elsewhere': {'#after-login': '/home'},
         'multiple': ['button'],
-        'missing': ['#after-login'],
+        'missing': ['#nowhere'],
         'invalid': ['a[['],
     }
 
@@ -104,7 +148,7 @@ def test_ai_prompt_includes_page_structure_only_when_available(tmp_path, monkeyp
         without = generate_project_cases(get_project(pid), requirements(pid)[0], '제목 확인')
     (_, rules, payload), (_, rules_without, payload_without) = (c.args for c in request.call_args_list)
     assert payload['page_context'] == context and 'page_context' not in payload_without
-    assert 'selector 값을' in rules and '추정했음을' in rules_without
+    assert 'selector 값을' in rules and 'other_pages' in rules and '추정했음을' in rules_without
     assert with_page[0]['page_context_used'] is True and without[0]['page_context_used'] is False
 
 
@@ -141,17 +185,24 @@ DRAFT = dict(
 
 def test_dialog_checks_generated_selectors_on_the_page(tmp_path, monkeypatch):
     app = _dialog_app(tmp_path, monkeypatch)
-    context = {'elements': [{'selector': '#submit'}, {'selector': '#email-error'}]}
+    context = {
+        'elements': [{'selector': '#submit'}, {'selector': '#email-error'}],
+        'other_pages': [{'path': '/home', 'redirected_to': '/login'}, {'path': '/welcome', 'elements': []}],
+    }
+    checked = {'start': {'#submit': 1, '#email-error': 0}, 'pages': {'/welcome': {'#submit': 0, '#email-error': 1}}}
     with (
-        patch('qa_system.project_ui.capture', return_value=context),
+        patch('qa_system.project_ui.capture', return_value=context) as read,
         patch('qa_system.project_ui.generate_project_cases', return_value=[dict(DRAFT)]) as generate,
-        patch('qa_system.project_ui.check_selectors', return_value={'#submit': 1, '#email-error': 1}),
+        patch('qa_system.project_ui.check_selectors', return_value=checked) as check,
     ):
         next(b for b in app.button if b.label == '✦ 테스트 생성').click().run()
     assert not app.exception
     assert generate.call_args.args[3] is context
-    assert any('요소 2개' in c.value for c in app.caption)
-    assert any('2개 중 2개' in s.value for s in app.success)
+    hints = read.call_args.args[1]
+    assert '빈 이메일 오류 확인' in hints and '오류 문구를 보여준다' in hints
+    assert check.call_args.args[2] == ['/welcome']
+    assert any('요소 2개와 이동 후 페이지 /home(접근 제한 → /login), /welcome' in c.value for c in app.caption)
+    assert any('2개 중 1개를 시작 페이지에서, 1개를 이동 후 페이지(/welcome)에서' in s.value for s in app.success)
 
 
 def test_dialog_falls_back_when_page_cannot_be_read(tmp_path, monkeypatch):

@@ -18,7 +18,14 @@ from qa_system.catalog import CASES
 from qa_system.web_tests import template_cases
 from qa_system.ai import generate_project_cases, canonical_code
 from qa_system import failure_analysis
-from qa_system.page_context import PageContextError, capture, check_selectors, step_selectors, summarize_check
+from qa_system.page_context import (
+    PageContextError,
+    capture,
+    check_selectors,
+    readable_paths,
+    step_selectors,
+    summarize_check,
+)
 from qa_system.runner import run_suite
 from qa_system.ui import display_results, run_picker, local_time, VARIANTS, expected_text
 from qa_system.workspace import project_list, run_list, all_tags, run_date
@@ -510,13 +517,30 @@ def step_editor(steps, key):
     ]
 
 
-def selector_check_view(project, draft, steps, key):
-    """Show whether each selector exists on the start page; editing steps invalidates the result."""
+def page_summary(context):
+    """'/welcome, /home(로그인 필요 → /login)' style list of the other pages that were looked at."""
+    parts = []
+    for page in (context or {}).get('other_pages', []):
+        if page.get('error'):
+            parts.append(f'{page["path"]}(열지 못함)')
+        elif page.get('redirected_to') and page.get('elements') is None:
+            parts.append(f'{page["path"]}(접근 제한 → {page["redirected_to"]})')
+        else:
+            parts.append(page['path'])
+    return ', '.join(parts)
+
+
+def selector_check_view(project, draft, steps, key, paths=()):
+    """Show whether each selector exists on the pages that were read; editing steps invalidates the result."""
     check = draft.get('selector_check')
     if check and check.get('selectors') != step_selectors(steps):
         check = None  # The reviewer edited selectors after the last check.
     if check:
-        message = f'선택자 {check["total"]}개 중 {check["unique"]}개를 시작 페이지에서 정확히 1개로 확인했습니다.'
+        elsewhere = check.get('elsewhere', {})
+        message = f'선택자 {check["total"]}개 중 {check["unique"]}개를 시작 페이지에서'
+        if elsewhere:
+            message += f', {len(elsewhere)}개를 이동 후 페이지({", ".join(sorted(set(elsewhere.values())))})에서'
+        message += ' 정확히 1개로 확인했습니다.'
         problems = [
             ('찾지 못함', check['missing']),
             ('여러 요소와 일치', check['multiple']),
@@ -525,10 +549,7 @@ def selector_check_view(project, draft, steps, key):
         details = ' · '.join(f'{label}: {", ".join(values)}' for label, values in problems if values)
         if details:
             st.warning(
-                message
-                + ' '
-                + details
-                + ' (페이지 이동·클릭 뒤에 나타나는 요소라면 시작 페이지에 없는 것이 정상입니다.)'
+                message + ' ' + details + ' (읽지 못한 페이지·로그인이 필요한 페이지의 요소라면 직접 확인하세요.)'
             )
         else:
             st.success(message)
@@ -536,7 +557,7 @@ def selector_check_view(project, draft, steps, key):
         try:
             with st.spinner('실제 페이지에서 확인하고 있습니다…'):
                 draft['selector_check'] = summarize_check(
-                    steps, check_selectors(project['target_url'], step_selectors(steps))
+                    steps, check_selectors(project['target_url'], step_selectors(steps), paths)
                 )
             st.rerun()
         except PageContextError as error:
@@ -661,7 +682,9 @@ def case_adder(project, req):
             '페이지 구조를 읽어 AI에 전달',
             value=True,
             key=f'use_page_{pid}_{rid}',
-            help='등록한 URL을 브라우저로 열어 입력창·버튼·링크·안내 영역의 선택자를 AI에 전달합니다. 입력값은 읽지 않습니다.',
+            help='등록한 URL과, 그 페이지의 링크·요구사항에 적힌 같은 사이트 경로(예: /home)를 브라우저로 조회해 '
+            '입력창·버튼·링크·안내 영역의 선택자를 AI에 전달합니다. 입력·제출은 하지 않고 입력값도 읽지 않으며, '
+            '로그아웃·삭제처럼 상태를 바꿀 수 있는 링크는 열지 않습니다.',
         )
         st.caption('전체 기준과 선택한 요구사항을 함께 전달합니다. 생성 후 검토하세요.')
         draft_key = f'drafts_{pid}_{rid}'
@@ -669,23 +692,27 @@ def case_adder(project, req):
             context, context_error = None, None
             if use_page:
                 try:
+                    hints = [project['overview'], project['exceptions'], req.get('spec'), req.get('exceptions'), prompt]
                     with st.spinner('페이지 구조를 읽고 있습니다…'):
-                        context = capture(project['target_url'])
+                        context = capture(project['target_url'], hints)
                 except PageContextError as error:
                     context_error = str(error)
             try:
                 with st.spinner('테스트를 만들고 있습니다…'):
                     drafts = generate_project_cases(project, req, prompt, context)
+                paths = readable_paths(context)
                 if context:
                     with st.spinner('생성된 선택자를 실제 페이지에서 확인하고 있습니다…'):
                         counts = check_selectors(
-                            project['target_url'], [s for d in drafts for s in step_selectors(d['steps'])]
+                            project['target_url'], [s for d in drafts for s in step_selectors(d['steps'])], paths
                         )
                     for draft in drafts:
                         draft['selector_check'] = summarize_check(draft['steps'], counts)
                 st.session_state[draft_key] = drafts
                 st.session_state[draft_key + '_context'] = {
                     'elements': len(context['elements']) if context else 0,
+                    'pages': page_summary(context),
+                    'paths': paths,
                     'error': context_error,
                 }
                 st.session_state[draft_key + '_revision'] = st.session_state.get(draft_key + '_revision', 0) + 1
@@ -700,7 +727,12 @@ def case_adder(project, req):
                     '페이지 구조 없이 생성했습니다. 선택자가 추정값이므로 꼭 확인하세요. ' + context_info['error']
                 )
             else:
-                st.caption(f'페이지에서 읽은 요소 {context_info["elements"]}개를 바탕으로 생성했습니다.')
+                pages = context_info.get('pages')
+                st.caption(
+                    f'페이지에서 읽은 요소 {context_info["elements"]}개'
+                    + (f'와 이동 후 페이지 {pages}' if pages else '')
+                    + '를 바탕으로 생성했습니다.'
+                )
         for index, draft in enumerate(st.session_state.get(draft_key, [])):
             revision = st.session_state.get(draft_key + '_revision', 0)
             with st.container(border=True):
@@ -709,7 +741,9 @@ def case_adder(project, req):
                 if draft.get('review_notes'):
                     st.warning(draft['review_notes'])
                 steps = step_editor(draft['steps'], f'ai_steps_{pid}_{rid}_{revision}_{index}')
-                selector_check_view(project, draft, steps, f'{pid}_{rid}_{revision}_{index}')
+                selector_check_view(
+                    project, draft, steps, f'{pid}_{rid}_{revision}_{index}', (context_info or {}).get('paths', ())
+                )
                 approved = st.checkbox(
                     '실행 단계와 선택자를 확인했습니다', key=f'ai_approved_{pid}_{rid}_{revision}_{index}'
                 )

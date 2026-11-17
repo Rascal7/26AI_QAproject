@@ -10,12 +10,19 @@ import os
 import re
 import subprocess
 import sys
-from urllib.parse import urlsplit
+from urllib.parse import urljoin, urlsplit
 from demo_web.db import ROOT
 from qa_system.evidence import redact
 
 MAX_ELEMENTS = 80
-TIMEOUT = 45
+MAX_PAGES = 5  # other same-site pages read after the start page
+MAX_OTHER_ELEMENTS = 40
+TIMEOUT = 90
+# Paths written in requirement text, e.g. "/home 으로 이동" -> /home. Not part of a URL or a fraction like 1/3.
+PATH_IN_TEXT = re.compile(r'(?<![\w.:/])/[A-Za-z0-9_\-][A-Za-z0-9_\-./]*')
+URL_IN_TEXT = re.compile(r'https?://[^\s"\'<>)\]]+')  # full addresses; other sites are filtered out later
+# Never open links that may change state just by being visited.
+RISKY_LINK = re.compile(r'log-?out|sign-?out|delete|remove|destroy|unsubscribe|deactivate|로그아웃|삭제|탈퇴', re.I)
 
 # Collects interactive and landmark elements with the most stable selector that matches exactly one element.
 EXTRACT_JS = r"""
@@ -113,34 +120,107 @@ def _open(playwright, url, channel):
     return browser, page, response
 
 
-def _capture(url, channel=None):
+def _extract(page):
+    data = page.evaluate(EXTRACT_JS)
+    for item in data['elements']:
+        if ':has-text(' in item['selector']:
+            item['unique'] = page.locator(item['selector']).count() == 1
+    return data
+
+
+def _same_page(a, b):
+    pa, pb = urlsplit(a), urlsplit(b)
+    return _origin(a) == _origin(b) and (pa.path or '/') == (pb.path or '/') and pa.query == pb.query
+
+
+def candidate_paths(url, hints=(), links=()):
+    """Same-site pages worth reading: paths named in requirement text and links on the start page.
+
+    Only GET page loads happen, and links that look like they change state (logout, delete, ...) are skipped.
+    """
+    found = []
+    for text in hints:
+        found += PATH_IN_TEXT.findall(text or '') + URL_IN_TEXT.findall(text or '')
+    found += [link for link in links if link]
+    paths = []
+    for value in found:
+        target = urljoin(url, value)
+        parts = urlsplit(target)
+        if parts.scheme not in ('http', 'https') or _origin(target) != _origin(url) or _same_page(target, url):
+            continue
+        if RISKY_LINK.search(target):
+            continue
+        path = (parts.path or '/') + (f'?{parts.query}' if parts.query else '')
+        if path not in paths:
+            paths.append(path)
+    return paths[:MAX_PAGES]
+
+
+def _visit(page, url, path):
+    """Read one more page in the same browser; None elements when it redirected to a page already read."""
+    target = urljoin(url, path)
+    entry = {'path': path}
+    try:
+        response = page.goto(target, wait_until='domcontentloaded', timeout=15000)
+        try:
+            page.wait_for_load_state('networkidle', timeout=2000)
+        except Exception:
+            pass
+    except Exception as error:
+        entry['error'] = type(error).__name__
+        return entry
+    entry['status'] = response.status if response else None
+    if not _same_page(page.url, target):
+        entry['redirected_to'] = urlsplit(page.url).path or '/'
+    return entry
+
+
+def _capture(url, channel=None, hints=(), follow=True):
     from playwright.sync_api import sync_playwright
 
     with sync_playwright() as playwright:
         browser, page, response = _open(playwright, url, channel)
         try:
-            data = page.evaluate(EXTRACT_JS)
-            for item in data['elements']:
-                if ':has-text(' in item['selector']:
-                    item['unique'] = page.locator(item['selector']).count() == 1
+            data = _extract(page)
             data.update(url=page.url, status=response.status if response else None)
+            if not follow:
+                return data
+            links = [e.get('href') for e in data['elements'] if e['tag'] == 'a']
+            data['other_pages'] = []
+            read = {page.url}
+            for path in candidate_paths(url, hints, links):
+                entry = _visit(page, url, path)
+                if 'error' not in entry and not any(_same_page(page.url, seen) for seen in read):
+                    read.add(page.url)
+                    extracted = _extract(page)
+                    entry.update(title=extracted['title'], elements=extracted['elements'][:MAX_OTHER_ELEMENTS])
+                data['other_pages'].append(entry)
             return data
         finally:
             browser.close()
 
 
-def _check(url, selectors, channel=None):
+def _count(page, selectors):
+    result = {}
+    for selector in selectors:
+        try:
+            result[selector] = page.locator(selector).count()
+        except Exception:
+            result[selector] = 'invalid'
+    return result
+
+
+def _check(url, selectors, channel=None, paths=()):
     from playwright.sync_api import sync_playwright
 
     with sync_playwright() as playwright:
         browser, page, _ = _open(playwright, url, channel)
         try:
-            result = {}
-            for selector in selectors:
-                try:
-                    result[selector] = page.locator(selector).count()
-                except Exception:
-                    result[selector] = 'invalid'
+            result = {'start': _count(page, selectors), 'pages': {}}
+            for path in paths:
+                entry = _visit(page, url, path)
+                if 'error' not in entry and not _same_page(page.url, url):
+                    result['pages'][path] = _count(page, selectors)
             return result
         finally:
             browser.close()
@@ -157,7 +237,7 @@ def _run(mode, url, payload=None):
             command,
             cwd=ROOT,
             env=child_environment(),
-            input=json.dumps(payload or []),
+            input=json.dumps(payload or {}),
             capture_output=True,
             text=True,
             encoding='utf-8',
@@ -183,33 +263,61 @@ def _run(mode, url, payload=None):
     return json.loads(done.stdout)
 
 
-def capture(url):
-    """Visible structure of the page at url, for the AI prompt."""
-    return _run('capture', url)
+def capture(url, hints=(), follow=True):
+    """Structure of the start page and, with follow, of other same-site pages for the AI prompt.
+
+    hints are texts (requirements, the user's request) whose paths such as /welcome are read too.
+    """
+    return _run('capture', url, {'hints': [h for h in hints if h], 'follow': follow})
 
 
-def check_selectors(url, selectors):
-    """Match count of each selector on the page at url ('invalid' when Playwright rejects it)."""
+def readable_paths(context):
+    """Other pages whose structure was actually read (not redirected or failed)."""
+    return [p['path'] for p in (context or {}).get('other_pages', []) if p.get('elements') is not None]
+
+
+def check_selectors(url, selectors, paths=()):
+    """Match counts per selector: {'start': {...}, 'pages': {path: {...}}}; 'invalid' when Playwright rejects one."""
     selectors = list(dict.fromkeys(s for s in selectors if s))
-    return _run('check', url, selectors) if selectors else {}
+    if not selectors:
+        return {'start': {}, 'pages': {}}
+    return _run('check', url, {'selectors': selectors, 'paths': list(paths)})
 
 
 def step_selectors(steps):
     return [s.get('selector', '') for s in steps if s.get('selector')]
 
 
-def summarize_check(steps, counts):
-    """Counts for the review screen and later AI-quality measurement."""
+def summarize_check(steps, checked):
+    """Counts for the review screen and AI-quality measurement.
+
+    unique: exactly one match on the start page; elsewhere: exactly one match on another page that was read.
+    """
     selectors = step_selectors(steps)
-    status = [counts.get(s) for s in selectors]
-    return {
+    start, pages = checked.get('start', {}), checked.get('pages', {})
+    summary = {
         'selectors': selectors,
         'total': len(selectors),
-        'unique': sum(c == 1 for c in status),
-        'multiple': [s for s, c in zip(selectors, status) if isinstance(c, int) and c > 1],
-        'missing': [s for s, c in zip(selectors, status) if c == 0],
-        'invalid': [s for s, c in zip(selectors, status) if c == 'invalid'],
+        'unique': 0,
+        'elsewhere': {},
+        'multiple': [],
+        'missing': [],
+        'invalid': [],
     }
+    for selector in selectors:
+        count = start.get(selector)
+        other = {path: counts.get(selector) for path, counts in pages.items()}
+        if count == 1:
+            summary['unique'] += 1
+        elif count == 'invalid':
+            summary['invalid'].append(selector)
+        elif any(c == 1 for c in other.values()):
+            summary['elsewhere'][selector] = next(path for path, c in other.items() if c == 1)
+        elif (isinstance(count, int) and count > 1) or any(isinstance(c, int) and c > 1 for c in other.values()):
+            summary['multiple'].append(selector)
+        else:
+            summary['missing'].append(selector)
+    return summary
 
 
 def main():
@@ -218,10 +326,11 @@ def main():
     parser.add_argument('url')
     parser.add_argument('--channel')
     args = parser.parse_args()
+    payload = json.loads(sys.stdin.read() or '{}')
     if args.mode == 'capture':
-        result = _capture(args.url, args.channel)
+        result = _capture(args.url, args.channel, payload.get('hints', ()), payload.get('follow', True))
     else:
-        result = _check(args.url, json.loads(sys.stdin.read() or '[]'), args.channel)
+        result = _check(args.url, payload.get('selectors', []), args.channel, payload.get('paths', ()))
     sys.stdout.write(json.dumps(redact(result), ensure_ascii=False))
 
 
